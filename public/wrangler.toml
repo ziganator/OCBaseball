@@ -1,0 +1,8 @@
+name = "ownersclub-baseball"
+compatibility_date = "2026-07-01"
+main = "src/worker.js"
+
+[assets]
+directory = "."
+binding = "ASSETS"
+not_found_handling = "404-page"
