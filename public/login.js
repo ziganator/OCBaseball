@@ -17,14 +17,19 @@ async function refreshProfile(supabase) {
   const user = data.user;
   if (!user?.id || !user.email) return;
 
+  const profile = {
+    user_id: user.id,
+    email: user.email,
+    username: user.email
+  };
+  const metadataName = user.user_metadata?.display_name?.trim();
+  if (metadataName) {
+    profile.display_name = metadataName;
+  }
+
   await supabase
     .from("user_profiles")
-    .upsert({
-      user_id: user.id,
-      email: user.email,
-      display_name: user.user_metadata?.display_name || null,
-      username: user.email
-    }, { onConflict: "user_id" });
+    .upsert(profile, { onConflict: "user_id" });
 }
 
 try {
