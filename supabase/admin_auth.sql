@@ -27,6 +27,22 @@ ALTER TABLE admin_users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE team_admin_drafts ENABLE ROW LEVEL SECURITY;
 
+CREATE OR REPLACE FUNCTION public.is_admin_user(check_user_id UUID DEFAULT auth.uid())
+RETURNS BOOLEAN
+LANGUAGE SQL
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.admin_users au
+    WHERE au.user_id = check_user_id
+  );
+$$;
+
+GRANT EXECUTE ON FUNCTION public.is_admin_user(UUID) TO authenticated;
+
 DROP POLICY IF EXISTS "Users can create own profile" ON user_profiles;
 CREATE POLICY "Users can create own profile"
 ON user_profiles
@@ -41,11 +57,7 @@ FOR SELECT
 TO authenticated
 USING (
   user_id = auth.uid()
-  OR EXISTS (
-    SELECT 1
-    FROM admin_users au
-    WHERE au.user_id = auth.uid()
-  )
+  OR public.is_admin_user(auth.uid())
 );
 
 DROP POLICY IF EXISTS "Users can update own profile" ON user_profiles;
@@ -55,19 +67,11 @@ FOR UPDATE
 TO authenticated
 USING (
   user_id = auth.uid()
-  OR EXISTS (
-    SELECT 1
-    FROM admin_users au
-    WHERE au.user_id = auth.uid()
-  )
+  OR public.is_admin_user(auth.uid())
 )
 WITH CHECK (
   user_id = auth.uid()
-  OR EXISTS (
-    SELECT 1
-    FROM admin_users au
-    WHERE au.user_id = auth.uid()
-  )
+  OR public.is_admin_user(auth.uid())
 );
 
 DROP POLICY IF EXISTS "Admins can read admin users" ON admin_users;
@@ -76,11 +80,8 @@ ON admin_users
 FOR SELECT
 TO authenticated
 USING (
-  EXISTS (
-    SELECT 1
-    FROM admin_users au
-    WHERE au.user_id = auth.uid()
-  )
+  user_id = auth.uid()
+  OR public.is_admin_user(auth.uid())
 );
 
 DROP POLICY IF EXISTS "Admins can insert admin users" ON admin_users;
@@ -89,11 +90,7 @@ ON admin_users
 FOR INSERT
 TO authenticated
 WITH CHECK (
-  EXISTS (
-    SELECT 1
-    FROM admin_users au
-    WHERE au.user_id = auth.uid()
-  )
+  public.is_admin_user(auth.uid())
 );
 
 DROP POLICY IF EXISTS "Admins can update admin users" ON admin_users;
@@ -102,18 +99,10 @@ ON admin_users
 FOR UPDATE
 TO authenticated
 USING (
-  EXISTS (
-    SELECT 1
-    FROM admin_users au
-    WHERE au.user_id = auth.uid()
-  )
+  public.is_admin_user(auth.uid())
 )
 WITH CHECK (
-  EXISTS (
-    SELECT 1
-    FROM admin_users au
-    WHERE au.user_id = auth.uid()
-  )
+  public.is_admin_user(auth.uid())
 );
 
 DROP POLICY IF EXISTS "Admins can delete admin users" ON admin_users;
@@ -122,11 +111,7 @@ ON admin_users
 FOR DELETE
 TO authenticated
 USING (
-  EXISTS (
-    SELECT 1
-    FROM admin_users au
-    WHERE au.user_id = auth.uid()
-  )
+  public.is_admin_user(auth.uid())
 );
 
 CREATE OR REPLACE VIEW public_user_admin
@@ -149,11 +134,7 @@ ON team_admin_drafts
 FOR SELECT
 TO authenticated
 USING (
-  EXISTS (
-    SELECT 1
-    FROM admin_users au
-    WHERE au.user_id = auth.uid()
-  )
+  public.is_admin_user(auth.uid())
 );
 
 DROP POLICY IF EXISTS "Admins can upsert team drafts" ON team_admin_drafts;
@@ -162,11 +143,7 @@ ON team_admin_drafts
 FOR INSERT
 TO authenticated
 WITH CHECK (
-  EXISTS (
-    SELECT 1
-    FROM admin_users au
-    WHERE au.user_id = auth.uid()
-  )
+  public.is_admin_user(auth.uid())
 );
 
 DROP POLICY IF EXISTS "Admins can update team drafts" ON team_admin_drafts;
@@ -175,16 +152,8 @@ ON team_admin_drafts
 FOR UPDATE
 TO authenticated
 USING (
-  EXISTS (
-    SELECT 1
-    FROM admin_users au
-    WHERE au.user_id = auth.uid()
-  )
+  public.is_admin_user(auth.uid())
 )
 WITH CHECK (
-  EXISTS (
-    SELECT 1
-  FROM admin_users au
-  WHERE au.user_id = auth.uid()
-  )
+  public.is_admin_user(auth.uid())
 );
