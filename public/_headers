@@ -3,6 +3,18 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
 
+/
+  Cache-Control: no-store
+
+/*.html
+  Cache-Control: no-store
+
+/*.js
+  Cache-Control: no-store
+
+/*.css
+  Cache-Control: no-store
+
 /api/*
   Cache-Control: no-store
 
