@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Daily Player Stats - Owners Club Baseball</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css?v=20260703l">
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="header-inner">
+        <nav class="nav" aria-label="Main navigation">
+          <a href="/">Season</a>
+          <a href="/teams.html">Teams</a>
+          <a href="/event-cards.html">Event Cards</a>
+          <a href="/archives.html">Archives</a>
+          <a href="/admin.html">Admin</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="season-identity" aria-label="Daily stats">
+        <div class="rule"></div>
+        <div class="season-identity-inner compact">
+          <div class="season-number">Daily</div>
+          <img class="hero-banner" src="/assets/OC%20Banner.png" alt="Owners Club">
+          <div class="season-year">Stats</div>
+        </div>
+        <div class="rule"></div>
+      </section>
+
+      <section class="page-band">
+        <div class="section-heading">
+          <h1>Player Stats</h1>
+          <p id="stats-date-label" class="section-kicker"></p>
+        </div>
+
+        <div id="stats-status" class="status" role="status">Loading player stats...</div>
+
+        <div class="stats-summary" aria-live="polite">
+          <div>
+            <span>Games</span>
+            <strong id="games-count">0</strong>
+          </div>
+          <div>
+            <span>Batters</span>
+            <strong id="batters-count">0</strong>
+          </div>
+          <div>
+            <span>Pitchers</span>
+            <strong id="pitchers-count">0</strong>
+          </div>
+        </div>
+
+        <section class="stats-section">
+          <h2>Batting</h2>
+          <div class="table-wrap stats-table-wrap">
+            <table class="stats-table">
+              <thead>
+                <tr>
+                  <th>Player</th>
+                  <th>Team</th>
+                  <th>Opp</th>
+                  <th>AB</th>
+                  <th>R</th>
+                  <th>H</th>
+                  <th>2B</th>
+                  <th>3B</th>
+                  <th>HR</th>
+                  <th>RBI</th>
+                  <th>BB</th>
+                  <th>HBP</th>
+                  <th>SB</th>
+                  <th>CS</th>
+                  <th>SO</th>
+                  <th>TB</th>
+                  <th>PA</th>
+                  <th>Summary</th>
+                </tr>
+              </thead>
+              <tbody id="batting-rows"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="stats-section">
+          <h2>Pitching</h2>
+          <div class="table-wrap stats-table-wrap">
+            <table class="stats-table">
+              <thead>
+                <tr>
+                  <th>Player</th>
+                  <th>Team</th>
+                  <th>Opp</th>
+                  <th>IP</th>
+                  <th>H</th>
+                  <th>R</th>
+                  <th>ER</th>
+                  <th>BB</th>
+                  <th>SO</th>
+                  <th>HR</th>
+                  <th>Pitches</th>
+                  <th>Strikes</th>
+                  <th>W</th>
+                  <th>L</th>
+                  <th>SV</th>
+                  <th>HLD</th>
+                  <th>Summary</th>
+                </tr>
+              </thead>
+              <tbody id="pitching-rows"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span>Owners Club Baseball</span>
+    </footer>
+
+    <script src="/daily-stats.js" type="module"></script>
+  </body>
+</html>

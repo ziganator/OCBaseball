@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Teams - Owners Club Baseball</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css?v=20260703l">
+  </head>
+  <body>
+    <header class="site-header menu-header">
+      <div class="header-inner">
+        <a class="header-logo" href="/" aria-label="Owners Club Baseball home">
+          <img src="/assets/OC%20Icon.png" alt="">
+        </a>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="/">Season</a>
+          <a href="/teams.html" aria-current="page">Teams</a>
+          <a href="/event-cards.html">Event Cards</a>
+          <a href="/archives.html">Archives</a>
+          <a href="/admin.html">Admin</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="teams-board-wrap">
+        <div id="teams-board" class="league-board" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span>Owners Club Baseball</span>
+    </footer>
+
+    <script src="/teams.js?v=20260703l" type="module"></script>
+  </body>
+</html>

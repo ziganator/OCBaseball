@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin - Owners Club Baseball</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css?v=20260703l">
+  </head>
+  <body>
+    <header class="site-header menu-header">
+      <div class="header-inner">
+        <a class="header-logo" href="/" aria-label="Owners Club Baseball home">
+          <img src="/assets/OC%20Icon.png" alt="">
+        </a>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="/">Season</a>
+          <a href="/teams.html">Teams</a>
+          <a href="/event-cards.html">Event Cards</a>
+          <a href="/archives.html">Archives</a>
+          <a href="/admin.html" aria-current="page">Admin</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="admin-shell">
+        <div class="admin-heading">
+          <div>
+            <h1>Admin</h1>
+            <p class="section-kicker">Commissioner tools</p>
+          </div>
+          <button id="logout-button" class="admin-secondary" type="button">Log Out</button>
+        </div>
+
+        <div id="admin-home-status" class="admin-status" role="status"></div>
+
+        <div class="admin-card-grid">
+          <a class="admin-home-card" href="/admin-users.html">
+            <span>Users</span>
+            <strong>Manage site users, admin access, and team ownership.</strong>
+          </a>
+          <a class="admin-home-card" href="/admin-teams.html">
+            <span>Teams</span>
+            <strong>Edit team names, visuals, favorite teams, and seasonal identity.</strong>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span>Owners Club Baseball</span>
+    </footer>
+
+    <script src="/admin-home.js?v=20260703l" type="module"></script>
+  </body>
+</html>

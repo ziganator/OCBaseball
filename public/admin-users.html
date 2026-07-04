@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>User Admin - Owners Club Baseball</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css?v=20260703l">
+  </head>
+  <body>
+    <header class="site-header menu-header">
+      <div class="header-inner">
+        <a class="header-logo" href="/" aria-label="Owners Club Baseball home">
+          <img src="/assets/OC%20Icon.png" alt="">
+        </a>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="/">Season</a>
+          <a href="/teams.html">Teams</a>
+          <a href="/event-cards.html">Event Cards</a>
+          <a href="/archives.html">Archives</a>
+          <a href="/admin.html">Admin</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="admin-shell">
+        <div class="admin-heading">
+          <div>
+            <h1>User Admin</h1>
+            <p class="section-kicker">Manage site users, admin access, and team ownership</p>
+          </div>
+          <button id="logout-button" class="admin-secondary" type="button">Log Out</button>
+        </div>
+
+        <div id="user-status" class="admin-status" role="status"></div>
+
+        <div class="admin-layout">
+          <aside class="admin-sidebar">
+            <a class="admin-secondary admin-link-button" href="/admin.html">Admin Home</a>
+            <a class="admin-secondary admin-link-button" href="/signup.html">Create Account</a>
+            <button id="refresh-button" class="admin-secondary" type="button">Refresh</button>
+            <p class="admin-note">Users appear here after they create an account or log in once.</p>
+          </aside>
+
+          <section class="admin-panel">
+            <h2>Users</h2>
+            <div class="admin-table-wrap">
+              <table class="admin-table user-admin-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email / Username</th>
+                    <th>Team</th>
+                    <th>Owner Status</th>
+                    <th>Active</th>
+                    <th>Admin</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="users-table-body"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span>Owners Club Baseball</span>
+    </footer>
+
+    <script src="/admin-users.js?v=20260703l" type="module"></script>
+  </body>
+</html>

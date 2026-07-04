@@ -1,0 +1,6 @@
+.DS_Store
+*.zip
+.wrangler/
+.dev.vars
+node_modules/
+work/

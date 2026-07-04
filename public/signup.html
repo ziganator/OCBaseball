@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Create Account - Owners Club Baseball</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css?v=20260703l">
+  </head>
+  <body>
+    <header class="site-header menu-header">
+      <div class="header-inner">
+        <a class="header-logo" href="/" aria-label="Owners Club Baseball home">
+          <img src="/assets/OC%20Icon.png" alt="">
+        </a>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="/">Season</a>
+          <a href="/teams.html">Teams</a>
+          <a href="/event-cards.html">Event Cards</a>
+          <a href="/archives.html">Archives</a>
+          <a href="/login.html">Login</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="admin-shell auth-shell">
+        <div class="section-heading">
+          <h1>Create Account</h1>
+          <p class="section-kicker">Owners can create a login, then the Commissioner assigns it to a team</p>
+        </div>
+
+        <form id="signup-form" class="admin-form auth-form">
+          <label>
+            Email
+            <input id="signup-email" type="email" autocomplete="email" required>
+          </label>
+          <label>
+            Name
+            <input id="signup-display-name" autocomplete="name" required>
+          </label>
+          <label>
+            Password
+            <input id="signup-password" type="password" autocomplete="new-password" minlength="6" required>
+          </label>
+          <label>
+            Confirm Password
+            <input id="signup-password-confirm" type="password" autocomplete="new-password" minlength="6" required>
+          </label>
+          <button class="admin-primary" type="submit">Create Account</button>
+          <p class="auth-switch">Already have an account? <a href="/login.html">Log in here</a>.</p>
+          <p id="signup-status" class="admin-status" role="status"></p>
+        </form>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span>Owners Club Baseball</span>
+    </footer>
+
+    <script src="/signup.js?v=20260703l" type="module"></script>
+  </body>
+</html>

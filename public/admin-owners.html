@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Owner Admin - Owners Club Baseball</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css?v=20260703l">
+  </head>
+  <body>
+    <header class="site-header menu-header">
+      <div class="header-inner">
+        <a class="header-logo" href="/" aria-label="Owners Club Baseball home">
+          <img src="/assets/OC%20Icon.png" alt="">
+        </a>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="/">Season</a>
+          <a href="/teams.html">Teams</a>
+          <a href="/event-cards.html">Event Cards</a>
+          <a href="/archives.html">Archives</a>
+          <a href="/admin.html">Admin</a>
+          <a href="/admin-owners.html" aria-current="page">Owners</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="admin-shell">
+        <div class="admin-heading">
+          <div>
+            <h1>Owner Admin</h1>
+            <p class="section-kicker">Connect Supabase Auth users to Owners Club teams</p>
+          </div>
+          <button id="logout-button" class="admin-secondary" type="button">Log Out</button>
+        </div>
+
+        <div id="owner-status" class="admin-status" role="status"></div>
+
+        <div class="admin-layout">
+          <aside class="admin-sidebar">
+            <a class="admin-secondary admin-link-button" href="/admin-teams.html">Team Admin</a>
+            <button id="refresh-button" class="admin-secondary" type="button">Refresh</button>
+            <p class="admin-note">Create the login in Supabase Authentication first, then paste that user&apos;s UUID here.</p>
+          </aside>
+
+          <div class="admin-form">
+            <form id="owner-form" class="admin-panel">
+              <h2>Assign Owner</h2>
+              <div class="admin-grid">
+                <label>Owner Email <input name="ownerEmail" type="email" placeholder="owner@example.com"></label>
+                <label>Owner Name <input name="ownerName" placeholder="Owner Name"></label>
+                <label class="admin-wide">Supabase Auth User UUID <input name="userId" required placeholder="00000000-0000-0000-0000-000000000000"></label>
+                <label>Team
+                  <select name="teamId" required></select>
+                </label>
+                <label>Season
+                  <select name="seasonId"></select>
+                </label>
+                <label>Role
+                  <select name="role">
+                    <option value="owner">Owner</option>
+                    <option value="co_owner">Co-owner</option>
+                  </select>
+                </label>
+                <label class="admin-check">
+                  <input name="active" type="checkbox" checked>
+                  <span>Active</span>
+                </label>
+              </div>
+              <div class="admin-dialog-actions">
+                <button id="clear-button" class="admin-secondary" type="button">Clear</button>
+                <button class="admin-primary" type="submit">Save Owner Assignment</button>
+              </div>
+            </form>
+
+            <section class="admin-panel">
+              <h2>Current Assignments</h2>
+              <div class="admin-table-wrap">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Owner</th>
+                      <th>Team</th>
+                      <th>Season</th>
+                      <th>Role</th>
+                      <th>Status</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="owners-table-body"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span>Owners Club Baseball</span>
+    </footer>
+
+    <script src="/admin-owners.js?v=20260703l" type="module"></script>
+  </body>
+</html>

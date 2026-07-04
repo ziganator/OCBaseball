@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Team - Owners Club Baseball</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css?v=20260703l">
+  </head>
+  <body>
+    <header class="site-header menu-header">
+      <div class="header-inner">
+        <a class="header-logo" href="/" aria-label="Owners Club Baseball home">
+          <img src="/assets/OC%20Icon.png" alt="">
+        </a>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="/">Season</a>
+          <a href="/teams.html" aria-current="page">Teams</a>
+          <a href="/event-cards.html">Event Cards</a>
+          <a href="/archives.html">Archives</a>
+          <a href="/admin.html">Admin</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section id="team-wide-banner-wrap" class="team-wide-banner">
+        <img id="team-wide-banner" src="" alt="">
+      </section>
+
+      <section class="team-hero">
+        <img id="team-banner" class="team-hero-image" src="" alt="">
+      </section>
+
+      <section class="team-profile">
+        <div class="rule"></div>
+        <div class="team-profile-header">
+          <div>
+            <a class="back-link" href="/teams.html">Teams</a>
+            <h1 id="team-title">Team</h1>
+            <p id="team-subtitle"></p>
+          </div>
+          <div id="team-logo-wrap" class="team-logo-wrap">
+            <img id="team-logo" src="" alt="">
+          </div>
+        </div>
+        <div class="rule"></div>
+
+        <div id="team-meta" class="team-meta"></div>
+
+        <section class="team-section">
+          <h2>Roster</h2>
+          <div id="team-roster-gallery" class="team-roster-gallery"></div>
+          <p id="team-roster-note">Roster data will come from Supabase once the Season 32 player import is connected.</p>
+        </section>
+
+        <section class="team-section">
+          <h2>Team Navigation</h2>
+          <div id="team-nav" class="team-nav-list"></div>
+        </section>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span>Owners Club Baseball</span>
+    </footer>
+
+    <script src="/team.js?v=20260703l" type="module"></script>
+  </body>
+</html>

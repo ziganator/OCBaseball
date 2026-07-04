@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Team Admin - Owners Club Baseball</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css?v=20260703l">
+  </head>
+  <body>
+    <header class="site-header menu-header">
+      <div class="header-inner">
+        <a class="header-logo" href="/" aria-label="Owners Club Baseball home">
+          <img src="/assets/OC%20Icon.png" alt="">
+        </a>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="/">Season</a>
+          <a href="/teams.html">Teams</a>
+          <a href="/event-cards.html">Event Cards</a>
+          <a href="/archives.html">Archives</a>
+          <a href="/admin.html">Admin</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="admin-shell">
+        <div class="admin-heading">
+          <div>
+            <h1>Team Admin</h1>
+            <p class="section-kicker">Add teams, edit identities, and manage favorite team references</p>
+          </div>
+          <button id="logout-button" class="admin-secondary" type="button">Log Out</button>
+        </div>
+
+        <div id="admin-status" class="admin-status" role="status"></div>
+
+        <div class="admin-layout">
+          <aside class="admin-sidebar">
+            <button id="new-team-button" class="admin-primary" type="button">New Team</button>
+            <a class="admin-secondary admin-link-button" href="/admin-users.html">User Admin</a>
+            <label>
+              Current Team
+              <select id="team-select"></select>
+            </label>
+            <div class="admin-actions">
+              <button id="save-local-button" class="admin-secondary" type="button">Save Draft Locally</button>
+              <button id="save-supabase-button" class="admin-secondary" type="button">Save Draft To Supabase</button>
+              <button id="export-button" class="admin-primary" type="button">Download team-data.js</button>
+            </div>
+          </aside>
+
+          <form id="team-form" class="admin-form">
+            <section class="admin-panel">
+              <h2>Team Identity</h2>
+              <div class="admin-grid">
+                <label>Slug <input name="slug" required></label>
+                <label>City <input name="city" required></label>
+                <label>Team Name <input name="nickname" required></label>
+                <label>Owner <input name="owner"></label>
+                <label>Established <input name="established"></label>
+                <label>League
+                  <select name="league">
+                    <option>Keystone</option>
+                    <option>Diamond</option>
+                  </select>
+                </label>
+                <label>Conference
+                  <select name="conference">
+                    <option>Red</option>
+                    <option>Black</option>
+                  </select>
+                </label>
+                <label>Division <input name="division"></label>
+              </div>
+            </section>
+
+            <section class="admin-panel">
+              <h2>Favorite Team</h2>
+              <div class="admin-grid admin-inline-grid">
+                <label>Favorite Team
+                  <select name="favoriteTeam" id="favorite-team-select"></select>
+                </label>
+                <button id="open-favorite-dialog-button" class="admin-secondary" type="button">Add Favorite Team Reference</button>
+              </div>
+            </section>
+
+            <section class="admin-panel">
+              <h2>Images</h2>
+              <div class="admin-grid">
+                <label>Cap Image <input name="capImage"></label>
+                <label>Logo Image <input name="logo"></label>
+                <label>Flags Image <input name="flagsImage"></label>
+                <label>Info Image <input name="infoImage"></label>
+                <label>Color Bar Background <input name="colorBarBackground" type="color"></label>
+                <label>Color Bar Accent <input name="colorBarAccent" type="color"></label>
+              </div>
+            </section>
+
+            <section class="admin-panel">
+              <h2>Season Identity</h2>
+              <label class="admin-check">
+                <input name="useDonkeysIdentity" type="checkbox">
+                <span>Use Donkeys identity this season</span>
+              </label>
+              <p class="admin-note">Keeps this team&apos;s city, owner, league, division, and established year, but displays the Donkeys name, cap, logo, and color bar.</p>
+            </section>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="favorite-dialog" class="admin-dialog">
+      <form method="dialog" class="admin-dialog-panel">
+        <div class="admin-dialog-heading">
+          <h2>Add Favorite Team Reference</h2>
+          <button id="close-favorite-dialog-button" class="admin-secondary" type="button">Close</button>
+        </div>
+        <div class="admin-grid">
+          <label>Key <input id="favorite-key" placeholder="angels"></label>
+          <label>Name <input id="favorite-name" placeholder="Los Angeles Angels"></label>
+          <label class="admin-wide">Shared Logo Path <input id="favorite-logo" placeholder="/assets/FavoriteTeams/angels.gif"></label>
+        </div>
+        <div class="admin-dialog-actions">
+          <button id="add-favorite-button" class="admin-primary" type="button">Add Reference</button>
+        </div>
+      </form>
+    </dialog>
+
+    <footer class="site-footer">
+      <span>Owners Club Baseball</span>
+    </footer>
+
+    <script src="/admin-teams.js?v=20260703l" type="module"></script>
+  </body>
+</html>
