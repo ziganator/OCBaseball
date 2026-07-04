@@ -97,7 +97,10 @@ async function saveUser(row) {
   const role = row.querySelector('[data-field="role"]').value;
   const active = row.querySelector('[data-field="active"]').checked;
   const makeAdmin = row.querySelector('[data-field="admin"]').checked;
-  const user = users.find((item) => item.user_id === userId);
+
+  if (!displayName) {
+    throw new Error("Name is required before saving.");
+  }
 
   if (userId === currentUserId && !makeAdmin) {
     throw new Error("You cannot remove your own admin access from this page.");
@@ -105,52 +108,21 @@ async function saveUser(row) {
 
   setStatus("Saving user...");
 
-  const savedDisplayName = displayName || user?.display_name || user?.email || null;
-  const { error: profileError } = await supabase
-    .from("user_profiles")
-    .update({ display_name: savedDisplayName, username: user?.email || null })
-    .eq("user_id", userId);
-  if (profileError) throw profileError;
-
-  if (makeAdmin) {
-    const { error } = await supabase
-      .from("admin_users")
-      .upsert({ user_id: userId, display_name: savedDisplayName }, { onConflict: "user_id" });
-    if (error) throw error;
-  } else {
-    const { error } = await supabase
-      .from("admin_users")
-      .delete()
-      .eq("user_id", userId);
-    if (error) throw error;
-  }
-
-  const existingAssignments = assignments.filter((assignment) => assignment.user_id === userId);
-  if (existingAssignments.length) {
-    const { error } = await supabase
-      .from("team_owner_users")
-      .update({ active: false })
-      .eq("user_id", userId);
-    if (error) throw error;
-  }
+  const selectedTeam = teams.find((team) => String(team.id) === String(teamId));
+  const { error } = await supabase.rpc("save_admin_user", {
+    p_user_id: userId,
+    p_display_name: displayName,
+    p_team_id: teamId ? Number(teamId) : null,
+    p_role: role,
+    p_active: active,
+    p_is_admin: makeAdmin
+  });
+  if (error) throw error;
 
   if (teamId) {
-    const selectedTeam = teams.find((team) => String(team.id) === String(teamId));
-    const { error } = await supabase
-      .from("team_owner_users")
-      .insert({
-        user_id: userId,
-        owner_email: user?.email || null,
-        owner_name: savedDisplayName,
-        team_id: Number(teamId),
-        role,
-        active,
-        season_id: null
-      });
-    if (error) throw error;
-    setStatus(`${displayName || user?.email || "User"} saved${selectedTeam ? ` for ${selectedTeam.name}` : ""}.`);
+    setStatus(`${displayName} saved${selectedTeam ? ` for ${selectedTeam.name}` : ""}.`);
   } else {
-    setStatus(`${displayName || user?.email || "User"} saved with no active team.`);
+    setStatus(`${displayName} saved with no active team.`);
   }
 
   await loadData();
