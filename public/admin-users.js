@@ -82,7 +82,12 @@ async function loadData() {
   teams = teamsResult.data || [];
   assignments = assignmentsResult.data || [];
   renderUsers();
-  setStatus(`Loaded ${users.length} user${users.length === 1 ? "" : "s"}.`);
+  const userCount = `${users.length} user${users.length === 1 ? "" : "s"}`;
+  if (!teams.length) {
+    setStatus(`Loaded ${userCount}, but no active teams came back from Supabase. Run supabase/seed_teams.sql.`, "error");
+    return;
+  }
+  setStatus(`Loaded ${userCount} and ${teams.length} team${teams.length === 1 ? "" : "s"}.`);
 }
 
 async function saveUser(row) {

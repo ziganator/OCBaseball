@@ -109,3 +109,23 @@ ON CONFLICT (season_id, team_id) DO UPDATE SET
   conference_code = EXCLUDED.conference_code,
   division_code = EXCLUDED.division_code,
   sort_order = EXCLUDED.sort_order;
+
+GRANT SELECT ON seasons TO anon, authenticated;
+GRANT SELECT ON teams TO anon, authenticated;
+GRANT SELECT ON season_team_assignments TO anon, authenticated;
+
+ALTER TABLE seasons ENABLE ROW LEVEL SECURITY;
+ALTER TABLE teams ENABLE ROW LEVEL SECURITY;
+ALTER TABLE season_team_assignments ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Public can read seasons" ON seasons;
+CREATE POLICY "Public can read seasons"
+ON seasons FOR SELECT TO anon, authenticated USING (TRUE);
+
+DROP POLICY IF EXISTS "Public can read teams" ON teams;
+CREATE POLICY "Public can read teams"
+ON teams FOR SELECT TO anon, authenticated USING (TRUE);
+
+DROP POLICY IF EXISTS "Public can read season team assignments" ON season_team_assignments;
+CREATE POLICY "Public can read season team assignments"
+ON season_team_assignments FOR SELECT TO anon, authenticated USING (TRUE);
