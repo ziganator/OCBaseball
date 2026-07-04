@@ -122,9 +122,8 @@ SELECT
   up.display_name,
   up.username,
   up.created_at,
-  au.user_id IS NOT NULL AS is_admin
-FROM user_profiles up
-LEFT JOIN admin_users au ON au.user_id = up.user_id;
+  public.is_admin_user(up.user_id) AS is_admin
+FROM user_profiles up;
 
 GRANT SELECT ON public_user_admin TO authenticated;
 
