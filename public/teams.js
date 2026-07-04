@@ -1,4 +1,4 @@
-import { displayTeam, teams, teamUrl } from "./team-data.js?v=20260704c";
+import { displayTeam, teams, teamUrl } from "./team-data.js?v=20260704d";
 
 const teamsBoard = document.querySelector("#teams-board");
 

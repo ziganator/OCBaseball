@@ -3,7 +3,7 @@ import {
   favoriteTeams as seedFavoriteTeams,
   teams as seedTeams,
   teamCity
-} from "./team-data.js?v=20260704c";
+} from "./team-data.js?v=20260704d";
 import { getSupabaseClient, requireSession, signOut } from "./auth.js";
 
 const DRAFT_KEY = "ownersclub.teamAdminDraft";

@@ -17,19 +17,32 @@ async function refreshProfile(supabase) {
   const user = data.user;
   if (!user?.id || !user.email) return;
 
-  const profile = {
-    user_id: user.id,
-    email: user.email,
-    username: user.email
-  };
-  const metadataName = user.user_metadata?.display_name?.trim();
-  if (metadataName) {
-    profile.display_name = metadataName;
+  const { data: existingProfile, error: profileError } = await supabase
+    .from("user_profiles")
+    .select("user_id")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (profileError) throw profileError;
+
+  if (existingProfile) {
+    const { error } = await supabase
+      .from("user_profiles")
+      .update({ email: user.email, username: user.email })
+      .eq("user_id", user.id);
+    if (error) throw error;
+    return;
   }
 
-  await supabase
+  const metadataName = user.user_metadata?.display_name?.trim();
+  const { error } = await supabase
     .from("user_profiles")
-    .upsert(profile, { onConflict: "user_id" });
+    .insert({
+      user_id: user.id,
+      email: user.email,
+      display_name: metadataName || user.email,
+      username: user.email
+    });
+  if (error) throw error;
 }
 
 try {

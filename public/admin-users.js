@@ -105,16 +105,17 @@ async function saveUser(row) {
 
   setStatus("Saving user...");
 
+  const savedDisplayName = displayName || user?.display_name || user?.email || null;
   const { error: profileError } = await supabase
     .from("user_profiles")
-    .update({ display_name: displayName || null, username: user?.email || null })
+    .update({ display_name: savedDisplayName, username: user?.email || null })
     .eq("user_id", userId);
   if (profileError) throw profileError;
 
   if (makeAdmin) {
     const { error } = await supabase
       .from("admin_users")
-      .upsert({ user_id: userId, display_name: displayName || user?.email || null }, { onConflict: "user_id" });
+      .upsert({ user_id: userId, display_name: savedDisplayName }, { onConflict: "user_id" });
     if (error) throw error;
   } else {
     const { error } = await supabase
@@ -140,7 +141,7 @@ async function saveUser(row) {
       .insert({
         user_id: userId,
         owner_email: user?.email || null,
-        owner_name: displayName || null,
+        owner_name: savedDisplayName,
         team_id: Number(teamId),
         role,
         active,
