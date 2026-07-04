@@ -4,5 +4,5 @@ main = "src/worker.js"
 
 [assets]
 directory = "."
-binding = "ASSETS"
+binding = "SITE_ASSETS"
 not_found_handling = "404-page"
