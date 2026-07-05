@@ -382,15 +382,20 @@ h1 {
 
 .admin-check {
   align-items: center;
-  display: flex;
-  flex-direction: row;
+  align-self: end;
+  border: 1px solid var(--line);
+  display: grid;
   gap: 10px;
+  grid-template-columns: auto 1fr;
+  min-height: 40px;
+  padding: 8px 10px;
   text-transform: none;
 }
 
 .admin-check input {
+  accent-color: var(--red);
   min-height: auto;
-  width: auto;
+  width: 16px;
 }
 
 .admin-check span {
@@ -417,7 +422,7 @@ h1 {
 .admin-dialog-panel {
   background: #ffffff;
   border: 1px solid var(--line);
-  padding: 22px;
+  padding: 26px;
 }
 
 .admin-dialog-heading {
@@ -435,11 +440,58 @@ h1 {
   text-transform: uppercase;
 }
 
+.admin-form-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.admin-form-grid label {
+  color: #555555;
+  display: grid;
+  font-size: 12px;
+  font-weight: 800;
+  gap: 7px;
+  text-transform: uppercase;
+}
+
+.admin-form-grid input,
+.admin-form-grid select {
+  appearance: none;
+  background: #ffffff;
+  border: 1px solid #cfcfcf;
+  border-radius: 0;
+  color: var(--ink);
+  font: inherit;
+  font-size: 15px;
+  min-height: 40px;
+  padding: 8px 10px;
+  text-transform: none;
+  width: 100%;
+}
+
+.admin-form-grid input:disabled {
+  background: #f4f4f4;
+  color: #666666;
+}
+
+.admin-form-grid select {
+  background-image:
+    linear-gradient(45deg, transparent 50%, #555555 50%),
+    linear-gradient(135deg, #555555 50%, transparent 50%);
+  background-position:
+    calc(100% - 17px) 17px,
+    calc(100% - 11px) 17px;
+  background-repeat: no-repeat;
+  background-size: 6px 6px, 6px 6px;
+  padding-right: 34px;
+}
+
 .admin-dialog-actions {
   display: flex;
   gap: 10px;
   justify-content: end;
-  margin-top: 18px;
+  margin-top: 22px;
 }
 
 .admin-wide {
@@ -1420,5 +1472,13 @@ tbody tr:last-child td {
 
   .teams-grid {
     grid-template-columns: 1fr;
+  }
+
+  .admin-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-dialog-panel {
+    padding: 20px;
   }
 }
