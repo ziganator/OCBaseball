@@ -108,3 +108,40 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.save_admin_user(UUID, TEXT, BIGINT, TEXT, BOOLEAN, BOOLEAN)
 TO authenticated;
+
+UPDATE public.user_profiles up
+SET
+  display_name = latest_owner_name.owner_name,
+  updated_at = NOW()
+FROM (
+  SELECT DISTINCT ON (tou.user_id)
+    tou.user_id,
+    tou.owner_name
+  FROM public.team_owner_users tou
+  WHERE NULLIF(BTRIM(tou.owner_name), '') IS NOT NULL
+  ORDER BY tou.user_id, tou.active DESC, tou.created_at DESC
+) latest_owner_name
+WHERE up.user_id = latest_owner_name.user_id
+  AND NULLIF(BTRIM(up.display_name), '') IS NULL;
+
+CREATE OR REPLACE VIEW public_user_admin
+WITH (security_invoker = true) AS
+WITH latest_owner_name AS (
+  SELECT DISTINCT ON (tou.user_id)
+    tou.user_id,
+    tou.owner_name
+  FROM team_owner_users tou
+  WHERE NULLIF(BTRIM(tou.owner_name), '') IS NOT NULL
+  ORDER BY tou.user_id, tou.active DESC, tou.created_at DESC
+)
+SELECT
+  up.user_id,
+  up.email,
+  COALESCE(NULLIF(BTRIM(up.display_name), ''), latest_owner_name.owner_name) AS display_name,
+  up.username,
+  up.created_at,
+  public.is_admin_user(up.user_id) AS is_admin
+FROM user_profiles up
+LEFT JOIN latest_owner_name ON latest_owner_name.user_id = up.user_id;
+
+GRANT SELECT ON public_user_admin TO authenticated;

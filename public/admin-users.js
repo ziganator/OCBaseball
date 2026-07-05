@@ -49,6 +49,10 @@ function assignmentFor(userId) {
     || null;
 }
 
+function displayNameFor(user, assignment = null) {
+  return user.display_name || assignment?.owner_name || "";
+}
+
 function renderUsers() {
   if (!users.length) {
     tableBody.innerHTML = `<tr><td colspan="7">No users yet.</td></tr>`;
@@ -57,9 +61,10 @@ function renderUsers() {
 
   tableBody.innerHTML = users.map((user) => {
     const assignment = assignmentFor(user.user_id);
+    const displayName = displayNameFor(user, assignment);
     return `
       <tr data-user-id="${user.user_id}">
-        <td>${escapeHtml(user.display_name || "Name not set")}</td>
+        <td>${escapeHtml(displayName || "Name not set")}</td>
         <td>${escapeHtml(user.email)}</td>
         <td>${escapeHtml(assignment?.team_name || "No team")}</td>
         <td>${escapeHtml(assignment?.role === "co_owner" ? "Co-owner" : assignment ? "Owner" : "")}</td>
@@ -101,7 +106,7 @@ function openUserDialog(userId) {
 
   const assignment = assignmentFor(userId);
   editUserIdEl.value = user.user_id;
-  editDisplayNameEl.value = user.display_name || "";
+  editDisplayNameEl.value = displayNameFor(user, assignment);
   editEmailEl.value = user.email || "";
   editTeamIdEl.innerHTML = teamOptions(assignment?.team_id);
   editRoleEl.value = assignment?.role || "owner";
