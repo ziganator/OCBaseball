@@ -437,6 +437,7 @@ h1 {
 
 .admin-dialog-actions {
   display: flex;
+  gap: 10px;
   justify-content: end;
   margin-top: 18px;
 }

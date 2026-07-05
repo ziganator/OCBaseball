@@ -4,6 +4,16 @@ const statusEl = document.querySelector("#user-status");
 const tableBody = document.querySelector("#users-table-body");
 const refreshButton = document.querySelector("#refresh-button");
 const logoutButton = document.querySelector("#logout-button");
+const userDialog = document.querySelector("#user-dialog");
+const userEditForm = document.querySelector("#user-edit-form");
+const closeUserDialogButton = document.querySelector("#close-user-dialog-button");
+const editUserIdEl = document.querySelector("#edit-user-id");
+const editDisplayNameEl = document.querySelector("#edit-display-name");
+const editEmailEl = document.querySelector("#edit-email");
+const editTeamIdEl = document.querySelector("#edit-team-id");
+const editRoleEl = document.querySelector("#edit-role");
+const editActiveEl = document.querySelector("#edit-active");
+const editAdminEl = document.querySelector("#edit-admin");
 
 let supabase = null;
 let currentUserId = "";
@@ -49,18 +59,13 @@ function renderUsers() {
     const assignment = assignmentFor(user.user_id);
     return `
       <tr data-user-id="${user.user_id}">
-        <td><input data-field="displayName" value="${escapeHtml(user.display_name || "")}"></td>
+        <td>${escapeHtml(user.display_name || "Name not set")}</td>
         <td>${escapeHtml(user.email)}</td>
-        <td><select data-field="teamId">${teamOptions(assignment?.team_id)}</select></td>
-        <td>
-          <select data-field="role">
-            <option value="owner" ${assignment?.role === "owner" ? "selected" : ""}>Owner</option>
-            <option value="co_owner" ${assignment?.role === "co_owner" ? "selected" : ""}>Co-owner</option>
-          </select>
-        </td>
-        <td><input data-field="active" type="checkbox" ${assignment?.active !== false ? "checked" : ""}></td>
-        <td><input data-field="admin" type="checkbox" ${user.is_admin ? "checked" : ""}></td>
-        <td><button class="admin-secondary table-action" type="button" data-save-user>Save</button></td>
+        <td>${escapeHtml(assignment?.team_name || "No team")}</td>
+        <td>${escapeHtml(assignment?.role === "co_owner" ? "Co-owner" : assignment ? "Owner" : "")}</td>
+        <td>${assignment ? (assignment.active ? "Yes" : "No") : ""}</td>
+        <td>${user.is_admin ? "Yes" : "No"}</td>
+        <td><button class="admin-secondary table-action" type="button" data-edit-user>Edit</button></td>
       </tr>
     `;
   }).join("");
@@ -90,13 +95,29 @@ async function loadData() {
   setStatus(`Loaded ${userCount} and ${teams.length} team${teams.length === 1 ? "" : "s"}.`);
 }
 
-async function saveUser(row) {
-  const userId = row.dataset.userId;
-  const displayName = row.querySelector('[data-field="displayName"]').value.trim();
-  const teamId = row.querySelector('[data-field="teamId"]').value;
-  const role = row.querySelector('[data-field="role"]').value;
-  const active = row.querySelector('[data-field="active"]').checked;
-  const makeAdmin = row.querySelector('[data-field="admin"]').checked;
+function openUserDialog(userId) {
+  const user = users.find((item) => item.user_id === userId);
+  if (!user) return;
+
+  const assignment = assignmentFor(userId);
+  editUserIdEl.value = user.user_id;
+  editDisplayNameEl.value = user.display_name || "";
+  editEmailEl.value = user.email || "";
+  editTeamIdEl.innerHTML = teamOptions(assignment?.team_id);
+  editRoleEl.value = assignment?.role || "owner";
+  editActiveEl.checked = assignment?.active !== false;
+  editAdminEl.checked = Boolean(user.is_admin);
+  userDialog.showModal();
+  editDisplayNameEl.focus();
+}
+
+async function saveUserFromDialog() {
+  const userId = editUserIdEl.value;
+  const displayName = editDisplayNameEl.value.trim();
+  const teamId = editTeamIdEl.value;
+  const role = editRoleEl.value;
+  const active = editActiveEl.checked;
+  const makeAdmin = editAdminEl.checked;
 
   if (!displayName) {
     throw new Error("Name is required before saving.");
@@ -125,6 +146,7 @@ async function saveUser(row) {
     setStatus(`${displayName} saved with no active team.`);
   }
 
+  userDialog.close();
   await loadData();
 }
 
@@ -142,8 +164,13 @@ refreshButton.addEventListener("click", () => {
 });
 logoutButton.addEventListener("click", signOut);
 tableBody.addEventListener("click", (event) => {
-  const button = event.target.closest("[data-save-user]");
+  const button = event.target.closest("[data-edit-user]");
   if (!button) return;
   const row = button.closest("tr");
-  saveUser(row).catch((error) => setStatus(`Save failed: ${error.message}`, "error"));
+  openUserDialog(row.dataset.userId);
+});
+closeUserDialogButton.addEventListener("click", () => userDialog.close());
+userEditForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  saveUserFromDialog().catch((error) => setStatus(`Save failed: ${error.message}`, "error"));
 });

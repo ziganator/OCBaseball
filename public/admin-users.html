@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/styles.css?v=20260704e">
+    <link rel="stylesheet" href="/styles.css?v=20260704f">
   </head>
   <body>
     <header class="site-header menu-header">
@@ -72,6 +72,48 @@
       <span>Owners Club Baseball</span>
     </footer>
 
-    <script src="/admin-users.js?v=20260704e" type="module"></script>
+    <dialog id="user-dialog" class="admin-dialog">
+      <form id="user-edit-form" method="dialog" class="admin-dialog-panel">
+        <div class="admin-dialog-heading">
+          <h2>Edit User</h2>
+          <button id="close-user-dialog-button" class="admin-secondary" type="button">Close</button>
+        </div>
+        <input id="edit-user-id" type="hidden">
+        <div class="admin-form-grid">
+          <label>
+            Name
+            <input id="edit-display-name" type="text" autocomplete="name" required>
+          </label>
+          <label>
+            Email / Username
+            <input id="edit-email" type="email" disabled>
+          </label>
+          <label>
+            Team
+            <select id="edit-team-id"></select>
+          </label>
+          <label>
+            Owner Status
+            <select id="edit-role">
+              <option value="owner">Owner</option>
+              <option value="co_owner">Co-owner</option>
+            </select>
+          </label>
+          <label class="admin-check">
+            <input id="edit-active" type="checkbox">
+            <span>Active team owner</span>
+          </label>
+          <label class="admin-check">
+            <input id="edit-admin" type="checkbox">
+            <span>Commissioner admin</span>
+          </label>
+        </div>
+        <div class="admin-dialog-actions">
+          <button id="save-user-button" class="admin-primary" type="submit">Save User</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script src="/admin-users.js?v=20260704f" type="module"></script>
   </body>
 </html>
