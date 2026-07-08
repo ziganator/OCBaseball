@@ -75,6 +75,12 @@ VALUES ('USER_UUID_FROM_AUTH_USERS', TEAM_ID, SEASON_ID, 'owner');
 
 Use `season_id` when ownership should apply only to one season, or `NULL` when the same owner should control that team across seasons.
 
+The first lineup/scoring sandbox is:
+
+`/highlanders-lineup.html`
+
+It uses a static Cleveland Highlanders roster, browser-saved test lineup state, manual daily stat inputs, and the current Owners Club scoring rules. This is a prototype for the later Supabase-backed roster and lineup workflow.
+
 ## 4. Deploy To Cloudflare Pages
 
 Set the Pages project root to this folder:

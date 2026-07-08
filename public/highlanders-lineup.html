@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Highlanders Lineup Test - Owners Club Baseball</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css?v=20260708b">
+  </head>
+  <body>
+    <header class="site-header menu-header">
+      <div class="header-inner">
+        <a class="header-logo" href="/" aria-label="Owners Club Baseball home">
+          <img src="/assets/OC%20Icon.png" alt="">
+        </a>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="/">Season</a>
+          <a href="/teams.html">Teams</a>
+          <a href="/daily-stats.html">Daily Stats</a>
+          <a href="/admin.html">Admin</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="lineup-hero">
+        <div class="lineup-hero-text">
+          <p class="section-kicker">Lineup Sandbox</p>
+          <h1>Cleveland Highlanders</h1>
+          <p>Set active slots, enter daily stat events, and test Owners Club scoring before we wire this into Supabase rosters.</p>
+        </div>
+        <img src="/assets/TeamImages/Cleveland%20Highlanders/CH-Header-script-clean.png" alt="Cleveland Highlanders">
+      </section>
+
+      <section class="lineup-summary" aria-live="polite">
+        <div>
+          <span>Hitting</span>
+          <strong id="hitting-total">0</strong>
+        </div>
+        <div>
+          <span>Pitching</span>
+          <strong id="pitching-total">0</strong>
+        </div>
+        <div>
+          <span>Total</span>
+          <strong id="team-total">0</strong>
+        </div>
+      </section>
+
+      <section class="page-band lineup-page">
+        <div class="lineup-actions">
+          <button id="save-lineup-button" class="admin-primary" type="button">Save Test Lineup</button>
+          <button id="sample-stats-button" class="admin-secondary" type="button">Load Sample Stats</button>
+          <button id="clear-stats-button" class="admin-secondary" type="button">Clear Stats</button>
+          <span id="lineup-status" class="lineup-status" role="status"></span>
+        </div>
+
+        <div class="lineup-layout">
+          <section class="lineup-card">
+            <h2>Active Lineup</h2>
+            <div id="lineup-slots" class="lineup-slots"></div>
+          </section>
+
+          <section class="lineup-card">
+            <h2>Roster</h2>
+            <div id="roster-list" class="roster-list"></div>
+          </section>
+        </div>
+
+        <section class="lineup-card">
+          <h2>Daily Stat Input</h2>
+          <div class="lineup-stat-grid">
+            <div>
+              <h3>Hitters</h3>
+              <div id="hitter-stat-rows" class="lineup-stat-rows"></div>
+            </div>
+            <div>
+              <h3>Pitchers</h3>
+              <div id="pitcher-stat-rows" class="lineup-stat-rows"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="lineup-card">
+          <h2>Scoring Rules</h2>
+          <div id="scoring-rules" class="scoring-rule-grid"></div>
+        </section>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span>Owners Club Baseball</span>
+    </footer>
+
+    <script src="/highlanders-lineup.js?v=20260708b" type="module"></script>
+  </body>
+</html>
