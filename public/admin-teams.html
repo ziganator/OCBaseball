@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/styles.css?v=20260704h">
+    <link rel="stylesheet" href="/styles.css?v=20260708a">
   </head>
   <body>
     <header class="site-header menu-header">
@@ -46,10 +46,14 @@
               <select id="team-select"></select>
             </label>
             <div class="admin-actions">
-              <button id="save-local-button" class="admin-secondary" type="button">Save Draft Locally</button>
-              <button id="save-supabase-button" class="admin-secondary" type="button">Save Draft To Supabase</button>
-              <button id="export-button" class="admin-primary" type="button">Download team-data.js</button>
+              <button id="save-supabase-button" class="admin-primary" type="button">Save Team Draft</button>
             </div>
+            <details class="admin-legacy-tools">
+              <summary>Legacy / backup tools</summary>
+              <button id="save-local-button" class="admin-secondary" type="button">Save Browser Backup</button>
+              <button id="export-button" class="admin-secondary" type="button">Download team-data.js</button>
+              <p class="admin-note">These tools are for static-file backup while team admin is being moved fully into Supabase.</p>
+            </details>
           </aside>
 
           <form id="team-form" class="admin-form">
@@ -133,6 +137,6 @@
       <span>Owners Club Baseball</span>
     </footer>
 
-    <script src="/admin-teams.js?v=20260704h" type="module"></script>
+    <script src="/admin-teams.js?v=20260708a" type="module"></script>
   </body>
 </html>

@@ -290,6 +290,24 @@ h1 {
   gap: 10px;
 }
 
+.admin-legacy-tools {
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+
+.admin-legacy-tools summary {
+  color: #666666;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.admin-legacy-tools .admin-secondary {
+  margin-top: 10px;
+  width: 100%;
+}
+
 .admin-form {
   display: grid;
   gap: 18px;

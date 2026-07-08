@@ -3,7 +3,7 @@ import {
   favoriteTeams as seedFavoriteTeams,
   teams as seedTeams,
   teamCity
-} from "./team-data.js?v=20260704h";
+} from "./team-data.js?v=20260708a";
 import { getSupabaseClient, requireSession, signOut } from "./auth.js";
 
 const DRAFT_KEY = "ownersclub.teamAdminDraft";
@@ -264,7 +264,7 @@ function addFavoriteTeam() {
 function saveLocal() {
   syncCurrentTeamFromForm();
   localStorage.setItem(DRAFT_KEY, JSON.stringify(state));
-  setStatus("Draft saved in this browser.");
+  setStatus("Browser backup saved on this device.");
   renderSelectors();
 }
 
@@ -287,7 +287,8 @@ async function saveSupabaseDraft() {
       }, { onConflict: "draft_key" });
 
     if (error) throw error;
-    setStatus("Draft saved to Supabase.");
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(state));
+    setStatus("Team draft saved to Supabase.");
   } catch (error) {
     setStatus(`Supabase draft save failed: ${error.message}`, "error");
   }

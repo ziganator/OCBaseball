@@ -64,7 +64,7 @@ The admin page is:
 
 `/admin-teams.html`
 
-It can edit teams, track season identity changes, manage shared favorite-team logo references, save drafts locally, export `team-data.js`, and optionally save an authenticated draft to `team_admin_drafts`.
+It can edit teams, track season identity changes, manage shared favorite-team logo references, and save an authenticated draft to `team_admin_drafts`. The local browser backup and `team-data.js` export are legacy tools for the static-file transition.
 
 To let a team owner manage only their own roster/lineup, create the Supabase Auth user, then connect that user to the Owners Club team:
 
