@@ -797,18 +797,11 @@ h1 {
   font-weight: 700;
 }
 
-.lineup-layout {
-  align-items: start;
-  display: grid;
-  gap: 18px;
-  grid-template-columns: minmax(360px, 0.95fr) minmax(320px, 1.05fr);
-  margin-top: 18px;
-}
-
 .lineup-card {
   background: #ffffff;
   border: 1px solid var(--line);
   padding: 18px;
+  margin-top: 18px;
 }
 
 .lineup-card h2 {
@@ -824,153 +817,128 @@ h1 {
   text-transform: uppercase;
 }
 
-.lineup-slots {
-  display: grid;
-  gap: 10px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+.lineup-controls {
+  margin-top: 0;
 }
 
-.lineup-slot {
+.lineup-date-controls {
+  align-items: end;
   display: grid;
-  gap: 6px;
+  gap: 14px;
+  grid-template-columns: minmax(180px, 240px) 1fr;
 }
 
-.lineup-slot span {
+.lineup-date-controls label {
   color: #555555;
+  display: grid;
   font-size: 12px;
   font-weight: 800;
+  gap: 7px;
   text-transform: uppercase;
 }
 
-.lineup-slot select {
+.lineup-date-controls input {
   border: 1px solid #cfcfcf;
-  color: var(--ink);
   font: inherit;
-  min-height: 38px;
-  padding: 7px 8px;
+  min-height: 40px;
+  padding: 8px 10px;
   width: 100%;
 }
 
-.roster-list {
-  display: grid;
+.lineup-range-buttons {
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.roster-pill {
+.lineup-range-buttons .is-active {
+  background: var(--red);
+  color: #ffffff;
+}
+
+.lineup-table-wrap {
   border: 1px solid var(--line);
-  min-height: 52px;
-  padding: 8px 10px;
 }
 
-.roster-pill strong,
-.roster-pill span {
+.lineup-table {
+  min-width: 1240px;
+}
+
+.lineup-table th,
+.lineup-table td {
+  text-align: center;
+}
+
+.lineup-table th:first-child,
+.lineup-table td:first-child {
+  min-width: 78px;
+}
+
+.lineup-table th:nth-child(2),
+.lineup-table td:nth-child(2) {
+  min-width: 230px;
+  text-align: left;
+}
+
+.lineup-player-row {
+  cursor: grab;
+}
+
+.lineup-player-row:active {
+  cursor: grabbing;
+}
+
+.lineup-player-cell strong,
+.lineup-player-cell span {
   display: block;
 }
 
-.roster-pill strong {
-  font-size: 13px;
-}
-
-.roster-pill span {
+.lineup-player-cell span {
   color: #666666;
-  font-size: 12px;
-  font-weight: 800;
-  margin-top: 2px;
-}
-
-.lineup-stat-grid {
-  display: grid;
-  gap: 18px;
-  grid-template-columns: 1fr;
-}
-
-.lineup-stat-rows {
-  display: grid;
-  gap: 10px;
-}
-
-.lineup-stat-row {
-  border: 1px solid var(--line);
-  display: grid;
-  gap: 12px;
-  grid-template-columns: minmax(180px, 240px) 1fr auto;
-  padding: 10px;
-}
-
-.lineup-stat-player strong,
-.lineup-stat-player span {
-  display: block;
-}
-
-.lineup-stat-player span {
-  color: #666666;
-  font-size: 12px;
-  font-weight: 800;
-  margin-top: 4px;
-}
-
-.lineup-stat-inputs {
-  display: grid;
-  gap: 7px;
-  grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
-}
-
-.lineup-stat-inputs label {
-  display: grid;
-  gap: 4px;
-}
-
-.lineup-stat-inputs span {
-  color: #555555;
   font-size: 11px;
   font-weight: 800;
-  text-transform: uppercase;
+  margin-top: 3px;
 }
 
-.lineup-stat-inputs input {
-  border: 1px solid #cfcfcf;
+.lineup-pos-cell {
+  background: #f8fbff;
+}
+
+.lineup-pos-cell.is-drop-target {
+  background: #fff5d6;
+  outline: 2px solid var(--red);
+  outline-offset: -2px;
+}
+
+.lineup-pos-pill {
+  background: #2768e8;
+  border-radius: 999px;
+  color: #ffffff;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 800;
+  justify-content: center;
+  min-width: 46px;
+  padding: 4px 9px;
+}
+
+.lineup-table input {
+  border: 1px solid transparent;
   font: inherit;
-  min-height: 32px;
-  padding: 5px 6px;
+  max-width: 58px;
+  min-height: 30px;
+  padding: 4px 5px;
   text-align: center;
   width: 100%;
 }
 
-.lineup-player-score {
-  align-self: center;
-  border-left: 1px solid var(--line);
-  font-family: "Oswald", sans-serif;
-  font-size: 26px;
-  min-width: 58px;
-  padding-left: 12px;
-  text-align: right;
+.lineup-table input:focus {
+  border-color: var(--red);
+  outline: 0;
 }
 
-.scoring-rule-grid {
-  display: grid;
-  gap: 18px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.scoring-rule-card {
-  border: 1px solid var(--line);
-}
-
-.scoring-rule-card h3 {
-  background: #eeeeee;
-  margin: 0;
-  padding: 8px 10px;
-}
-
-.scoring-rule-card div {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  padding: 6px 10px;
-}
-
-.scoring-rule-card div:nth-child(even) {
-  background: #fff5d6;
+.lineup-fantasy-points {
+  font-weight: 800;
 }
 
 .standings-grid {
@@ -1729,9 +1697,7 @@ tbody tr:last-child td {
   }
 
   .lineup-hero,
-  .lineup-layout,
-  .lineup-stat-row,
-  .scoring-rule-grid {
+  .lineup-date-controls {
     grid-template-columns: 1fr;
   }
 
@@ -1739,12 +1705,8 @@ tbody tr:last-child td {
     justify-self: start;
   }
 
-  .lineup-player-score {
-    border-left: 0;
-    border-top: 1px solid var(--line);
-    padding-left: 0;
-    padding-top: 8px;
-    text-align: left;
+  .lineup-table {
+    min-width: 1080px;
   }
 }
 
@@ -1782,9 +1744,7 @@ tbody tr:last-child td {
     padding: 20px;
   }
 
-  .lineup-summary,
-  .lineup-slots,
-  .roster-list {
+  .lineup-summary {
     grid-template-columns: 1fr;
   }
 

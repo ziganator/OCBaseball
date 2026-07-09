@@ -1,4 +1,4 @@
-import { displayTeam, favoriteTeams, findTeam, teams } from "./team-data.js?v=20260708b";
+import { displayTeam, favoriteTeams, findTeam, teams } from "./team-data.js?v=20260708c";
 
 const params = new URLSearchParams(window.location.search);
 const pathParts = window.location.pathname.split("/").filter(Boolean);

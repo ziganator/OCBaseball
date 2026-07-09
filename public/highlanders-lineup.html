@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/styles.css?v=20260708b">
+    <link rel="stylesheet" href="/styles.css?v=20260708c">
   </head>
   <body>
     <header class="site-header menu-header">
@@ -29,7 +29,7 @@
         <div class="lineup-hero-text">
           <p class="section-kicker">Lineup Sandbox</p>
           <h1>Cleveland Highlanders</h1>
-          <p>Set active slots, enter daily stat events, and test Owners Club scoring before we wire this into Supabase rosters.</p>
+          <p>Set active slots, drag players into eligible positions, and review stat windows before we wire this into Supabase rosters.</p>
         </div>
         <img src="/assets/TeamImages/Cleveland%20Highlanders/CH-Header-script-clean.png" alt="Cleveland Highlanders">
       </section>
@@ -50,42 +50,91 @@
       </section>
 
       <section class="page-band lineup-page">
+        <section class="lineup-card lineup-controls">
+          <h2>Stat Window</h2>
+          <div class="lineup-date-controls">
+            <label>
+              Date
+              <input id="lineup-date" type="date">
+            </label>
+            <div class="lineup-range-buttons" role="group" aria-label="Stat range">
+              <button class="admin-secondary" type="button" data-range="day">1 Day</button>
+              <button class="admin-secondary" type="button" data-range="week">1 Week</button>
+              <button class="admin-secondary" type="button" data-range="twoWeeks">2 Weeks</button>
+              <button class="admin-secondary" type="button" data-range="month">1 Month</button>
+              <button class="admin-secondary" type="button" data-range="threeMonths">3 Months</button>
+              <button class="admin-secondary" type="button" data-range="season">Full Season</button>
+            </div>
+          </div>
+          <p id="lineup-window-label" class="admin-note"></p>
+        </section>
+
         <div class="lineup-actions">
           <button id="save-lineup-button" class="admin-primary" type="button">Save Test Lineup</button>
           <button id="sample-stats-button" class="admin-secondary" type="button">Load Sample Stats</button>
+          <button id="reset-lineup-button" class="admin-secondary" type="button">Reset Lineup</button>
           <button id="clear-stats-button" class="admin-secondary" type="button">Clear Stats</button>
           <span id="lineup-status" class="lineup-status" role="status"></span>
         </div>
 
-        <div class="lineup-layout">
-          <section class="lineup-card">
-            <h2>Active Lineup</h2>
-            <div id="lineup-slots" class="lineup-slots"></div>
-          </section>
-
-          <section class="lineup-card">
-            <h2>Roster</h2>
-            <div id="roster-list" class="roster-list"></div>
-          </section>
-        </div>
-
         <section class="lineup-card">
-          <h2>Daily Stat Input</h2>
-          <div class="lineup-stat-grid">
-            <div>
-              <h3>Hitters</h3>
-              <div id="hitter-stat-rows" class="lineup-stat-rows"></div>
-            </div>
-            <div>
-              <h3>Pitchers</h3>
-              <div id="pitcher-stat-rows" class="lineup-stat-rows"></div>
-            </div>
+          <h2>Batters</h2>
+          <div class="table-wrap lineup-table-wrap">
+            <table class="lineup-table">
+              <thead>
+                <tr>
+                  <th>Pos</th>
+                  <th>Batters</th>
+                  <th>Opp</th>
+                  <th>Fan Pts</th>
+                  <th>R</th>
+                  <th>1B</th>
+                  <th>2B</th>
+                  <th>3B</th>
+                  <th>HR</th>
+                  <th>RBI</th>
+                  <th>SB</th>
+                  <th>CS</th>
+                  <th>BB</th>
+                  <th>HBP</th>
+                  <th>GIDP</th>
+                  <th>CYC</th>
+                  <th>SLAM</th>
+                </tr>
+              </thead>
+              <tbody id="hitter-table-body"></tbody>
+            </table>
           </div>
         </section>
 
         <section class="lineup-card">
-          <h2>Scoring Rules</h2>
-          <div id="scoring-rules" class="scoring-rule-grid"></div>
+          <h2>Pitchers</h2>
+          <div class="table-wrap lineup-table-wrap">
+            <table class="lineup-table">
+              <thead>
+                <tr>
+                  <th>Pos</th>
+                  <th>Pitchers</th>
+                  <th>Opp</th>
+                  <th>Fan Pts</th>
+                  <th>IP</th>
+                  <th>W</th>
+                  <th>L</th>
+                  <th>CG</th>
+                  <th>SHO</th>
+                  <th>SV</th>
+                  <th>K</th>
+                  <th>HLD</th>
+                  <th>RAPP</th>
+                  <th>NH</th>
+                  <th>PG</th>
+                  <th>QS</th>
+                  <th>BSV</th>
+                </tr>
+              </thead>
+              <tbody id="pitcher-table-body"></tbody>
+            </table>
+          </div>
         </section>
       </section>
     </main>
@@ -94,6 +143,6 @@
       <span>Owners Club Baseball</span>
     </footer>
 
-    <script src="/highlanders-lineup.js?v=20260708b" type="module"></script>
+    <script src="/highlanders-lineup.js?v=20260708c" type="module"></script>
   </body>
 </html>
