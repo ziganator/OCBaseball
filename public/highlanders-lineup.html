@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/styles.css?v=20260708c">
+    <link rel="stylesheet" href="/styles.css?v=20260709a">
   </head>
   <body>
     <header class="site-header menu-header">
@@ -29,7 +29,7 @@
         <div class="lineup-hero-text">
           <p class="section-kicker">Lineup Sandbox</p>
           <h1>Cleveland Highlanders</h1>
-          <p>Set active slots, drag players into eligible positions, and review stat windows before we wire this into Supabase rosters.</p>
+          <p>Set active slots, review live MLB stat windows, and move eligible players into the lineup.</p>
         </div>
         <img src="/assets/TeamImages/Cleveland%20Highlanders/CH-Header-script-clean.png" alt="Cleveland Highlanders">
       </section>
@@ -69,13 +69,7 @@
           <p id="lineup-window-label" class="admin-note"></p>
         </section>
 
-        <div class="lineup-actions">
-          <button id="save-lineup-button" class="admin-primary" type="button">Save Test Lineup</button>
-          <button id="sample-stats-button" class="admin-secondary" type="button">Load Sample Stats</button>
-          <button id="reset-lineup-button" class="admin-secondary" type="button">Reset Lineup</button>
-          <button id="clear-stats-button" class="admin-secondary" type="button">Clear Stats</button>
-          <span id="lineup-status" class="lineup-status" role="status"></span>
-        </div>
+        <p id="lineup-status" class="lineup-status" role="status"></p>
 
         <section class="lineup-card">
           <h2>Batters</h2>
@@ -85,21 +79,7 @@
                 <tr>
                   <th>Pos</th>
                   <th>Batters</th>
-                  <th>Opp</th>
                   <th>Fan Pts</th>
-                  <th>R</th>
-                  <th>1B</th>
-                  <th>2B</th>
-                  <th>3B</th>
-                  <th>HR</th>
-                  <th>RBI</th>
-                  <th>SB</th>
-                  <th>CS</th>
-                  <th>BB</th>
-                  <th>HBP</th>
-                  <th>GIDP</th>
-                  <th>CYC</th>
-                  <th>SLAM</th>
                 </tr>
               </thead>
               <tbody id="hitter-table-body"></tbody>
@@ -115,21 +95,7 @@
                 <tr>
                   <th>Pos</th>
                   <th>Pitchers</th>
-                  <th>Opp</th>
                   <th>Fan Pts</th>
-                  <th>IP</th>
-                  <th>W</th>
-                  <th>L</th>
-                  <th>CG</th>
-                  <th>SHO</th>
-                  <th>SV</th>
-                  <th>K</th>
-                  <th>HLD</th>
-                  <th>RAPP</th>
-                  <th>NH</th>
-                  <th>PG</th>
-                  <th>QS</th>
-                  <th>BSV</th>
                 </tr>
               </thead>
               <tbody id="pitcher-table-body"></tbody>
@@ -143,6 +109,26 @@
       <span>Owners Club Baseball</span>
     </footer>
 
-    <script src="/highlanders-lineup.js?v=20260708c" type="module"></script>
+    <dialog id="position-dialog" class="admin-dialog lineup-dialog">
+      <form method="dialog">
+        <div class="admin-dialog-head">
+          <h2 id="position-dialog-title">Move Player</h2>
+          <button class="admin-secondary" type="button" data-dialog-close>Close</button>
+        </div>
+      </form>
+      <div id="position-dialog-body"></div>
+    </dialog>
+
+    <dialog id="player-dialog" class="admin-dialog lineup-dialog">
+      <form method="dialog">
+        <div class="admin-dialog-head">
+          <h2 id="player-dialog-title">Player Stats</h2>
+          <button class="admin-secondary" type="button" data-dialog-close>Close</button>
+        </div>
+      </form>
+      <div id="player-dialog-body"></div>
+    </dialog>
+
+    <script src="/highlanders-lineup.js?v=20260709a" type="module"></script>
   </body>
 </html>

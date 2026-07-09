@@ -795,6 +795,7 @@ h1 {
   color: #666666;
   font-size: 14px;
   font-weight: 700;
+  margin: 14px 0 0;
 }
 
 .lineup-card {
@@ -861,7 +862,7 @@ h1 {
 }
 
 .lineup-table {
-  min-width: 1240px;
+  min-width: 620px;
 }
 
 .lineup-table th,
@@ -876,8 +877,13 @@ h1 {
 
 .lineup-table th:nth-child(2),
 .lineup-table td:nth-child(2) {
-  min-width: 230px;
+  min-width: 390px;
   text-align: left;
+}
+
+.lineup-table th:last-child,
+.lineup-table td:last-child {
+  min-width: 90px;
 }
 
 .lineup-player-row {
@@ -888,12 +894,29 @@ h1 {
   cursor: grabbing;
 }
 
-.lineup-player-cell strong,
-.lineup-player-cell span {
+.lineup-player-button {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  display: grid;
+  font: inherit;
+  gap: 3px;
+  padding: 0;
+  text-align: left;
+  width: 100%;
+}
+
+.lineup-player-button:hover strong {
+  color: var(--red);
+}
+
+.lineup-player-button strong,
+.lineup-player-button span {
   display: block;
 }
 
-.lineup-player-cell span {
+.lineup-player-button span {
   color: #666666;
   font-size: 11px;
   font-weight: 800;
@@ -912,8 +935,10 @@ h1 {
 
 .lineup-pos-pill {
   background: #2768e8;
+  border: 0;
   border-radius: 999px;
   color: #ffffff;
+  cursor: pointer;
   display: inline-flex;
   font-size: 12px;
   font-weight: 800;
@@ -922,19 +947,62 @@ h1 {
   padding: 4px 9px;
 }
 
-.lineup-table input {
-  border: 1px solid transparent;
-  font: inherit;
-  max-width: 58px;
-  min-height: 30px;
-  padding: 4px 5px;
-  text-align: center;
-  width: 100%;
+.lineup-pos-pill:hover {
+  background: var(--red);
 }
 
-.lineup-table input:focus {
+.lineup-dialog {
+  max-width: min(900px, calc(100vw - 36px));
+  width: 760px;
+}
+
+.lineup-option-list {
+  display: grid;
+  gap: 10px;
+}
+
+.lineup-option-button {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  cursor: pointer;
+  display: grid;
+  font: inherit;
+  gap: 4px;
+  padding: 12px;
+  text-align: left;
+}
+
+.lineup-option-button:hover {
   border-color: var(--red);
-  outline: 0;
+}
+
+.lineup-option-button strong {
+  color: var(--red);
+  font-family: "Oswald", sans-serif;
+  font-size: 18px;
+  text-transform: uppercase;
+}
+
+.lineup-option-button span {
+  color: #666666;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.lineup-dialog-table-wrap {
+  border: 1px solid var(--line);
+  margin-top: 12px;
+  max-height: 60vh;
+}
+
+.lineup-dialog-table {
+  min-width: 680px;
+}
+
+.lineup-dialog-table th,
+.lineup-dialog-table td {
+  text-align: left;
 }
 
 .lineup-fantasy-points {
@@ -1706,7 +1774,7 @@ tbody tr:last-child td {
   }
 
   .lineup-table {
-    min-width: 1080px;
+    min-width: 620px;
   }
 }
 
