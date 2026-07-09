@@ -782,6 +782,35 @@ h1 {
   max-width: 1440px;
 }
 
+.players-shell {
+  margin: 0 auto;
+  max-width: 1440px;
+  padding: 0 clamp(18px, 4vw, 48px) 68px;
+}
+
+.players-hero {
+  border-top: 3px solid var(--red);
+  margin: 28px 0 18px;
+  padding-top: 26px;
+}
+
+.players-hero h1 {
+  font-size: clamp(44px, 5.6vw, 76px);
+  line-height: 0.95;
+  margin: 4px 0 12px;
+  text-transform: uppercase;
+}
+
+.players-hero p {
+  color: #4f4f4f;
+  font-size: 16px;
+  margin: 0;
+}
+
+.players-page {
+  max-width: none;
+}
+
 .lineup-actions {
   align-items: center;
   border-top: 1px solid var(--line);
@@ -1098,7 +1127,7 @@ h1 {
 .players-filter-grid {
   display: grid;
   gap: 14px;
-  grid-template-columns: minmax(220px, 1fr) minmax(160px, 220px) minmax(160px, 220px);
+  grid-template-columns: minmax(260px, 1fr) minmax(150px, 220px) minmax(150px, 220px);
 }
 
 .players-filter-grid label {
@@ -1120,21 +1149,72 @@ h1 {
 }
 
 .players-table {
-  min-width: 1080px;
+  min-width: 1240px;
 }
 
 .players-table th:first-child,
 .players-table td:first-child {
+  background: #ffffff;
+  left: 0;
   min-width: 220px;
+  position: sticky;
   text-align: left;
+  z-index: 1;
+}
+
+.players-table th:first-child {
+  background: #f1f1f1;
+  z-index: 2;
 }
 
 .players-table th:nth-child(2),
 .players-table td:nth-child(2),
 .players-table th:nth-child(3),
-.players-table td:nth-child(3) {
+.players-table td:nth-child(3),
+.players-table th:nth-child(4),
+.players-table td:nth-child(4) {
   min-width: 68px;
   text-align: center;
+}
+
+.players-table th:nth-child(4),
+.players-table td:nth-child(4) {
+  min-width: 178px;
+}
+
+.player-claim-badge {
+  align-items: center;
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 10px;
+  font-weight: 900;
+  gap: 6px;
+  justify-content: center;
+  min-height: 22px;
+  padding: 4px 9px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.player-claim-badge strong,
+.player-claim-badge em {
+  font: inherit;
+}
+
+.player-claim-badge em {
+  opacity: 0.78;
+}
+
+.player-claim-badge.is-claimed {
+  background: #eef8ee;
+  border: 1px solid #1e8f48;
+  color: #115a2c;
+}
+
+.player-claim-badge.is-open {
+  background: #f4f4f4;
+  border: 1px solid #dddddd;
+  color: #777777;
 }
 
 body.lineup-force-mobile .lineup-date-controls,

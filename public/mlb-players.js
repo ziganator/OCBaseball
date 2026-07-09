@@ -2,6 +2,39 @@ const API_ROOT = "https://statsapi.mlb.com/api/v1";
 const SEASON = "2026";
 const CHUNK_SIZE = 80;
 
+const ownerClaims = new Map([
+  [691788, { team: "Cleveland Highlanders", league: "Keystone" }],
+  [683737, { team: "Cleveland Highlanders", league: "Keystone" }],
+  [665019, { team: "Cleveland Highlanders", league: "Keystone" }],
+  [656716, { team: "Cleveland Highlanders", league: "Keystone" }],
+  [681082, { team: "Cleveland Highlanders", league: "Keystone" }],
+  [657757, { team: "Cleveland Highlanders", league: "Keystone" }],
+  [808982, { team: "Cleveland Highlanders", league: "Keystone" }],
+  [663968, { team: "Cleveland Highlanders", league: "Keystone" }],
+  [691026, { team: "Cleveland Highlanders", league: "Keystone" }],
+  [676609, { team: "Cleveland Highlanders", league: "Keystone" }],
+  [553993, { team: "Cleveland Highlanders", league: "Keystone" }],
+  [666152, { team: "Cleveland Highlanders", league: "Keystone" }],
+  [663757, { team: "Cleveland Highlanders", league: "Keystone" }],
+  [686217, { team: "Cleveland Highlanders", league: "Keystone" }],
+  [669224, { team: "Cleveland Highlanders", league: "Keystone" }],
+  [592450, { team: "Cleveland Highlanders", league: "Keystone" }],
+  [672820, { team: "Cleveland Highlanders", league: "Keystone" }],
+  [671289, { team: "Cleveland Highlanders", league: "Keystone" }],
+  [666200, { team: "Cleveland Highlanders", league: "Keystone" }],
+  [657277, { team: "Cleveland Highlanders", league: "Keystone" }],
+  [669022, { team: "Cleveland Highlanders", league: "Keystone" }],
+  [593958, { team: "Cleveland Highlanders", league: "Keystone" }],
+  [640448, { team: "Cleveland Highlanders", league: "Keystone" }],
+  [622608, { team: "Cleveland Highlanders", league: "Keystone" }],
+  [663158, { team: "Cleveland Highlanders", league: "Keystone" }],
+  [669358, { team: "Cleveland Highlanders", league: "Keystone" }],
+  [571510, { team: "Cleveland Highlanders", league: "Keystone" }],
+  [641793, { team: "Cleveland Highlanders", league: "Keystone" }],
+  [608032, { team: "Cleveland Highlanders", league: "Keystone" }],
+  [815549, { team: "Cleveland Highlanders", league: "Keystone" }]
+]);
+
 const searchEl = document.querySelector("#players-search");
 const typeEl = document.querySelector("#players-type");
 const teamEl = document.querySelector("#players-team");
@@ -45,6 +78,21 @@ function statGroup(player, group) {
   return (player.stats || []).find((entry) => entry.group?.displayName === group)?.splits?.[0]?.stat || {};
 }
 
+function claimFor(player) {
+  return ownerClaims.get(player.id) || null;
+}
+
+function claimHtml(player) {
+  const claim = claimFor(player);
+  if (!claim) return `<span class="player-claim-badge is-open">Available</span>`;
+  return `
+    <span class="player-claim-badge is-claimed">
+      <strong>${escapeHtml(claim.team)}</strong>
+      <em>${escapeHtml(claim.league)}</em>
+    </span>
+  `;
+}
+
 function hitterValues(player) {
   const stat = statGroup(player, "hitting");
   const hits = number(stat.hits);
@@ -81,6 +129,7 @@ function tableRow(player) {
       <td><strong>${escapeHtml(player.fullName)}</strong></td>
       <td>${escapeHtml(teamAbbrev(player))}</td>
       <td>${escapeHtml(player.primaryPosition?.abbreviation || "")}</td>
+      <td>${claimHtml(player)}</td>
       ${[...hitterStats, ...pitcherStats].map((value) => `<td class="lineup-stat-col">${escapeHtml(formatStat(value))}</td>`).join("")}
     </tr>
   `;
@@ -100,8 +149,9 @@ function filteredPlayers() {
 
 function render() {
   const visible = filteredPlayers().slice(0, 500);
+  const claimedCount = visible.filter(claimFor).length;
   bodyEl.innerHTML = visible.map(tableRow).join("");
-  statusEl.textContent = `Showing ${visible.length} of ${players.length} active MLB players.`;
+  statusEl.textContent = `Showing ${visible.length} of ${players.length} active MLB players. ${claimedCount} shown as claimed in Owners Club.`;
 }
 
 function fillTeams() {
