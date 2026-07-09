@@ -849,10 +849,12 @@ h1 {
 
 .lineup-table-wrap {
   border: 1px solid var(--line);
+  overflow-x: auto;
 }
 
 .lineup-table {
-  min-width: 620px;
+  min-width: 760px;
+  width: 100%;
 }
 
 .lineup-table th,
@@ -863,18 +865,22 @@ h1 {
 
 .lineup-table th:first-child,
 .lineup-table td:first-child {
-  min-width: 72px;
+  min-width: 54px;
 }
 
 .lineup-table th:nth-child(2),
 .lineup-table td:nth-child(2) {
-  min-width: 480px;
+  min-width: 300px;
   text-align: left;
 }
 
 .lineup-table th:last-child,
 .lineup-table td:last-child {
-  min-width: 90px;
+  min-width: 74px;
+}
+
+.lineup-stat-col {
+  min-width: 58px;
 }
 
 .lineup-player-row {
@@ -883,6 +889,10 @@ h1 {
 
 .lineup-player-row.is-active {
   background: #ffffff;
+}
+
+.lineup-player-row.is-live {
+  background: #eef8ee;
 }
 
 .lineup-player-row.is-active td:first-child {
@@ -896,6 +906,14 @@ h1 {
 
 .lineup-player-row.is-bench .lineup-pos-pill {
   background: #707070;
+}
+
+.lineup-player-row.is-locked {
+  cursor: not-allowed;
+}
+
+.lineup-player-row.is-locked .lineup-pos-pill {
+  opacity: 0.72;
 }
 
 .lineup-player-row:active {
@@ -923,7 +941,7 @@ h1 {
   align-items: center;
   display: grid;
   gap: 12px;
-  grid-template-columns: minmax(190px, 0.9fr) minmax(220px, 1.1fr);
+  grid-template-columns: minmax(190px, 0.95fr) minmax(180px, 1.05fr);
 }
 
 .lineup-player-main > span:first-child {
@@ -931,7 +949,10 @@ h1 {
 }
 
 .lineup-player-name {
-  display: block;
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
   line-height: 1.15;
 }
 
@@ -945,30 +966,33 @@ h1 {
 }
 
 .lineup-player-statline,
-.lineup-game-line {
+.lineup-player-game {
   color: #666666;
   font-size: 10px;
   font-weight: 800;
 }
 
 .lineup-player-statline {
-  text-align: center;
+  border-top: 1px solid #eeeeee;
+  display: none;
+  margin-top: 2px;
+  padding-top: 2px;
+  text-align: left;
 }
 
-.lineup-game-line {
-  border-top: 1px solid #eeeeee;
+.lineup-player-game {
   align-items: center;
   display: flex;
   flex-wrap: nowrap;
   gap: 5px;
-  margin-top: 2px;
   min-height: 18px;
-  padding-top: 2px;
 }
 
 .lineup-player-meta {
   color: #666666;
   flex: 0 0 auto;
+  font-size: 11px;
+  font-weight: 800;
   white-space: nowrap;
 }
 
@@ -2002,12 +2026,16 @@ tbody tr:last-child td {
   }
 
   .lineup-table {
-    min-width: 620px;
+    min-width: 500px;
   }
 
   .lineup-player-main,
   .lineup-option-button {
     grid-template-columns: 1fr;
+  }
+
+  .lineup-table .lineup-stat-col {
+    display: none;
   }
 
   .lineup-player-statline,
@@ -2016,7 +2044,11 @@ tbody tr:last-child td {
     text-align: left;
   }
 
-  .lineup-game-line {
+  .lineup-player-statline {
+    display: block;
+  }
+
+  .lineup-player-game {
     flex-wrap: wrap;
   }
 }

@@ -98,6 +98,8 @@ const windowLabelEl = document.querySelector("#lineup-window-label");
 const statusEl = document.querySelector("#lineup-status");
 const hitterBodyEl = document.querySelector("#hitter-table-body");
 const pitcherBodyEl = document.querySelector("#pitcher-table-body");
+const hitterHeaderEl = document.querySelector("#hitter-table-header");
+const pitcherHeaderEl = document.querySelector("#pitcher-table-header");
 const hittingTotalEl = document.querySelector("#hitting-total");
 const pitchingTotalEl = document.querySelector("#pitching-total");
 const teamTotalEl = document.querySelector("#team-total");
@@ -373,12 +375,14 @@ function playerGameContext(player, game, boxscore) {
     summary: playerStats.summary || "",
     battingOrder,
     decisions: pitcherDecisions(playerStats),
+    gameStarted,
+    gameInProgress: gameStarted && !gameFinal,
     line: gameStarted
       ? `${result || game.status?.detailedState || "In progress"} ${isHome ? "vs" : "@"} ${opponent}`
       : `${gameTime} ${isHome ? "vs" : "@"} ${opponent}`,
     lineup: gameStarted
       ? position
-      : lineupReleased ? (position || "X") : "Lineup not released"
+      : lineupReleased ? (position || "X") : ""
   };
 }
 
@@ -421,6 +425,8 @@ function normalizeStats(player, split) {
   const triples = number(stat.triples);
   const homeRuns = number(stat.homeRuns);
   return {
+    atBats: number(stat.atBats),
+    hits,
     runs: number(stat.runs),
     singles: Math.max(0, hits - doubles - triples - homeRuns),
     doubles,
@@ -489,6 +495,7 @@ function statSummary(player) {
     ]);
   }
   return compactStats([
+    ["H/AB", `${number(stats.hits)}/${number(stats.atBats)}`, true],
     ["R", stats.runs],
     ["1B", stats.singles],
     ["2B", stats.doubles],
@@ -501,7 +508,7 @@ function statSummary(player) {
 
 function compactStats(items) {
   return items
-    .filter(([, value]) => Number(value) !== 0)
+    .filter(([, value, alwaysShow]) => alwaysShow || Number(value) !== 0)
     .map(([label, value, labelOnly]) => labelOnly && Number(value) === 1 ? label : `${label} ${value}`)
     .join(" | ");
 }
@@ -514,9 +521,33 @@ function formatInnings(value) {
 
 function renderTables() {
   updateWindow();
+  renderTableHeaders();
   hitterBodyEl.innerHTML = rowsFor(hitters, hitterSlots);
   pitcherBodyEl.innerHTML = rowsFor(pitchers, pitcherSlots);
   updateTotals();
+}
+
+function renderTableHeaders() {
+  hitterHeaderEl.innerHTML = `
+    <th>Pos</th>
+    <th>Batters</th>
+    <th class="lineup-stat-col">H/AB</th>
+    <th class="lineup-stat-col">R</th>
+    <th class="lineup-stat-col">HR</th>
+    <th class="lineup-stat-col">RBI</th>
+    <th class="lineup-stat-col">SB</th>
+    <th>Fan Pts</th>
+  `;
+  pitcherHeaderEl.innerHTML = `
+    <th>Pos</th>
+    <th>Pitchers</th>
+    <th class="lineup-stat-col">IP</th>
+    <th class="lineup-stat-col">W</th>
+    <th class="lineup-stat-col">L</th>
+    <th class="lineup-stat-col">SV</th>
+    <th class="lineup-stat-col">K</th>
+    <th>Fan Pts</th>
+  `;
 }
 
 function rowsFor(pool, slots) {
@@ -533,28 +564,43 @@ function tableRow(player, slot) {
   const game = dataState.games[player.id];
   const points = dataState.ready ? playerPoints(player) : 0;
   const isBench = slot.code === "BN";
+  const locked = isLineupLocked(player, isBench);
+  const activeLive = !isBench && Boolean(game?.gameInProgress);
   const gameLine = state.range === "day"
     ? game ? gameLineHtml(player, game) : `<span class="lineup-game-text">No MLB game found for this date.</span>`
     : "";
   return `
-    <tr class="lineup-player-row ${isBench ? "is-bench" : "is-active"}" draggable="true" data-player-id="${player.id}">
+    <tr class="lineup-player-row ${isBench ? "is-bench" : "is-active"} ${activeLive ? "is-live" : ""} ${locked ? "is-locked" : ""}" draggable="${locked ? "false" : "true"}" data-player-id="${player.id}">
       <td class="lineup-pos-cell" data-slot="${slot.code}" data-player-id="${player.id}">
-        <button class="lineup-pos-pill" type="button" data-action="position" data-slot="${slot.code}">${slotLabel(slot)}</button>
+        <button class="lineup-pos-pill" type="button" data-action="position" data-slot="${slot.code}" ${locked ? "disabled" : ""}>${slotLabel(slot)}</button>
       </td>
       <td class="lineup-player-cell">
         <button class="lineup-player-button" type="button" data-action="player" data-player-id="${player.id}">
           <span class="lineup-player-main">
             <span>
-              <strong class="lineup-player-name">${escapeHtml(player.name)}</strong>
+              <strong class="lineup-player-name">${escapeHtml(player.name)} ${playerMetaHtml(player)}</strong>
             </span>
-            <span class="lineup-player-statline">${escapeHtml(statSummary(player))}</span>
+            <span class="lineup-player-game">${gameLine}</span>
           </span>
-          <span class="lineup-game-line">${playerMetaHtml(player)}${gameLine}</span>
+          <span class="lineup-player-statline">${escapeHtml(statSummary(player))}</span>
         </button>
       </td>
+      ${statCells(player)}
       <td class="lineup-fantasy-points">${formatPoints(points)}</td>
     </tr>
   `;
+}
+
+function statCells(player) {
+  const stats = aggregateStats(player, windowSplits(player.id));
+  const values = player.group === "pitcher"
+    ? [formatInnings(stats.inningsPitchedPoints), stats.wins, stats.losses, stats.saves, stats.strikeOuts]
+    : [`${number(stats.hits)}/${number(stats.atBats)}`, stats.runs, stats.homeRuns, stats.rbi, stats.stolenBases];
+  return values.map((value) => `<td class="lineup-stat-col">${escapeHtml(formatStatValue(value))}</td>`).join("");
+}
+
+function formatStatValue(value) {
+  return Number(value) === 0 ? "" : value;
 }
 
 function playerStatusBadge(player) {
@@ -599,6 +645,26 @@ function updateWindow() {
   rangeEl.value = state.range;
 }
 
+function isGameStarted(player) {
+  return state.range === "day" && Boolean(dataState.games[player.id]?.gameStarted);
+}
+
+function isLineupLocked(player, isBench) {
+  if (!dataState.ready || state.range !== "day") return false;
+  return isBench ? isGameStarted(player) : isGameStarted(player);
+}
+
+function isSlotLocked(slotCode) {
+  const player = playerById(state.lineup[slotCode]);
+  return player ? isLineupLocked(player, false) : false;
+}
+
+function isMoveCandidateAvailable(player) {
+  const assignedSlot = playerSlot(player.id);
+  if (assignedSlot) return !isSlotLocked(assignedSlot);
+  return !isLineupLocked(player, true);
+}
+
 function isEligible(player, slot) {
   return slot.allowed.some((position) => player.positions.includes(position));
 }
@@ -611,6 +677,14 @@ function assignPlayer(playerId, targetSlotCode) {
   const player = playerById(playerId);
   const targetSlot = slotByCode(targetSlotCode);
   if (!player || !targetSlot || !isEligible(player, targetSlot)) return;
+  if (isSlotLocked(targetSlotCode)) {
+    statusEl.textContent = `${slotLabel(targetSlot)} is locked because that player's game has started.`;
+    return;
+  }
+  if (!isMoveCandidateAvailable(player)) {
+    statusEl.textContent = `${player.name} is locked because his game has started.`;
+    return;
+  }
   const oldSlotCode = playerSlot(playerId);
   const replacedPlayerId = state.lineup[targetSlotCode];
   if (oldSlotCode) state.lineup[oldSlotCode] = replacedPlayerId || "";
@@ -622,9 +696,17 @@ function assignPlayer(playerId, targetSlotCode) {
 function openPositionDialog(slotCode) {
   const slot = slotByCode(slotCode);
   if (!slot) return;
+  if (isSlotLocked(slotCode)) {
+    positionDialogTitle.textContent = `${slotLabel(slot)} locked`;
+    positionDialogBody.innerHTML = `<p class="admin-note">This lineup spot cannot be changed because that player's MLB game has already started.</p>`;
+    positionDialog.showModal();
+    return;
+  }
   const pool = slotCode.startsWith("SP") || slotCode.startsWith("RP") ? pitchers : hitters;
   const group = pool === pitchers ? "pitcher" : "hitter";
-  const eligible = pool.filter((player) => isEligible(player, slot)).map((player) => ({ ...player, group }));
+  const eligible = pool
+    .map((player) => ({ ...player, group }))
+    .filter((player) => isEligible(player, slot) && isMoveCandidateAvailable(player));
   positionDialogTitle.textContent = `Move to ${slotLabel(slot)}`;
   positionDialogBody.innerHTML = `
     <div class="lineup-option-list">
@@ -738,13 +820,17 @@ function newsCard(article) {
 document.addEventListener("dragstart", (event) => {
   const row = event.target.closest(".lineup-player-row");
   if (!row) return;
+  if (row.classList.contains("is-locked")) {
+    event.preventDefault();
+    return;
+  }
   event.dataTransfer.setData("text/plain", row.dataset.playerId);
   event.dataTransfer.effectAllowed = "move";
 });
 
 document.addEventListener("dragover", (event) => {
   const posCell = event.target.closest(".lineup-pos-cell");
-  if (!posCell || posCell.dataset.slot === "BN") return;
+  if (!posCell || posCell.dataset.slot === "BN" || isSlotLocked(posCell.dataset.slot)) return;
   event.preventDefault();
   posCell.classList.add("is-drop-target");
 });
@@ -755,7 +841,7 @@ document.addEventListener("dragleave", (event) => {
 
 document.addEventListener("drop", (event) => {
   const posCell = event.target.closest(".lineup-pos-cell");
-  if (!posCell || posCell.dataset.slot === "BN") return;
+  if (!posCell || posCell.dataset.slot === "BN" || isSlotLocked(posCell.dataset.slot)) return;
   event.preventDefault();
   posCell.classList.remove("is-drop-target");
   assignPlayer(event.dataTransfer.getData("text/plain"), posCell.dataset.slot);
