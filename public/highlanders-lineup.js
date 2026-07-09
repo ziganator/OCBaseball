@@ -100,6 +100,7 @@ const hitterBodyEl = document.querySelector("#hitter-table-body");
 const pitcherBodyEl = document.querySelector("#pitcher-table-body");
 const hitterHeaderEl = document.querySelector("#hitter-table-header");
 const pitcherHeaderEl = document.querySelector("#pitcher-table-header");
+const mobileToggleEl = document.querySelector("#lineup-mobile-toggle");
 const hittingTotalEl = document.querySelector("#hitting-total");
 const pitchingTotalEl = document.querySelector("#pitching-total");
 const teamTotalEl = document.querySelector("#team-total");
@@ -109,6 +110,7 @@ const playerDialogBody = document.querySelector("#player-dialog-body");
 const positionDialog = document.querySelector("#position-dialog");
 const positionDialogTitle = document.querySelector("#position-dialog-title");
 const positionDialogBody = document.querySelector("#position-dialog-body");
+let draggingPlayerId = "";
 
 const playerIdCache = loadJson(PLAYER_ID_KEY, {});
 const dataState = {
@@ -441,7 +443,9 @@ function normalizeStats(player, split) {
     caughtStealing: number(stat.caughtStealing),
     baseOnBalls: number(stat.baseOnBalls),
     hitByPitch: number(stat.hitByPitch),
-    groundIntoDoublePlay: number(stat.groundIntoDoublePlay)
+    groundIntoDoublePlay: number(stat.groundIntoDoublePlay),
+    cycle: number(stat.cycle),
+    grandSlams: number(stat.grandSlams)
   };
 }
 
@@ -506,7 +510,13 @@ function statSummary(player) {
     ["3B", stats.triples],
     ["HR", stats.homeRuns],
     ["RBI", stats.rbi],
-    ["SB", stats.stolenBases]
+    ["SB", stats.stolenBases],
+    ["CS", stats.caughtStealing],
+    ["BB", stats.baseOnBalls],
+    ["HBP", stats.hitByPitch],
+    ["GIDP", stats.groundIntoDoublePlay],
+    ["CYC", stats.cycle],
+    ["SLAM", stats.grandSlams]
   ]);
 }
 
@@ -537,9 +547,18 @@ function renderTableHeaders() {
     <th>Batters</th>
     <th class="lineup-stat-col">H/AB</th>
     <th class="lineup-stat-col">R</th>
+    <th class="lineup-stat-col">1B</th>
+    <th class="lineup-stat-col">2B</th>
+    <th class="lineup-stat-col">3B</th>
     <th class="lineup-stat-col">HR</th>
     <th class="lineup-stat-col">RBI</th>
     <th class="lineup-stat-col">SB</th>
+    <th class="lineup-stat-col">CS</th>
+    <th class="lineup-stat-col">BB</th>
+    <th class="lineup-stat-col">HBP</th>
+    <th class="lineup-stat-col">GIDP</th>
+    <th class="lineup-stat-col">CYC</th>
+    <th class="lineup-stat-col">SLAM</th>
     <th>Fan Pts</th>
   `;
   pitcherHeaderEl.innerHTML = `
@@ -571,7 +590,7 @@ function tableRow(player, slot) {
   const locked = isLineupLocked(player, isBench);
   const activeLive = !isBench && Boolean(game?.gameInProgress);
   const gameLine = state.range === "day"
-    ? game ? gameLineHtml(player, game) : `<span class="lineup-game-text">No MLB game found for this date.</span>`
+    ? game ? gameLineHtml(player, game) : `<span class="lineup-game-text">No game</span>`
     : "";
   return `
     <tr class="lineup-player-row ${isBench ? "is-bench" : "is-active"} ${activeLive ? "is-live" : ""} ${locked ? "is-locked" : ""}" draggable="${locked ? "false" : "true"}" data-player-id="${player.id}">
@@ -599,7 +618,22 @@ function statCells(player) {
   const stats = aggregateStats(player, windowSplits(player.id));
   const values = player.group === "pitcher"
     ? [formatInnings(stats.inningsPitchedPoints), stats.wins, stats.losses, stats.saves, stats.strikeOuts]
-    : [`${number(stats.hits)}/${number(stats.atBats)}`, stats.runs, stats.homeRuns, stats.rbi, stats.stolenBases];
+    : [
+      `${number(stats.hits)}/${number(stats.atBats)}`,
+      stats.runs,
+      stats.singles,
+      stats.doubles,
+      stats.triples,
+      stats.homeRuns,
+      stats.rbi,
+      stats.stolenBases,
+      stats.caughtStealing,
+      stats.baseOnBalls,
+      stats.hitByPitch,
+      stats.groundIntoDoublePlay,
+      stats.cycle,
+      stats.grandSlams
+    ];
   return values.map((value) => `<td class="lineup-stat-col">${escapeHtml(formatStatValue(value))}</td>`).join("");
 }
 
@@ -672,6 +706,17 @@ function isMoveCandidateAvailable(player) {
 
 function isEligible(player, slot) {
   return slot.allowed.some((position) => player.positions.includes(position));
+}
+
+function canDropPlayer(playerId, slotCode) {
+  const player = playerById(playerId);
+  const slot = slotByCode(slotCode);
+  if (!player || !slot || !isMoveCandidateAvailable(player)) return false;
+  return isEligible(player, slot);
+}
+
+function clearDropTarget(cell) {
+  cell?.classList.remove("is-valid-drop-target", "is-invalid-drop-target");
 }
 
 function playerSlot(playerId) {
@@ -829,6 +874,7 @@ document.addEventListener("dragstart", (event) => {
     event.preventDefault();
     return;
   }
+  draggingPlayerId = row.dataset.playerId;
   event.dataTransfer.setData("text/plain", row.dataset.playerId);
   event.dataTransfer.effectAllowed = "move";
 });
@@ -837,19 +883,26 @@ document.addEventListener("dragover", (event) => {
   const posCell = event.target.closest(".lineup-pos-cell");
   if (!posCell || posCell.dataset.slot === "BN" || isSlotLocked(posCell.dataset.slot)) return;
   event.preventDefault();
-  posCell.classList.add("is-drop-target");
+  const eligible = canDropPlayer(draggingPlayerId, posCell.dataset.slot);
+  posCell.classList.toggle("is-valid-drop-target", eligible);
+  posCell.classList.toggle("is-invalid-drop-target", !eligible);
 });
 
 document.addEventListener("dragleave", (event) => {
-  event.target.closest(".lineup-pos-cell")?.classList.remove("is-drop-target");
+  clearDropTarget(event.target.closest(".lineup-pos-cell"));
 });
 
 document.addEventListener("drop", (event) => {
   const posCell = event.target.closest(".lineup-pos-cell");
   if (!posCell || posCell.dataset.slot === "BN" || isSlotLocked(posCell.dataset.slot)) return;
   event.preventDefault();
-  posCell.classList.remove("is-drop-target");
+  clearDropTarget(posCell);
   assignPlayer(event.dataTransfer.getData("text/plain"), posCell.dataset.slot);
+});
+
+document.addEventListener("dragend", () => {
+  draggingPlayerId = "";
+  document.querySelectorAll(".lineup-pos-cell").forEach(clearDropTarget);
 });
 
 document.addEventListener("click", (event) => {
@@ -900,6 +953,11 @@ rangeEl.addEventListener("change", () => {
   state.range = rangeEl.value || "day";
   saveState();
   renderTables();
+});
+
+mobileToggleEl?.addEventListener("click", () => {
+  const mobile = document.body.classList.toggle("lineup-force-mobile");
+  mobileToggleEl.textContent = mobile ? "Web" : "Mobile";
 });
 
 renderTables();

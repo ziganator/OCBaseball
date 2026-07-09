@@ -829,6 +829,13 @@ h1 {
   grid-template-columns: minmax(180px, 240px) minmax(180px, 260px) 1fr;
 }
 
+.lineup-control-actions {
+  align-items: end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .lineup-date-controls label {
   color: #555555;
   display: grid;
@@ -853,14 +860,21 @@ h1 {
 }
 
 .lineup-table {
+  border-collapse: collapse;
   min-width: 760px;
   width: 100%;
 }
 
 .lineup-table th,
 .lineup-table td {
+  border-right: 1px solid var(--line);
   padding: 6px 8px;
   text-align: center;
+}
+
+.lineup-table th:last-child,
+.lineup-table td:last-child {
+  border-right: 0;
 }
 
 .lineup-table th:first-child,
@@ -880,7 +894,8 @@ h1 {
 }
 
 .lineup-stat-col {
-  min-width: 58px;
+  min-width: 44px;
+  width: 44px;
 }
 
 .lineup-player-row {
@@ -1068,10 +1083,90 @@ h1 {
   background: #f8fbff;
 }
 
-.lineup-pos-cell.is-drop-target {
-  background: #fff5d6;
+.lineup-pos-cell.is-valid-drop-target {
+  background: #edf8ef;
+  outline: 2px solid #1e8f48;
+  outline-offset: -2px;
+}
+
+.lineup-pos-cell.is-invalid-drop-target {
+  background: #fff1f1;
   outline: 2px solid var(--red);
   outline-offset: -2px;
+}
+
+.players-filter-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(220px, 1fr) minmax(160px, 220px) minmax(160px, 220px);
+}
+
+.players-filter-grid label {
+  color: #555555;
+  display: grid;
+  font-size: 12px;
+  font-weight: 800;
+  gap: 7px;
+  text-transform: uppercase;
+}
+
+.players-filter-grid input,
+.players-filter-grid select {
+  border: 1px solid #cfcfcf;
+  font: inherit;
+  min-height: 40px;
+  padding: 8px 10px;
+  width: 100%;
+}
+
+.players-table {
+  min-width: 1080px;
+}
+
+.players-table th:first-child,
+.players-table td:first-child {
+  min-width: 220px;
+  text-align: left;
+}
+
+.players-table th:nth-child(2),
+.players-table td:nth-child(2),
+.players-table th:nth-child(3),
+.players-table td:nth-child(3) {
+  min-width: 68px;
+  text-align: center;
+}
+
+body.lineup-force-mobile .lineup-date-controls,
+body.lineup-force-mobile .players-filter-grid {
+  grid-template-columns: 1fr;
+}
+
+body.lineup-force-mobile .lineup-table {
+  min-width: 500px;
+}
+
+body.lineup-force-mobile .lineup-player-main,
+body.lineup-force-mobile .lineup-option-button {
+  grid-template-columns: 1fr;
+}
+
+body.lineup-force-mobile .lineup-table .lineup-stat-col {
+  display: none;
+}
+
+body.lineup-force-mobile .lineup-player-statline,
+body.lineup-force-mobile .lineup-option-current,
+body.lineup-force-mobile .lineup-option-points {
+  text-align: left;
+}
+
+body.lineup-force-mobile .lineup-player-statline {
+  display: block;
+}
+
+body.lineup-force-mobile .lineup-player-game {
+  flex-wrap: wrap;
 }
 
 .lineup-pos-pill {
@@ -2041,7 +2136,8 @@ tbody tr:last-child td {
   }
 
   .lineup-hero,
-  .lineup-date-controls {
+  .lineup-date-controls,
+  .players-filter-grid {
     grid-template-columns: 1fr;
   }
 

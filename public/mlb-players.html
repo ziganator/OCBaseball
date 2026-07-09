@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MLB Players | Owners Club Baseball</title>
+    <link rel="stylesheet" href="/styles.css?v=20260709i">
+  </head>
+  <body>
+    <header class="menu-header">
+      <div class="header-inner">
+        <a class="brand-mark" href="/">
+          <img src="/assets/OC%20Icon.png" alt="Owners Club">
+        </a>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="/">Season</a>
+          <span>|</span>
+          <a href="/teams.html">Teams</a>
+          <span>|</span>
+          <a href="/highlanders-lineup.html">Highlanders Lineup</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="page-shell">
+      <section class="page-title">
+        <span>Players</span>
+        <h1>MLB Player List</h1>
+        <p>Browse active MLB players and current season stats for add/drop and trade work.</p>
+      </section>
+
+      <section class="page-band lineup-page">
+        <section class="lineup-card players-controls">
+          <h2>Player Pool</h2>
+          <div class="players-filter-grid">
+            <label>
+              Search
+              <input id="players-search" type="search" placeholder="Player name">
+            </label>
+            <label>
+              Type
+              <select id="players-type">
+                <option value="all">All Players</option>
+                <option value="hitter">Hitters</option>
+                <option value="pitcher">Pitchers</option>
+              </select>
+            </label>
+            <label>
+              Team
+              <select id="players-team">
+                <option value="all">All Teams</option>
+              </select>
+            </label>
+          </div>
+          <p id="players-status" class="admin-note" role="status">Loading MLB players...</p>
+        </section>
+
+        <section class="lineup-card">
+          <div class="table-wrap lineup-table-wrap players-table-wrap">
+            <table class="lineup-table players-table">
+              <thead>
+                <tr>
+                  <th>Player</th>
+                  <th>Team</th>
+                  <th>Pos</th>
+                  <th class="lineup-stat-col">H/AB</th>
+                  <th class="lineup-stat-col">R</th>
+                  <th class="lineup-stat-col">1B</th>
+                  <th class="lineup-stat-col">2B</th>
+                  <th class="lineup-stat-col">3B</th>
+                  <th class="lineup-stat-col">HR</th>
+                  <th class="lineup-stat-col">RBI</th>
+                  <th class="lineup-stat-col">SB</th>
+                  <th class="lineup-stat-col">CS</th>
+                  <th class="lineup-stat-col">BB</th>
+                  <th class="lineup-stat-col">HBP</th>
+                  <th class="lineup-stat-col">GIDP</th>
+                  <th class="lineup-stat-col">IP</th>
+                  <th class="lineup-stat-col">W</th>
+                  <th class="lineup-stat-col">L</th>
+                  <th class="lineup-stat-col">SV</th>
+                  <th class="lineup-stat-col">K</th>
+                </tr>
+              </thead>
+              <tbody id="players-body"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span>Owners Club Baseball</span>
+    </footer>
+
+    <script src="/mlb-players.js?v=20260709i" type="module"></script>
+  </body>
+</html>
