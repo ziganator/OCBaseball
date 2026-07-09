@@ -801,8 +801,8 @@ h1 {
 .lineup-card {
   background: #ffffff;
   border: 1px solid var(--line);
-  padding: 18px;
-  margin-top: 18px;
+  padding: 14px;
+  margin-top: 14px;
 }
 
 .lineup-card h2 {
@@ -857,6 +857,7 @@ h1 {
 
 .lineup-table th,
 .lineup-table td {
+  padding: 6px 8px;
   text-align: center;
 }
 
@@ -908,7 +909,7 @@ h1 {
   cursor: pointer;
   display: grid;
   font: inherit;
-  gap: 3px;
+  gap: 2px;
   padding: 0;
   text-align: left;
   width: 100%;
@@ -921,8 +922,8 @@ h1 {
 .lineup-player-main {
   align-items: center;
   display: grid;
-  gap: 18px;
-  grid-template-columns: minmax(190px, 0.8fr) minmax(260px, 1.2fr);
+  gap: 12px;
+  grid-template-columns: minmax(190px, 0.9fr) minmax(220px, 1.1fr);
 }
 
 .lineup-player-main > span:first-child,
@@ -932,6 +933,7 @@ h1 {
 
 .lineup-player-button strong {
   display: block;
+  line-height: 1.15;
 }
 
 .lineup-player-button strong em {
@@ -946,7 +948,7 @@ h1 {
 .lineup-player-statline,
 .lineup-game-line {
   color: #666666;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
 }
 
@@ -956,8 +958,55 @@ h1 {
 
 .lineup-game-line {
   border-top: 1px solid #eeeeee;
-  margin-top: 4px;
-  padding-top: 4px;
+  align-items: center;
+  display: flex;
+  gap: 5px;
+  margin-top: 2px;
+  min-height: 18px;
+  padding-top: 2px;
+}
+
+.lineup-game-note {
+  color: #777777;
+  margin-left: 4px;
+}
+
+.lineup-order-badge,
+.lineup-decision-badge,
+.lineup-status-badge {
+  align-items: center;
+  display: inline-flex;
+  justify-content: center;
+  line-height: 1;
+}
+
+.lineup-order-badge {
+  background: #1e8f48;
+  border-radius: 999px;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 900;
+  height: 18px;
+  min-width: 18px;
+  padding: 0 5px;
+}
+
+.lineup-decision-badge,
+.lineup-status-badge {
+  background: var(--red);
+  border-radius: 999px;
+  color: #ffffff;
+  font-family: "Open Sans", sans-serif;
+  font-size: 9px;
+  font-weight: 900;
+  min-height: 16px;
+  padding: 3px 6px;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+.lineup-status-badge {
+  margin-left: 6px;
 }
 
 .lineup-pos-cell {
@@ -981,7 +1030,7 @@ h1 {
   font-weight: 800;
   justify-content: center;
   min-width: 46px;
-  padding: 4px 9px;
+  padding: 3px 9px;
 }
 
 .lineup-pos-pill:hover {
@@ -1019,6 +1068,38 @@ h1 {
 
 .lineup-dialog-body {
   padding: 18px 22px 22px;
+}
+
+.lineup-dialog-tabs {
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  gap: 8px;
+  margin: -2px 0 14px;
+}
+
+.lineup-dialog-tabs button {
+  background: transparent;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  color: #555555;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 900;
+  padding: 0 12px 10px;
+  text-transform: uppercase;
+}
+
+.lineup-dialog-tabs button.is-active {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.lineup-dialog-panel {
+  display: none;
+}
+
+.lineup-dialog-panel.is-active {
+  display: block;
 }
 
 .lineup-swap-dialog {
@@ -1103,6 +1184,45 @@ h1 {
   position: sticky;
   top: 0;
   z-index: 1;
+}
+
+.lineup-news-list {
+  display: grid;
+  gap: 10px;
+  max-height: 62vh;
+  overflow: auto;
+}
+
+.lineup-news-card {
+  border: 1px solid var(--line);
+  color: var(--ink);
+  display: grid;
+  gap: 5px;
+  padding: 12px;
+  text-decoration: none;
+}
+
+.lineup-news-card:hover {
+  border-color: var(--red);
+}
+
+.lineup-news-card strong {
+  color: var(--red);
+  font-family: "Oswald", sans-serif;
+  font-size: 18px;
+  text-transform: uppercase;
+}
+
+.lineup-news-card span {
+  color: #777777;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.lineup-news-card p {
+  color: #555555;
+  margin: 0;
 }
 
 .lineup-fantasy-points {
