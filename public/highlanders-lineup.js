@@ -92,6 +92,7 @@ const defaultLineup = {
 };
 
 const dateEl = document.querySelector("#lineup-date");
+const rangeEl = document.querySelector("#lineup-range");
 const windowLabelEl = document.querySelector("#lineup-window-label");
 const statusEl = document.querySelector("#lineup-status");
 const hitterBodyEl = document.querySelector("#hitter-table-body");
@@ -115,6 +116,7 @@ const dataState = {
 };
 let state = loadState();
 dateEl.value = state.date;
+rangeEl.value = state.range;
 
 function todayString() {
   const date = new Date();
@@ -136,7 +138,7 @@ function loadState() {
   const saved = loadJson(STORAGE_KEY, {});
   return {
     date: saved.date || todayString(),
-    range: saved.range || "day",
+    range: "day",
     lineup: sanitizeLineup(saved.lineup || defaultLineup)
   };
 }
@@ -182,7 +184,7 @@ function addDays(dateString, days) {
 }
 
 function rangeStart() {
-  const offsets = { day: 0, week: -6, twoWeeks: -13, month: -29, threeMonths: -89 };
+  const offsets = { day: 0, week: -6, twoWeeks: -13, month: -29 };
   if (state.range === "season") return SEASON_START;
   return addDays(state.date, offsets[state.range] || 0);
 }
@@ -193,14 +195,13 @@ function lastTwoMonthsStart() {
 
 function rangeLabel() {
   const labels = {
-    day: "1 day",
-    week: "1 week",
-    twoWeeks: "2 weeks",
-    month: "1 month",
-    threeMonths: "3 months",
-    season: "full season"
+    day: "Today",
+    week: "Last 7 days",
+    twoWeeks: "Last 14 days",
+    month: "Last 30 days",
+    season: "Full season"
   };
-  return `${labels[state.range] || "1 day"}: ${rangeStart()} through ${state.date}`;
+  return `${labels[state.range] || "Today"}: ${rangeStart()} through ${state.date}`;
 }
 
 async function fetchJson(url) {
@@ -469,17 +470,24 @@ function rowsFor(pool, slots) {
 function tableRow(player, slot) {
   const game = dataState.games[player.id];
   const points = dataState.ready ? playerPoints(player) : 0;
+  const isBench = slot.code === "BN";
+  const gameLine = state.range === "day"
+    ? game ? `${game.line}${game.lineup ? ` | ${game.lineup}` : ""}` : "No MLB game found for this date."
+    : "";
   return `
-    <tr class="lineup-player-row" draggable="true" data-player-id="${player.id}">
+    <tr class="lineup-player-row ${isBench ? "is-bench" : "is-active"}" draggable="true" data-player-id="${player.id}">
       <td class="lineup-pos-cell" data-slot="${slot.code}" data-player-id="${player.id}">
         <button class="lineup-pos-pill" type="button" data-action="position" data-slot="${slot.code}">${slotLabel(slot)}</button>
       </td>
       <td class="lineup-player-cell">
         <button class="lineup-player-button" type="button" data-action="player" data-player-id="${player.id}">
-          <strong>${player.name}</strong>
-          <span>${player.mlb} - ${player.positions.join(", ")}</span>
-          <span>${statSummary(player)}</span>
-          <span>${game ? `${game.line}${game.lineup ? ` | ${game.lineup}` : ""}` : "No MLB game found for this date."}</span>
+          <span class="lineup-player-main">
+            <span>
+              <strong>${player.name} <em>${player.mlb} - ${player.positions.join(", ")}</em></strong>
+            </span>
+            <span class="lineup-player-statline">${statSummary(player)}</span>
+          </span>
+          ${gameLine ? `<span class="lineup-game-line">${gameLine}</span>` : ""}
         </button>
       </td>
       <td class="lineup-fantasy-points">${formatPoints(points)}</td>
@@ -505,9 +513,7 @@ function updateTotals() {
 
 function updateWindow() {
   windowLabelEl.textContent = rangeLabel();
-  document.querySelectorAll("[data-range]").forEach((button) => {
-    button.classList.toggle("is-active", button.dataset.range === state.range);
-  });
+  rangeEl.value = state.range;
 }
 
 function isEligible(player, slot) {
@@ -540,8 +546,11 @@ function openPositionDialog(slotCode) {
     <div class="lineup-option-list">
       ${eligible.map((player) => `
         <button class="lineup-option-button" type="button" data-player-id="${player.id}" data-slot="${slot.code}">
-          <strong>${player.name}</strong>
-          <span>${player.mlb} - ${player.positions.join(", ")}${playerSlot(player.id) ? ` | currently ${slotLabel(slotByCode(playerSlot(player.id)) || { code: "BN" })}` : " | bench"}</span>
+          <span>
+            <strong>${player.name} <em>${player.mlb} - ${player.positions.join(", ")}</em></strong>
+          </span>
+          <span class="lineup-option-points">${formatPoints(playerPoints(player))} pts</span>
+          <span class="lineup-option-current">${playerSlot(player.id) ? `Currently ${slotLabel(slotByCode(playerSlot(player.id)) || { code: "BN" })}` : "Bench"}</span>
         </button>
       `).join("")}
     </div>
@@ -646,12 +655,10 @@ dateEl.addEventListener("change", () => {
   loadMlbData();
 });
 
-document.querySelectorAll("[data-range]").forEach((button) => {
-  button.addEventListener("click", () => {
-    state.range = button.dataset.range;
-    saveState();
-    renderTables();
-  });
+rangeEl.addEventListener("change", () => {
+  state.range = rangeEl.value || "day";
+  saveState();
+  renderTables();
 });
 
 renderTables();

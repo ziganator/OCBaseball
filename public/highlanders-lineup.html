@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/styles.css?v=20260709a">
+    <link rel="stylesheet" href="/styles.css?v=20260709b">
   </head>
   <body>
     <header class="site-header menu-header">
@@ -51,20 +51,22 @@
 
       <section class="page-band lineup-page">
         <section class="lineup-card lineup-controls">
-          <h2>Stat Window</h2>
+          <h2>Lineup Data</h2>
           <div class="lineup-date-controls">
             <label>
               Date
               <input id="lineup-date" type="date">
             </label>
-            <div class="lineup-range-buttons" role="group" aria-label="Stat range">
-              <button class="admin-secondary" type="button" data-range="day">1 Day</button>
-              <button class="admin-secondary" type="button" data-range="week">1 Week</button>
-              <button class="admin-secondary" type="button" data-range="twoWeeks">2 Weeks</button>
-              <button class="admin-secondary" type="button" data-range="month">1 Month</button>
-              <button class="admin-secondary" type="button" data-range="threeMonths">3 Months</button>
-              <button class="admin-secondary" type="button" data-range="season">Full Season</button>
-            </div>
+            <label>
+              Stats
+              <select id="lineup-range">
+                <option value="day">Today</option>
+                <option value="week">Last 7 Days</option>
+                <option value="twoWeeks">Last 14 Days</option>
+                <option value="month">Last 30 Days</option>
+                <option value="season">Full Season</option>
+              </select>
+            </label>
           </div>
           <p id="lineup-window-label" class="admin-note"></p>
         </section>
@@ -109,26 +111,22 @@
       <span>Owners Club Baseball</span>
     </footer>
 
-    <dialog id="position-dialog" class="admin-dialog lineup-dialog">
-      <form method="dialog">
-        <div class="admin-dialog-head">
-          <h2 id="position-dialog-title">Move Player</h2>
-          <button class="admin-secondary" type="button" data-dialog-close>Close</button>
-        </div>
-      </form>
-      <div id="position-dialog-body"></div>
+    <dialog id="position-dialog" class="admin-dialog lineup-dialog lineup-swap-dialog">
+      <div class="lineup-dialog-head">
+        <h2 id="position-dialog-title">Move Player</h2>
+        <button class="admin-secondary" type="button" data-dialog-close>Close</button>
+      </div>
+      <div id="position-dialog-body" class="lineup-dialog-body"></div>
     </dialog>
 
     <dialog id="player-dialog" class="admin-dialog lineup-dialog">
-      <form method="dialog">
-        <div class="admin-dialog-head">
-          <h2 id="player-dialog-title">Player Stats</h2>
-          <button class="admin-secondary" type="button" data-dialog-close>Close</button>
-        </div>
-      </form>
-      <div id="player-dialog-body"></div>
+      <div class="lineup-dialog-head">
+        <h2 id="player-dialog-title">Player Stats</h2>
+        <button class="admin-secondary" type="button" data-dialog-close>Close</button>
+      </div>
+      <div id="player-dialog-body" class="lineup-dialog-body"></div>
     </dialog>
 
-    <script src="/highlanders-lineup.js?v=20260709a" type="module"></script>
+    <script src="/highlanders-lineup.js?v=20260709b" type="module"></script>
   </body>
 </html>
