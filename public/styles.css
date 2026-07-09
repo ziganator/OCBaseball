@@ -926,12 +926,11 @@ h1 {
   grid-template-columns: minmax(190px, 0.9fr) minmax(220px, 1.1fr);
 }
 
-.lineup-player-main > span:first-child,
-.lineup-player-button span {
+.lineup-player-main > span:first-child {
   display: block;
 }
 
-.lineup-player-button strong {
+.lineup-player-name {
   display: block;
   line-height: 1.15;
 }
@@ -960,10 +959,17 @@ h1 {
   border-top: 1px solid #eeeeee;
   align-items: center;
   display: flex;
+  flex-wrap: nowrap;
   gap: 5px;
   margin-top: 2px;
   min-height: 18px;
   padding-top: 2px;
+}
+
+.lineup-player-meta {
+  color: #666666;
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .lineup-game-note {
@@ -975,6 +981,7 @@ h1 {
 .lineup-decision-badge,
 .lineup-status-badge {
   align-items: center;
+  flex: 0 0 auto;
   display: inline-flex;
   justify-content: center;
   line-height: 1;
@@ -1029,8 +1036,9 @@ h1 {
   font-size: 12px;
   font-weight: 800;
   justify-content: center;
-  min-width: 46px;
+  min-width: 0;
   padding: 3px 9px;
+  width: max-content;
 }
 
 .lineup-pos-pill:hover {
@@ -2006,6 +2014,10 @@ tbody tr:last-child td {
   .lineup-option-current,
   .lineup-option-points {
     text-align: left;
+  }
+
+  .lineup-game-line {
+    flex-wrap: wrap;
   }
 }
 

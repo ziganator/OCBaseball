@@ -29,7 +29,7 @@ const hitters = [
 const pitchers = [
   { id: "jesus-luzardo", mlbId: 666200, name: "Jesus Luzardo", positions: ["SP"], mlb: "PHI" },
   { id: "logan-webb", mlbId: 657277, name: "Logan Webb", positions: ["SP"], mlb: "SF" },
-  { id: "mackenzie-gore", mlbId: 669022, name: "MacKenzie Gore", positions: ["SP"], mlb: "WSH" },
+  { id: "mackenzie-gore", mlbId: 669022, name: "MacKenzie Gore", positions: ["SP"], mlb: "TEX" },
   { id: "eduardo-rodriguez", mlbId: 593958, name: "Eduardo Rodriguez", positions: ["SP"], mlb: "AZ" },
   { id: "kyle-finnegan", mlbId: 640448, name: "Kyle Finnegan", positions: ["RP"], mlb: "DET" },
   { id: "antonio-senzatela", mlbId: 622608, name: "Antonio Senzatela", positions: ["SP", "RP"], mlb: "COL" },
@@ -334,7 +334,7 @@ function normalizePlayerStatus(status) {
   if (code === "DTD" || description.toLowerCase().includes("day-to-day")) return "DTD";
   if (description.toLowerCase().includes("injured") || /^D\d+/.test(code)) {
     const days = code.match(/\d+/)?.[0];
-    return days ? `IL ${days}` : "IL";
+    return days ? `IL-${days}` : "IL";
   }
   if (["RM", "FA", "OUT"].includes(code) || description.toLowerCase().includes("reassigned")) return "NA";
   return code || description;
@@ -385,7 +385,6 @@ function playerGameContext(player, game, boxscore) {
 function pitcherDecisions(stats) {
   const decisions = [];
   if (number(stats.wins)) decisions.push("W");
-  if (number(stats.losses)) decisions.push("L");
   if (number(stats.saves)) decisions.push("SV");
   return decisions;
 }
@@ -482,10 +481,10 @@ function statSummary(player) {
   if (player.group === "pitcher") {
     return compactStats([
       ["IP", formatInnings(stats.inningsPitchedPoints)],
-      ["W", stats.wins],
-      ["L", stats.losses],
-      ["SV", stats.saves],
-      ["HLD", stats.holds],
+      ["W", stats.wins, state.range === "day"],
+      ["L", stats.losses, state.range === "day"],
+      ["SV", stats.saves, state.range === "day"],
+      ["HLD", stats.holds, state.range === "day"],
       ["K", stats.strikeOuts]
     ]);
   }
@@ -503,7 +502,7 @@ function statSummary(player) {
 function compactStats(items) {
   return items
     .filter(([, value]) => Number(value) !== 0)
-    .map(([label, value]) => `${label} ${value}`)
+    .map(([label, value, labelOnly]) => labelOnly && Number(value) === 1 ? label : `${label} ${value}`)
     .join(" | ");
 }
 
@@ -537,7 +536,6 @@ function tableRow(player, slot) {
   const gameLine = state.range === "day"
     ? game ? gameLineHtml(player, game) : `<span class="lineup-game-text">No MLB game found for this date.</span>`
     : "";
-  const statusBadge = playerStatusBadge(player);
   return `
     <tr class="lineup-player-row ${isBench ? "is-bench" : "is-active"}" draggable="true" data-player-id="${player.id}">
       <td class="lineup-pos-cell" data-slot="${slot.code}" data-player-id="${player.id}">
@@ -547,11 +545,11 @@ function tableRow(player, slot) {
         <button class="lineup-player-button" type="button" data-action="player" data-player-id="${player.id}">
           <span class="lineup-player-main">
             <span>
-              <strong>${escapeHtml(player.name)}${statusBadge} <em>${escapeHtml(player.mlb)} - ${escapeHtml(player.positions.join(", "))}</em></strong>
+              <strong class="lineup-player-name">${escapeHtml(player.name)}</strong>
             </span>
             <span class="lineup-player-statline">${escapeHtml(statSummary(player))}</span>
           </span>
-          ${gameLine ? `<span class="lineup-game-line">${gameLine}</span>` : ""}
+          <span class="lineup-game-line">${playerMetaHtml(player)}${gameLine}</span>
         </button>
       </td>
       <td class="lineup-fantasy-points">${formatPoints(points)}</td>
@@ -561,7 +559,11 @@ function tableRow(player, slot) {
 
 function playerStatusBadge(player) {
   const status = dataState.statuses[player.id];
-  return status ? ` <span class="lineup-status-badge">${escapeHtml(status)}</span>` : "";
+  return status ? `<span class="lineup-status-badge">${escapeHtml(status)}</span>` : "";
+}
+
+function playerMetaHtml(player) {
+  return `<span class="lineup-player-meta">${escapeHtml(player.mlb)} - ${escapeHtml(player.positions.join(", "))}</span>${playerStatusBadge(player)}`;
 }
 
 function gameLineHtml(player, game) {
@@ -629,7 +631,7 @@ function openPositionDialog(slotCode) {
       ${eligible.map((player) => `
         <button class="lineup-option-button" type="button" data-player-id="${player.id}" data-slot="${slot.code}">
           <span>
-            <strong>${escapeHtml(player.name)}${playerStatusBadge(player)} <em>${escapeHtml(player.mlb)} - ${escapeHtml(player.positions.join(", "))}</em></strong>
+            <strong>${escapeHtml(player.name)} <em>${escapeHtml(player.mlb)} - ${escapeHtml(player.positions.join(", "))}</em>${playerStatusBadge(player)}</strong>
           </span>
           <span class="lineup-option-points">${formatPoints(playerPoints(player))} pts</span>
           <span class="lineup-option-current">${playerSlot(player.id) ? `Currently ${slotLabel(slotByCode(playerSlot(player.id)) || { code: "BN" })}` : "Bench"}</span>
