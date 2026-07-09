@@ -364,17 +364,21 @@ function playerGameContext(player, game, boxscore) {
   const gameTime = new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" }).format(new Date(game.gameDate));
   const battingOrder = playerBox?.battingOrder ? Math.floor(Number.parseInt(playerBox.battingOrder, 10) / 100) : null;
   const probablePitcherId = game.teams[side]?.probablePitcher?.id;
-  const position = player.group === "pitcher"
-    ? probablePitcherId === playerIdCache[player.id] ? "Probable SP" : ""
-    : battingOrder ? `Batting ${ordinal(battingOrder)}` : "";
+  const scheduledStarter = player.group === "pitcher"
+    && player.positions.includes("SP")
+    && probablePitcherId === playerIdCache[player.id];
+  const position = player.group === "pitcher" ? "" : battingOrder ? `Batting ${ordinal(battingOrder)}` : "";
   const lineupReleased = Boolean(boxscore?.teams?.[side]?.batters?.length || playerBox?.battingOrder);
+  const lineupOut = player.group === "hitter" && lineupReleased && !battingOrder;
   return {
     opponent,
     status: game.status?.abstractGameState || "",
     detail: game.status?.detailedState || "",
     summary: playerStats.summary || "",
     battingOrder,
+    lineupOut,
     decisions: pitcherDecisions(playerStats),
+    scheduledStarter,
     gameStarted,
     gameInProgress: gameStarted && !gameFinal,
     line: gameStarted
@@ -382,7 +386,7 @@ function playerGameContext(player, game, boxscore) {
       : `${gameTime} ${isHome ? "vs" : "@"} ${opponent}`,
     lineup: gameStarted
       ? position
-      : lineupReleased ? (position || "X") : ""
+      : position
   };
 }
 
@@ -613,11 +617,12 @@ function playerMetaHtml(player) {
 }
 
 function gameLineHtml(player, game) {
+  const starterBadge = game.scheduledStarter ? `<span class="lineup-starter-badge" aria-label="Scheduled starter">✓</span>` : "";
   const leadBadges = player.group === "pitcher"
-    ? game.decisions.map((decision) => `<span class="lineup-decision-badge">${escapeHtml(decision)}</span>`).join("")
+    ? `${starterBadge}${game.decisions.map((decision) => `<span class="lineup-decision-badge">${escapeHtml(decision)}</span>`).join("")}`
     : Number.isFinite(game.battingOrder)
       ? `<span class="lineup-order-badge">${game.battingOrder}</span>`
-      : "";
+      : game.lineupOut ? `<span class="lineup-out-badge" aria-label="Not in lineup">X</span>` : "";
   const lineup = player.group === "hitter" && Number.isFinite(game.battingOrder)
     ? ""
     : game.lineup ? `<span class="lineup-game-note">${escapeHtml(game.lineup)}</span>` : "";
