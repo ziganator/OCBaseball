@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin - Owners Club Baseball</title>
+    <title>Test Pages - Owners Club Baseball</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
@@ -18,9 +18,7 @@
         <nav class="nav" aria-label="Main navigation">
           <a href="/">Season</a>
           <a href="/teams.html">Teams</a>
-          <a href="/event-cards.html">Event Cards</a>
-          <a href="/archives.html">Archives</a>
-          <a href="/admin.html" aria-current="page">Admin</a>
+          <a href="/admin.html">Admin</a>
         </nav>
       </div>
     </header>
@@ -29,26 +27,24 @@
       <section class="admin-shell">
         <div class="admin-heading">
           <div>
-            <h1>Admin</h1>
-            <p class="section-kicker">Commissioner tools</p>
+            <h1>Test Pages</h1>
+            <p class="section-kicker">Working prototypes and data checks</p>
           </div>
-          <button id="logout-button" class="admin-secondary" type="button">Log Out</button>
+          <a class="admin-secondary" href="/admin.html">Admin Home</a>
         </div>
 
-        <div id="admin-home-status" class="admin-status" role="status"></div>
-
         <div class="admin-card-grid">
-          <a class="admin-home-card" href="/admin-users.html">
-            <span>Users</span>
-            <strong>Manage site users, admin access, and team ownership.</strong>
+          <a class="admin-home-card" href="/test-game1.html">
+            <span>Game 1 Score Test</span>
+            <strong>Compare Week 1 sheet scores against MLB game-log scoring with substitutions.</strong>
           </a>
-          <a class="admin-home-card" href="/admin-teams.html">
-            <span>Teams</span>
-            <strong>Edit team names, visuals, favorite teams, and seasonal identity.</strong>
+          <a class="admin-home-card" href="/highlanders-lineup.html">
+            <span>Highlanders Lineup</span>
+            <strong>Lineup sandbox for active slots, bench points, and player movement rules.</strong>
           </a>
-          <a class="admin-home-card" href="/admin-test.html">
-            <span>Test Pages</span>
-            <strong>Open prototypes for scoring, lineups, player pools, and other data checks.</strong>
+          <a class="admin-home-card" href="/mlb-players.html">
+            <span>MLB Player Pool</span>
+            <strong>Current MLB player list with stats and Owners Club claim indicators.</strong>
           </a>
         </div>
       </section>
@@ -57,7 +53,5 @@
     <footer class="site-footer">
       <span>Owners Club Baseball</span>
     </footer>
-
-    <script src="/admin-home.js?v=20260709l" type="module"></script>
   </body>
 </html>

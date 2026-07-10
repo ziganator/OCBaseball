@@ -316,7 +316,7 @@ h1 {
 .admin-card-grid {
   display: grid;
   gap: 18px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
 .admin-home-card {
@@ -809,6 +809,259 @@ h1 {
 
 .players-page {
   max-width: none;
+}
+
+.game-test-shell {
+  margin: 0 auto;
+  max-width: 1500px;
+  padding: 0 clamp(18px, 4vw, 48px) 68px;
+}
+
+.game-test-toolbar {
+  align-items: end;
+  border: 1px solid var(--line);
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(260px, 1fr) auto minmax(220px, 1fr);
+  margin-bottom: 18px;
+  padding: 16px;
+}
+
+.game-test-toolbar label {
+  color: #555555;
+  display: grid;
+  font-size: 12px;
+  font-weight: 800;
+  gap: 7px;
+  text-transform: uppercase;
+}
+
+.game-test-toolbar select {
+  border: 1px solid #cfcfcf;
+  font: inherit;
+  min-height: 40px;
+  padding: 8px 10px;
+}
+
+.game-scoreboard {
+  align-items: start;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+}
+
+.game-scoreboard h2,
+.game-card-challenge h2 {
+  color: var(--red);
+  font-family: "Oswald", sans-serif;
+  font-size: 24px;
+  margin: 0 0 12px;
+  text-transform: uppercase;
+}
+
+.game-scoreboard-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.game-score-card {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  cursor: pointer;
+  display: grid;
+  gap: 3px;
+  padding: 10px 12px;
+  text-align: left;
+}
+
+.game-score-card:hover {
+  border-color: var(--red);
+}
+
+.game-score-card span {
+  align-items: center;
+  display: flex;
+  font-size: 12px;
+  font-weight: 800;
+  justify-content: space-between;
+  text-transform: uppercase;
+}
+
+.game-score-card span.is-winner {
+  color: var(--red);
+}
+
+.game-score-card em {
+  color: #777777;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.game-card-challenge {
+  border: 1px solid var(--line);
+  padding: 14px;
+}
+
+.game-card-challenge p {
+  color: #555555;
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0 0 12px;
+}
+
+.challenge-row {
+  align-items: center;
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 26px 1fr auto auto;
+  min-height: 34px;
+}
+
+.challenge-row span,
+.challenge-row em,
+.challenge-row small {
+  color: #666666;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.challenge-row strong {
+  color: var(--ink);
+  font-size: 12px;
+}
+
+.game-matchup-detail {
+  margin-top: 24px;
+}
+
+.game-matchup-header {
+  align-items: center;
+  border-top: 3px solid var(--red);
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+  padding-top: 20px;
+}
+
+.game-matchup-header span {
+  color: #666666;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.game-matchup-header h2 {
+  font-size: clamp(28px, 4vw, 48px);
+  line-height: 1;
+  margin: 6px 0 0;
+  text-transform: uppercase;
+}
+
+.game-matchup-score {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+}
+
+.game-matchup-score strong {
+  font-family: "Oswald", sans-serif;
+  font-size: 42px;
+}
+
+.game-team-panels {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 18px;
+}
+
+.game-team-panel {
+  border: 1px solid var(--line);
+  background: #ffffff;
+}
+
+.game-team-panel > header {
+  align-items: center;
+  background: #f6f6f6;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  padding: 12px 14px;
+}
+
+.game-team-panel h3 {
+  color: var(--red);
+  font-size: 19px;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.game-team-panel header div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: end;
+}
+
+.game-team-panel header span {
+  border: 1px solid #d6d6d6;
+  color: #555555;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 7px;
+  text-transform: uppercase;
+}
+
+.game-roster-table {
+  border-collapse: collapse;
+  font-size: 12px;
+  min-width: 760px;
+  width: 100%;
+}
+
+.game-roster-table th,
+.game-roster-table td {
+  border-right: 1px solid var(--line);
+  padding: 6px 7px;
+  text-align: center;
+}
+
+.game-roster-table th:nth-child(2),
+.game-roster-table td:nth-child(2) {
+  min-width: 220px;
+  text-align: left;
+}
+
+.game-roster-table .is-diff {
+  color: var(--red);
+  font-weight: 900;
+}
+
+.substitution-track {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.substitution-track span {
+  background: #eef6f8;
+  border: 1px solid #c7e2e8;
+  color: #33535a;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 5px;
+}
+
+.substitution-track em {
+  color: #66777b;
+  font-style: normal;
 }
 
 .lineup-actions {
