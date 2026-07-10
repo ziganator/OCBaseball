@@ -1,5 +1,5 @@
-import { game1Data } from "./game1-data.js?v=20260710i";
-import { teams } from "./team-data.js?v=20260710i";
+import { game1Data } from "./game1-data.js?v=20260710j";
+import { teams } from "./team-data.js?v=20260710j";
 
 const API_ROOT = "https://statsapi.mlb.com/api/v1";
 const SEASON = "2026";
@@ -50,7 +50,6 @@ const dayToDate = {
 
 const matchupSelect = document.querySelector("#game-matchup-select");
 const statusEl = document.querySelector("#game-test-status");
-const calculateButton = document.querySelector("#calculate-game-button");
 const scoreboardGrid = document.querySelector("#game-scoreboard-grid");
 const challengeButton = document.querySelector("#card-challenge-button");
 const challengeDialog = document.querySelector("#card-challenge-dialog");
@@ -65,6 +64,7 @@ const detailBody = document.querySelector("#game-detail-body");
 const detailClose = document.querySelector("#game-detail-close");
 const detailStore = new Map();
 let detailCounter = 0;
+const storedMatchupScores = new Map();
 
 function loadJson(key, fallback) {
   try {
@@ -320,16 +320,18 @@ function renderScoreboard() {
 }
 
 function scoreboardGame(matchup) {
+  const stored = storedMatchupScores.get(matchup.id);
   const scoreboard = game1Data.scoreboard.find((game) => game.away === matchup.away.team && game.home === matchup.home.team) || {};
   return {
+    id: matchup.id,
     away: matchup.away.team,
-    awayScore: displayedSheetPoints(scoreboard.awayScore ?? matchup.away.summary.score),
-    awayLead: displayedSheetPoints(scoreboard.awayLead ?? matchup.away.summary.lead),
-    awayPsr: scoreboard.awayPsr || "",
+    awayScore: stored ? displayedSheetPoints(stored.away_score) : displayedSheetPoints(scoreboard.awayScore ?? matchup.away.summary.score),
+    awayLead: stored ? displayedSheetPoints(stored.away_lead) : displayedSheetPoints(scoreboard.awayLead ?? matchup.away.summary.lead),
+    awayPsr: stored?.away_psr ?? scoreboard.awayPsr ?? "",
     home: matchup.home.team,
-    homeScore: displayedSheetPoints(scoreboard.homeScore ?? matchup.home.summary.score),
-    homeLead: displayedSheetPoints(scoreboard.homeLead ?? matchup.home.summary.lead),
-    homePsr: scoreboard.homePsr || ""
+    homeScore: stored ? displayedSheetPoints(stored.home_score) : displayedSheetPoints(scoreboard.homeScore ?? matchup.home.summary.score),
+    homeLead: stored ? displayedSheetPoints(stored.home_lead) : displayedSheetPoints(scoreboard.homeLead ?? matchup.home.summary.lead),
+    homePsr: stored?.home_psr ?? scoreboard.homePsr ?? ""
   };
 }
 
@@ -668,7 +670,6 @@ function substitutionHtml(row) {
 
 async function calculateSelected() {
   const matchup = game1Data.matchups.find((item) => item.id === matchupSelect.value) || game1Data.matchups[0];
-  calculateButton.disabled = true;
   statusEl.textContent = "Loading MLB game logs...";
   try {
     const [away, home] = await Promise.all([scoreTeam(matchup.away), scoreTeam(matchup.home)]);
@@ -695,16 +696,36 @@ async function calculateSelected() {
     statusEl.textContent = `Calculated ${matchup.away.team} and ${matchup.home.team}. SP one-start weeks are doubled.`;
   } catch (error) {
     statusEl.textContent = `Could not calculate MLB data: ${error.message}`;
-  } finally {
-    calculateButton.disabled = false;
   }
 }
 
-function init() {
+async function loadStoredResults() {
+  statusEl.textContent = "Loading stored Game 1 results...";
+  try {
+    const response = await fetch("/api/game1-results?season=32&game=1&week=1");
+    if (!response.ok) throw new Error(`Stored results returned ${response.status}`);
+    const payload = await response.json();
+    const matchups = payload.data?.matchups || [];
+    storedMatchupScores.clear();
+    for (const matchup of matchups) storedMatchupScores.set(matchup.matchup_key, matchup);
+
+    if (storedMatchupScores.size) {
+      statusEl.textContent = `Loaded ${storedMatchupScores.size} stored matchup scores from Supabase.`;
+      return;
+    }
+
+    statusEl.textContent = "No stored Game 1 scores yet. Showing imported spreadsheet baseline.";
+  } catch (error) {
+    statusEl.textContent = `Stored scores are not available yet. Showing imported spreadsheet baseline. (${error.message})`;
+  }
+}
+
+async function init() {
   matchupSelect.innerHTML = game1Data.matchups.map((matchup) => `
     <option value="${escapeHtml(matchup.id)}">${escapeHtml(matchup.away.team)} at ${escapeHtml(matchup.home.team)}</option>
   `).join("");
   matchupSelect.value = "CLE-ARZ";
+  await loadStoredResults();
   renderScoreboard();
   renderChallenge();
   renderMatchupShell(game1Data.matchups.find((item) => item.id === matchupSelect.value) || game1Data.matchups[0]);
@@ -732,7 +753,6 @@ scoreboardGrid.addEventListener("keydown", (event) => {
   renderMatchupShell(matchup);
 });
 
-calculateButton.addEventListener("click", calculateSelected);
 matchupDetail.addEventListener("click", (event) => {
   const button = event.target.closest("[data-detail-id]");
   if (button) showDetail(button.dataset.detailId);

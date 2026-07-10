@@ -822,7 +822,7 @@ h1 {
   border: 1px solid var(--line);
   display: grid;
   gap: 14px;
-  grid-template-columns: minmax(260px, 1fr) auto minmax(220px, 1fr);
+  grid-template-columns: minmax(260px, 420px) minmax(220px, 1fr);
   margin-bottom: 18px;
   padding: 16px;
 }
