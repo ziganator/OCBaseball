@@ -1,5 +1,5 @@
-import { game1Data } from "./game1-data.js?v=20260710g";
-import { teams } from "./team-data.js?v=20260710g";
+import { game1Data } from "./game1-data.js?v=20260710i";
+import { teams } from "./team-data.js?v=20260710i";
 
 const API_ROOT = "https://statsapi.mlb.com/api/v1";
 const SEASON = "2026";
@@ -52,9 +52,12 @@ const matchupSelect = document.querySelector("#game-matchup-select");
 const statusEl = document.querySelector("#game-test-status");
 const calculateButton = document.querySelector("#calculate-game-button");
 const scoreboardGrid = document.querySelector("#game-scoreboard-grid");
+const challengeButton = document.querySelector("#card-challenge-button");
+const challengeDialog = document.querySelector("#card-challenge-dialog");
 const challengeTitle = document.querySelector("#card-challenge-title");
 const challengeDescription = document.querySelector("#card-challenge-description");
 const challengeList = document.querySelector("#card-challenge-list");
+const challengeClose = document.querySelector("#card-challenge-close");
 const matchupDetail = document.querySelector("#matchup-detail");
 const detailDialog = document.querySelector("#game-detail-dialog");
 const detailTitle = document.querySelector("#game-detail-title");
@@ -305,7 +308,7 @@ async function scoreTeam(team) {
 }
 
 function renderScoreboard() {
-  const games = game1Data.scoreboard.filter((game) => shortMatchup(game.away, game.home));
+  const games = game1Data.matchups.map((matchup) => scoreboardGame(matchup));
   const grouped = {
     keystone: games.filter((game) => teamLeague(game.away) === "keystone"),
     diamond: games.filter((game) => teamLeague(game.away) === "diamond")
@@ -314,6 +317,20 @@ function renderScoreboard() {
     .filter(([, rows]) => rows.length)
     .map(([league, rows]) => scoreboardTable(league, rows))
     .join("");
+}
+
+function scoreboardGame(matchup) {
+  const scoreboard = game1Data.scoreboard.find((game) => game.away === matchup.away.team && game.home === matchup.home.team) || {};
+  return {
+    away: matchup.away.team,
+    awayScore: displayedSheetPoints(scoreboard.awayScore ?? matchup.away.summary.score),
+    awayLead: displayedSheetPoints(scoreboard.awayLead ?? matchup.away.summary.lead),
+    awayPsr: scoreboard.awayPsr || "",
+    home: matchup.home.team,
+    homeScore: displayedSheetPoints(scoreboard.homeScore ?? matchup.home.summary.score),
+    homeLead: displayedSheetPoints(scoreboard.homeLead ?? matchup.home.summary.lead),
+    homePsr: scoreboard.homePsr || ""
+  };
 }
 
 function scoreboardTable(league, games) {
@@ -390,12 +407,12 @@ function renderMatchupShell(matchup) {
       </div>
       <div class="game-matchup-score">
         <strong>${matchup.away.summary.score}</strong>
-        <span>Sheet</span>
+        <span>Imported</span>
         <strong>${matchup.home.summary.score}</strong>
       </div>
     </header>
     ${spreadsheetMatchupSummary(matchup)}
-    ${matchupSummary(matchup.away, matchup.home)}
+    ${matchupSummary(matchup.away, matchup.home, null, null, "Imported")}
     <div class="game-team-panels">
       ${teamPanel(matchup.away, null, "Away")}
       ${teamPanel(matchup.home, null, "Home")}
@@ -404,7 +421,7 @@ function renderMatchupShell(matchup) {
 }
 
 function spreadsheetMatchupSummary(matchup) {
-  const scoreboard = game1Data.scoreboard.find((game) => game.away === matchup.away.team && game.home === matchup.home.team) || {};
+  const scoreboard = scoreboardGame(matchup);
   const league = teamLeague(matchup.away.team);
   return `
     <section class="game-spreadsheet-score is-${league}" aria-label="Spreadsheet matchup score">
@@ -446,7 +463,7 @@ function teamLeague(teamName) {
   return team?.league === "Diamond" ? "diamond" : "keystone";
 }
 
-function matchupSummary(away, home, scoredAway = null, scoredHome = null) {
+function matchupSummary(away, home, scoredAway = null, scoredHome = null, label = "Points") {
   return `
     <section class="game-summary-sheet" aria-label="Team summary">
       <table>
@@ -454,8 +471,7 @@ function matchupSummary(away, home, scoredAway = null, scoredHome = null) {
           <tr>
             <th>Team</th>
             ${game1Data.days.map((day) => `<th>${day}</th>`).join("")}
-            <th>Sheet</th>
-            ${scoredAway || scoredHome ? "<th>MLB</th><th>Diff</th>" : ""}
+            <th>${escapeHtml(label)}</th>
             <th>Offense</th>
             <th>Pitching</th>
             <th>Lead</th>
@@ -471,16 +487,14 @@ function matchupSummary(away, home, scoredAway = null, scoredHome = null) {
 }
 
 function summaryRow(team, side, scoredTeam = null) {
-  const calculated = scoredTeam ? formatPoints(scoredTeam.calculated) : "";
-  const diff = scoredTeam ? formatPoints(scoredTeam.calculated - team.summary.score) : "";
   const sheetDaily = teamDailyTotals(team);
   const calculatedDaily = scoredTeam ? teamDailyTotals(scoredTeam, "calculatedDaily") : null;
+  const points = scoredTeam ? scoredTeam.calculated : displayedSheetPoints(team.summary.score);
   return `
     <tr class="${side === "Home" ? "is-home" : "is-away"}">
       <th><span>${escapeHtml(side)}</span>${escapeHtml(team.team)}</th>
       ${game1Data.days.map((day) => summaryDailyCell(sheetDaily[day], calculatedDaily?.[day])).join("")}
-      <td>${formatPoints(displayedSheetPoints(team.summary.score))}</td>
-      ${scoredTeam ? `<td>${calculated}</td><td class="${Number(diff) === 0 ? "" : "is-diff"}">${diff}</td>` : ""}
+      <td>${formatPoints(points)}</td>
       <td>${formatPoints(displayedSheetPoints(team.summary.offense))}</td>
       <td>${formatPoints(displayedSheetPoints(team.summary.pitching))}</td>
       <td>${team.summary.lead ? formatPoints(displayedSheetPoints(team.summary.lead)) : ""}</td>
@@ -495,28 +509,18 @@ function teamDailyTotals(team, key = "daily") {
 function summaryDailyCell(sheet, calculated) {
   const sheetValue = displayedSheetPoints(sheet);
   if (!Number.isFinite(calculated)) return `<td>${formatPoints(sheetValue || 0)}</td>`;
-  const diff = number(calculated) - sheetValue;
-  return `
-    <td class="game-daily-compare ${diff ? "is-diff" : ""}">
-      <span>${formatPoints(sheetValue || 0)}</span>
-      <span>${formatPoints(calculated || 0)}</span>
-      <strong>${diff ? formatPoints(diff) : ""}</strong>
-    </td>
-  `;
+  return `<td>${formatPoints(calculated || 0)}</td>`;
 }
 
 function teamPanel(team, scoredTeam = null, side = "") {
   const rows = scoredTeam?.rows || team.players;
-  const calculated = scoredTeam ? formatPoints(scoredTeam.calculated) : "Pending";
-  const delta = scoredTeam ? formatPoints(scoredTeam.calculated - team.summary.score) : "";
+  const total = scoredTeam ? formatPoints(scoredTeam.calculated) : formatPoints(displayedSheetPoints(team.summary.score));
   return `
     <section class="game-team-panel">
       <header>
         <h3><span>${escapeHtml(side)}</span>${escapeHtml(team.team)}</h3>
         <div>
-          <span>Sheet ${team.summary.score}</span>
-          <span>MLB ${calculated}</span>
-          ${delta ? `<span>Diff ${delta}</span>` : ""}
+          <span>${scoredTeam ? "MLB" : "Imported"} ${total}</span>
         </div>
       </header>
       <div class="table-wrap lineup-table-wrap">
@@ -532,9 +536,7 @@ function teamPanel(team, scoredTeam = null, side = "") {
               <th>F</th>
               <th>St</th>
               <th>Su</th>
-              <th>Sheet</th>
-              <th>MLB</th>
-              <th>Diff</th>
+              <th>Total</th>
             </tr>
           </thead>
           <tbody>
@@ -547,8 +549,7 @@ function teamPanel(team, scoredTeam = null, side = "") {
 }
 
 function rosterRow(row) {
-  const calculated = Number.isFinite(row.calculated) ? formatPoints(row.calculated) : "";
-  const diff = Number.isFinite(row.calculated) ? formatPoints(row.calculated - row.total) : "";
+  const total = Number.isFinite(row.calculated) ? formatPoints(row.calculated) : formatPoints(displayedSheetPoints(row.total));
   return `
     <tr>
       <td>${escapeHtml(row.position)}</td>
@@ -562,9 +563,7 @@ function rosterRow(row) {
         `${row.name} / ${day}`,
         substitutionClassForDay(row, day)
       )).join("")}
-      <td>${row.total}</td>
-      <td>${calculated}</td>
-      <td class="${Number(diff) === 0 ? "" : "is-diff"}">${diff}</td>
+      <td>${total}</td>
     </tr>
   `;
 }
@@ -599,13 +598,10 @@ function dailyCompareCell(sheet, calculated, details = null, title = "", dayClas
   const sheetValue = displayedSheetPoints(sheet);
   if (!Number.isFinite(calculated)) return `<td class="${dayClass}">${sheetValue || ""}</td>`;
   const calculatedValue = number(calculated);
-  const diff = calculatedValue - sheetValue;
-  const detailId = details?.length ? registerDetail(title, details, sheetValue, calculatedValue, diff) : "";
+  const detailId = details?.length ? registerDetail(title, details, sheetValue, calculatedValue, calculatedValue - sheetValue) : "";
   return `
-    <td class="game-daily-compare ${dayClass} ${diff ? "is-diff" : ""}">
-      <span>${sheetValue ? formatPoints(sheetValue) : ""}</span>
-      <span>${detailId ? `<button type="button" data-detail-id="${detailId}">${calculatedValue ? formatPoints(calculatedValue) : "0"}</button>` : calculatedValue ? formatPoints(calculatedValue) : ""}</span>
-      <strong>${diff ? formatPoints(diff) : ""}</strong>
+    <td class="${dayClass}">
+      ${detailId ? `<button class="game-point-button" type="button" data-detail-id="${detailId}">${calculatedValue ? formatPoints(calculatedValue) : "0"}</button>` : calculatedValue ? formatPoints(calculatedValue) : ""}
     </td>
   `;
 }
@@ -690,7 +686,7 @@ async function calculateSelected() {
       </div>
     </header>
       ${spreadsheetMatchupSummary(matchup)}
-      ${matchupSummary(matchup.away, matchup.home, away, home)}
+      ${matchupSummary(matchup.away, matchup.home, away, home, "MLB")}
       <div class="game-team-panels">
         ${teamPanel(matchup.away, away, "Away")}
         ${teamPanel(matchup.home, home, "Home")}
@@ -742,5 +738,7 @@ matchupDetail.addEventListener("click", (event) => {
   if (button) showDetail(button.dataset.detailId);
 });
 detailClose.addEventListener("click", () => detailDialog.close());
+challengeButton.addEventListener("click", () => challengeDialog.showModal());
+challengeClose.addEventListener("click", () => challengeDialog.close());
 
 init();

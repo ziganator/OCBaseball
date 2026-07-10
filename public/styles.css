@@ -845,17 +845,35 @@ h1 {
 
 .game-scoreboard {
   align-items: start;
-  display: grid;
-  gap: 18px;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+  display: block;
 }
 
-.game-scoreboard h2,
-.game-card-challenge h2 {
+.game-scoreboard h2 {
   color: var(--red);
   font-family: "Oswald", sans-serif;
   font-size: 24px;
-  margin: 0 0 12px;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.game-section-title-row {
+  align-items: center;
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.admin-link-button {
+  background: transparent;
+  border: 0;
+  color: var(--red);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  padding: 0;
+  text-decoration: underline;
   text-transform: uppercase;
 }
 
@@ -875,6 +893,7 @@ h1 {
 }
 
 .game-scoreboard-table {
+  border-bottom: 1px solid #222222;
   border-collapse: collapse;
   min-width: 900px;
   width: 100%;
@@ -943,16 +962,14 @@ h1 {
   font-size: 19px;
 }
 
-.game-card-challenge {
-  border: 1px solid var(--line);
-  padding: 14px;
-}
-
-.game-card-challenge p {
-  color: #555555;
-  font-size: 13px;
-  font-weight: 700;
-  margin: 0 0 12px;
+.game-scoreboard-table tbody tr:last-child th,
+.game-scoreboard-table tbody tr:last-child td,
+.game-spreadsheet-score tbody tr:last-child th,
+.game-spreadsheet-score tbody tr:last-child td,
+.game-summary-sheet tbody tr:last-child th,
+.game-summary-sheet tbody tr:last-child td,
+.game-roster-table tbody tr:last-child td {
+  border-bottom: 1px solid #222222;
 }
 
 .challenge-row {
@@ -1021,6 +1038,7 @@ h1 {
 }
 
 .game-spreadsheet-score table {
+  border-bottom: 1px solid #222222;
   border-collapse: collapse;
   min-width: 860px;
   width: 100%;
@@ -1076,6 +1094,7 @@ h1 {
 }
 
 .game-summary-sheet table {
+  border-bottom: 1px solid #222222;
   border-collapse: collapse;
   min-width: 760px;
   width: 100%;
@@ -1182,6 +1201,7 @@ h1 {
 }
 
 .game-roster-table {
+  border-bottom: 1px solid #222222;
   border-collapse: collapse;
   font-size: 12px;
   min-width: 760px;
@@ -1233,6 +1253,19 @@ h1 {
 }
 
 .game-daily-compare button {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 900;
+  padding: 0;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.game-point-button {
   background: transparent;
   border: 0;
   color: inherit;

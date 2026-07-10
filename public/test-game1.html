@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/styles.css?v=20260710g">
+    <link rel="stylesheet" href="/styles.css?v=20260710i">
   </head>
   <body>
     <header class="site-header menu-header">
@@ -35,20 +35,18 @@
           Matchup
           <select id="game-matchup-select"></select>
         </label>
-        <button id="calculate-game-button" class="admin-secondary" type="button">Calculate MLB Data</button>
+        <button id="calculate-game-button" class="admin-secondary" type="button">Generate MLB Scores</button>
         <p id="game-test-status" class="admin-note" role="status"></p>
       </section>
 
       <section class="game-scoreboard">
         <div>
-          <h2>Scoreboard</h2>
+          <div class="game-section-title-row">
+            <h2>Scoreboard</h2>
+            <button id="card-challenge-button" class="admin-link-button" type="button">Card Challenge</button>
+          </div>
           <div id="game-scoreboard-grid" class="game-scoreboard-grid"></div>
         </div>
-        <aside class="game-card-challenge">
-          <h2 id="card-challenge-title">Card Challenge</h2>
-          <p id="card-challenge-description"></p>
-          <div id="card-challenge-list"></div>
-        </aside>
       </section>
 
       <section id="matchup-detail" class="game-matchup-detail"></section>
@@ -66,6 +64,15 @@
       <div id="game-detail-body" class="lineup-dialog-body"></div>
     </dialog>
 
-    <script src="/test-game1.js?v=20260710g" type="module"></script>
+    <dialog id="card-challenge-dialog" class="admin-dialog game-detail-dialog">
+      <div class="lineup-dialog-head">
+        <h2 id="card-challenge-title">Card Challenge</h2>
+        <button id="card-challenge-close" class="admin-secondary" type="button">Close</button>
+      </div>
+      <p id="card-challenge-description" class="admin-note"></p>
+      <div id="card-challenge-list" class="lineup-dialog-body"></div>
+    </dialog>
+
+    <script src="/test-game1.js?v=20260710i" type="module"></script>
   </body>
 </html>
