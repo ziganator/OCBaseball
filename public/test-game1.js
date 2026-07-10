@@ -1,5 +1,5 @@
-import { game1Data } from "./game1-data.js?v=20260710f";
-import { teams } from "./team-data.js?v=20260710f";
+import { game1Data } from "./game1-data.js?v=20260710g";
+import { teams } from "./team-data.js?v=20260710g";
 
 const API_ROOT = "https://statsapi.mlb.com/api/v1";
 const SEASON = "2026";
@@ -306,17 +306,60 @@ async function scoreTeam(team) {
 
 function renderScoreboard() {
   const games = game1Data.scoreboard.filter((game) => shortMatchup(game.away, game.home));
-  scoreboardGrid.innerHTML = games.map((game) => {
-    const awayWon = game.awayScore > game.homeScore;
-    const homeWon = game.homeScore > game.awayScore;
-    return `
-      <button class="game-score-card" type="button" data-matchup="${escapeHtml(shortMatchup(game.away, game.home))}">
-        <span class="${awayWon ? "is-winner" : ""}">${escapeHtml(game.away)} <strong>${game.awayScore}</strong></span>
-        <em>at</em>
-        <span class="${homeWon ? "is-winner" : ""}">${escapeHtml(game.home)} <strong>${game.homeScore}</strong></span>
-      </button>
-    `;
-  }).join("");
+  const grouped = {
+    keystone: games.filter((game) => teamLeague(game.away) === "keystone"),
+    diamond: games.filter((game) => teamLeague(game.away) === "diamond")
+  };
+  scoreboardGrid.innerHTML = Object.entries(grouped)
+    .filter(([, rows]) => rows.length)
+    .map(([league, rows]) => scoreboardTable(league, rows))
+    .join("");
+}
+
+function scoreboardTable(league, games) {
+  return `
+    <section class="game-scoreboard-league">
+      <h3>${league}</h3>
+      <table class="game-scoreboard-table is-${league}">
+        <thead>
+          <tr>
+            <th>PSR</th>
+            <th>Score</th>
+            <th>Away</th>
+            <th>Lead</th>
+            <th>At</th>
+            <th>Lead</th>
+            <th>Home</th>
+            <th>Score</th>
+            <th>PSR</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${games.map(scoreboardRow).join("")}
+        </tbody>
+      </table>
+    </section>
+  `;
+}
+
+function scoreboardRow(game) {
+  const matchupId = shortMatchup(game.away, game.home);
+  const league = teamLeague(game.away);
+  const awayWon = game.awayScore > game.homeScore;
+  const homeWon = game.homeScore > game.awayScore;
+  return `
+    <tr class="is-${league}" data-matchup="${escapeHtml(matchupId)}" tabindex="0">
+      <td>${game.awayPsr || ""}</td>
+      <td class="${awayWon ? "is-winner" : ""}">${formatPoints(displayedSheetPoints(game.awayScore))}</td>
+      <th>${escapeHtml(game.away)}</th>
+      <td>${game.awayLead ? formatPoints(displayedSheetPoints(game.awayLead)) : ""}</td>
+      <td>@</td>
+      <td>${game.homeLead ? formatPoints(displayedSheetPoints(game.homeLead)) : ""}</td>
+      <th>${escapeHtml(game.home)}</th>
+      <td class="${homeWon ? "is-winner" : ""}">${formatPoints(displayedSheetPoints(game.homeScore))}</td>
+      <td>${game.homePsr || ""}</td>
+    </tr>
+  `;
 }
 
 function shortMatchup(away, home) {
@@ -677,9 +720,18 @@ matchupSelect.addEventListener("change", () => {
 });
 
 scoreboardGrid.addEventListener("click", (event) => {
-  const button = event.target.closest("[data-matchup]");
-  if (!button?.dataset.matchup) return;
-  matchupSelect.value = button.dataset.matchup;
+  const row = event.target.closest("[data-matchup]");
+  if (!row?.dataset.matchup) return;
+  matchupSelect.value = row.dataset.matchup;
+  const matchup = game1Data.matchups.find((item) => item.id === matchupSelect.value);
+  renderMatchupShell(matchup);
+});
+scoreboardGrid.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter" && event.key !== " ") return;
+  const row = event.target.closest("[data-matchup]");
+  if (!row?.dataset.matchup) return;
+  event.preventDefault();
+  matchupSelect.value = row.dataset.matchup;
   const matchup = game1Data.matchups.find((item) => item.id === matchupSelect.value);
   renderMatchupShell(matchup);
 });

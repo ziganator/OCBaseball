@@ -861,44 +861,86 @@ h1 {
 
 .game-scoreboard-grid {
   display: grid;
-  gap: 8px;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+  overflow-x: auto;
 }
 
-.game-score-card {
-  background: #ffffff;
-  border: 1px solid var(--line);
-  color: var(--ink);
-  cursor: pointer;
-  display: grid;
-  gap: 3px;
-  padding: 10px 12px;
-  text-align: left;
-}
-
-.game-score-card:hover {
-  border-color: var(--red);
-}
-
-.game-score-card span {
-  align-items: center;
-  display: flex;
+.game-scoreboard-league h3 {
+  color: #666666;
+  font-family: "Open Sans", sans-serif;
   font-size: 12px;
-  font-weight: 800;
-  justify-content: space-between;
+  font-weight: 900;
+  margin: 0 0 5px;
   text-transform: uppercase;
 }
 
-.game-score-card span.is-winner {
-  color: var(--red);
+.game-scoreboard-table {
+  border-collapse: collapse;
+  min-width: 900px;
+  width: 100%;
 }
 
-.game-score-card em {
-  color: #777777;
-  font-size: 10px;
-  font-style: normal;
-  font-weight: 800;
+.game-scoreboard-table th,
+.game-scoreboard-table td {
+  border: 1px solid #222222;
+  font-size: 12px;
+  font-weight: 900;
+  padding: 7px 9px;
+  text-align: center;
   text-transform: uppercase;
+}
+
+.game-scoreboard-table thead th {
+  color: #ffffff;
+}
+
+.game-scoreboard-table.is-keystone thead th {
+  background: #244f88;
+}
+
+.game-scoreboard-table.is-diamond thead th {
+  background: #a90808;
+}
+
+.game-scoreboard-table tbody tr {
+  cursor: pointer;
+}
+
+.game-scoreboard-table tbody tr:hover th,
+.game-scoreboard-table tbody tr:hover td,
+.game-scoreboard-table tbody tr:focus th,
+.game-scoreboard-table tbody tr:focus td {
+  outline: 2px solid var(--red);
+  outline-offset: -2px;
+}
+
+.game-scoreboard-table tbody tr.is-keystone th {
+  background: #dce8f7;
+}
+
+.game-scoreboard-table tbody tr.is-diamond th {
+  background: #f3dddd;
+}
+
+.game-scoreboard-table tbody tr.is-diamond th,
+.game-scoreboard-table tbody tr.is-diamond td.is-winner {
+  color: #a90808;
+}
+
+.game-scoreboard-table tbody tr.is-keystone th,
+.game-scoreboard-table tbody tr.is-keystone td.is-winner {
+  color: #0f376d;
+}
+
+.game-scoreboard-table tbody th:nth-child(3),
+.game-scoreboard-table tbody th:nth-child(7) {
+  min-width: 220px;
+}
+
+.game-scoreboard-table td:nth-child(2),
+.game-scoreboard-table td:nth-child(8) {
+  font-family: "Oswald", sans-serif;
+  font-size: 19px;
 }
 
 .game-card-challenge {
