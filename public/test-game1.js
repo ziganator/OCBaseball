@@ -1,4 +1,5 @@
-import { game1Data } from "./game1-data.js?v=20260710d";
+import { game1Data } from "./game1-data.js?v=20260710f";
+import { teams } from "./team-data.js?v=20260710f";
 
 const API_ROOT = "https://statsapi.mlb.com/api/v1";
 const SEASON = "2026";
@@ -99,6 +100,14 @@ function formatPoints(value) {
 
 function truncatePoints(value) {
   return Math.trunc(number(value));
+}
+
+function creditedPoints(value) {
+  return Math.max(0, truncatePoints(value));
+}
+
+function displayedSheetPoints(value) {
+  return Math.max(0, number(value));
 }
 
 function inningsToNumber(value) {
@@ -237,7 +246,7 @@ async function scoreSegment(row, segment) {
     if (!day) continue;
     const normalized = normalizeStats(row.group, split.stat, row.position);
     const rawPoints = scoreStats(row.group, normalized);
-    daily[day] = number(daily[day]) + rawPoints;
+    daily[day] = number(daily[day]) + creditedPoints(rawPoints);
     details[day] ||= [];
     details[day].push({
       player: segment.name,
@@ -245,7 +254,8 @@ async function scoreSegment(row, segment) {
       opponent: split.opponent?.name || "",
       summary: split.stat?.summary || "",
       rawPoints,
-      points: rawPoints,
+      points: creditedPoints(rawPoints),
+      floored: truncatePoints(rawPoints) < 0,
       items: scoringBreakdown(row.group, normalized)
     });
   }
@@ -256,13 +266,14 @@ async function scoreSegment(row, segment) {
       details[day] = (details[day] || []).map((detail) => ({
         ...detail,
         doubled: true,
-        points: detail.rawPoints * 2
+        points: creditedPoints(detail.rawPoints * 2),
+        floored: truncatePoints(detail.rawPoints * 2) < 0
       }));
     }
   }
-  for (const day of Object.keys(daily)) daily[day] = truncatePoints(daily[day]);
+  for (const day of Object.keys(daily)) daily[day] = creditedPoints(daily[day]);
   for (const day of Object.keys(details)) {
-    details[day] = details[day].map((detail) => ({ ...detail, points: truncatePoints(detail.points) }));
+    details[day] = details[day].map((detail) => ({ ...detail, points: creditedPoints(detail.points) }));
   }
   const points = Object.values(daily).reduce((sum, value) => sum + number(value), 0);
   return { name: segment.name, days: segment.days, games: selected.length, points, stats, daily, details };
@@ -340,12 +351,56 @@ function renderMatchupShell(matchup) {
         <strong>${matchup.home.summary.score}</strong>
       </div>
     </header>
+    ${spreadsheetMatchupSummary(matchup)}
     ${matchupSummary(matchup.away, matchup.home)}
     <div class="game-team-panels">
       ${teamPanel(matchup.away, null, "Away")}
       ${teamPanel(matchup.home, null, "Home")}
     </div>
   `;
+}
+
+function spreadsheetMatchupSummary(matchup) {
+  const scoreboard = game1Data.scoreboard.find((game) => game.away === matchup.away.team && game.home === matchup.home.team) || {};
+  const league = teamLeague(matchup.away.team);
+  return `
+    <section class="game-spreadsheet-score is-${league}" aria-label="Spreadsheet matchup score">
+      <table>
+        <thead>
+          <tr>
+            <th>PSR</th>
+            <th>Score</th>
+            <th>Away</th>
+            <th>Lead</th>
+            <th>AT</th>
+            <th>Lead</th>
+            <th>Home</th>
+            <th>Score</th>
+            <th>PSR</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>${scoreboard.awayPsr || ""}</td>
+            <td>${formatPoints(displayedSheetPoints(scoreboard.awayScore))}</td>
+            <th>${escapeHtml(matchup.away.team)}</th>
+            <td>${scoreboard.awayLead ? formatPoints(displayedSheetPoints(scoreboard.awayLead)) : ""}</td>
+            <td>@</td>
+            <td>${scoreboard.homeLead ? formatPoints(displayedSheetPoints(scoreboard.homeLead)) : ""}</td>
+            <th>${escapeHtml(matchup.home.team)}</th>
+            <td>${formatPoints(displayedSheetPoints(scoreboard.homeScore))}</td>
+            <td>${scoreboard.homePsr || ""}</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  `;
+}
+
+function teamLeague(teamName) {
+  const normalized = teamName.toLowerCase();
+  const team = teams.find((item) => item.name.toLowerCase() === normalized);
+  return team?.league === "Diamond" ? "diamond" : "keystone";
 }
 
 function matchupSummary(away, home, scoredAway = null, scoredHome = null) {
@@ -381,11 +436,11 @@ function summaryRow(team, side, scoredTeam = null) {
     <tr class="${side === "Home" ? "is-home" : "is-away"}">
       <th><span>${escapeHtml(side)}</span>${escapeHtml(team.team)}</th>
       ${game1Data.days.map((day) => summaryDailyCell(sheetDaily[day], calculatedDaily?.[day])).join("")}
-      <td>${formatPoints(team.summary.score)}</td>
+      <td>${formatPoints(displayedSheetPoints(team.summary.score))}</td>
       ${scoredTeam ? `<td>${calculated}</td><td class="${Number(diff) === 0 ? "" : "is-diff"}">${diff}</td>` : ""}
-      <td>${formatPoints(team.summary.offense)}</td>
-      <td>${formatPoints(team.summary.pitching)}</td>
-      <td>${team.summary.lead ? formatPoints(team.summary.lead) : ""}</td>
+      <td>${formatPoints(displayedSheetPoints(team.summary.offense))}</td>
+      <td>${formatPoints(displayedSheetPoints(team.summary.pitching))}</td>
+      <td>${team.summary.lead ? formatPoints(displayedSheetPoints(team.summary.lead)) : ""}</td>
     </tr>
   `;
 }
@@ -395,11 +450,12 @@ function teamDailyTotals(team, key = "daily") {
 }
 
 function summaryDailyCell(sheet, calculated) {
-  if (!Number.isFinite(calculated)) return `<td>${formatPoints(sheet || 0)}</td>`;
-  const diff = number(calculated) - number(sheet);
+  const sheetValue = displayedSheetPoints(sheet);
+  if (!Number.isFinite(calculated)) return `<td>${formatPoints(sheetValue || 0)}</td>`;
+  const diff = number(calculated) - sheetValue;
   return `
     <td class="game-daily-compare ${diff ? "is-diff" : ""}">
-      <span>${formatPoints(sheet || 0)}</span>
+      <span>${formatPoints(sheetValue || 0)}</span>
       <span>${formatPoints(calculated || 0)}</span>
       <strong>${diff ? formatPoints(diff) : ""}</strong>
     </td>
@@ -454,10 +510,15 @@ function rosterRow(row) {
     <tr>
       <td>${escapeHtml(row.position)}</td>
       <td>
-        <strong>${escapeHtml(row.name)}</strong>
-        ${substitutionHtml(row)}
+        ${playerNameHtml(row)}
       </td>
-      ${game1Data.days.map((day) => dailyCompareCell(row.daily[day], row.calculatedDaily?.[day], row.details?.[day], `${row.name} / ${day}`)).join("")}
+      ${game1Data.days.map((day) => dailyCompareCell(
+        row.daily[day],
+        row.calculatedDaily?.[day],
+        row.details?.[day],
+        `${row.name} / ${day}`,
+        substitutionClassForDay(row, day)
+      )).join("")}
       <td>${row.total}</td>
       <td>${calculated}</td>
       <td class="${Number(diff) === 0 ? "" : "is-diff"}">${diff}</td>
@@ -465,14 +526,40 @@ function rosterRow(row) {
   `;
 }
 
-function dailyCompareCell(sheet, calculated, details = null, title = "") {
-  const sheetValue = number(sheet);
-  if (!Number.isFinite(calculated)) return `<td>${sheetValue || ""}</td>`;
+function playerNameHtml(row) {
+  if (!row.substitutions || row.substitutions.length <= 1) return `<strong>${escapeHtml(row.name)}</strong>`;
+  return `
+    <div class="game-player-sub-tags">
+      ${row.substitutions.map((segment, index) => `
+        <span class="game-sub-color-${index % 6}">
+          ${escapeHtml(segment.name)}
+          <em>${escapeHtml(formatDays(segment.days))}</em>
+        </span>
+      `).join("")}
+    </div>
+  `;
+}
+
+function formatDays(days) {
+  if (!days?.length) return "";
+  if (days.length === 1) return days[0];
+  return `${days[0]}-${days[days.length - 1]}`;
+}
+
+function substitutionClassForDay(row, day) {
+  if (!row.substitutions || row.substitutions.length <= 1) return "";
+  const index = row.substitutions.findIndex((segment) => segment.days.includes(day));
+  return index >= 0 ? `game-sub-day game-sub-color-${index % 6}` : "";
+}
+
+function dailyCompareCell(sheet, calculated, details = null, title = "", dayClass = "") {
+  const sheetValue = displayedSheetPoints(sheet);
+  if (!Number.isFinite(calculated)) return `<td class="${dayClass}">${sheetValue || ""}</td>`;
   const calculatedValue = number(calculated);
   const diff = calculatedValue - sheetValue;
   const detailId = details?.length ? registerDetail(title, details, sheetValue, calculatedValue, diff) : "";
   return `
-    <td class="game-daily-compare ${diff ? "is-diff" : ""}">
+    <td class="game-daily-compare ${dayClass} ${diff ? "is-diff" : ""}">
       <span>${sheetValue ? formatPoints(sheetValue) : ""}</span>
       <span>${detailId ? `<button type="button" data-detail-id="${detailId}">${calculatedValue ? formatPoints(calculatedValue) : "0"}</button>` : calculatedValue ? formatPoints(calculatedValue) : ""}</span>
       <strong>${diff ? formatPoints(diff) : ""}</strong>
@@ -525,6 +612,7 @@ function detailEntryHtml(entry) {
             </tr>
           `).join("")}
           ${entry.doubled ? `<tr class="is-sp-double"><td colspan="3">SP one-start double</td><td>${formatPoints(entry.points)}</td></tr>` : ""}
+          ${entry.floored ? `<tr class="is-sp-double"><td colspan="3">Negative total floored to zero</td><td>0</td></tr>` : ""}
         </tbody>
       </table>
       <strong>Total ${formatPoints(entry.points)}</strong>
@@ -558,6 +646,7 @@ async function calculateSelected() {
         <strong>${formatPoints(home.calculated)}</strong>
       </div>
     </header>
+      ${spreadsheetMatchupSummary(matchup)}
       ${matchupSummary(matchup.away, matchup.home, away, home)}
       <div class="game-team-panels">
         ${teamPanel(matchup.away, away, "Away")}
