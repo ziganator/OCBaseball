@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/styles.css?v=20260709l">
+    <link rel="stylesheet" href="/styles.css?v=20260710d">
   </head>
   <body>
     <header class="site-header menu-header">
@@ -58,6 +58,14 @@
       <span>Owners Club Baseball</span>
     </footer>
 
-    <script src="/test-game1.js?v=20260709l" type="module"></script>
+    <dialog id="game-detail-dialog" class="admin-dialog game-detail-dialog">
+      <div class="lineup-dialog-head">
+        <h2 id="game-detail-title">Point Detail</h2>
+        <button id="game-detail-close" class="admin-secondary" type="button">Close</button>
+      </div>
+      <div id="game-detail-body" class="lineup-dialog-body"></div>
+    </dialog>
+
+    <script src="/test-game1.js?v=20260710d" type="module"></script>
   </body>
 </html>

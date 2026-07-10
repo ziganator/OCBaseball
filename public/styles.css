@@ -973,10 +973,66 @@ h1 {
   font-size: 42px;
 }
 
+.game-summary-sheet {
+  border: 8px solid #0c0c0c;
+  margin-top: 18px;
+  overflow-x: auto;
+  padding: 12px;
+}
+
+.game-summary-sheet table {
+  border-collapse: collapse;
+  min-width: 760px;
+  width: 100%;
+}
+
+.game-summary-sheet th,
+.game-summary-sheet td {
+  border: 1px solid #222222;
+  font-size: 13px;
+  font-weight: 900;
+  padding: 8px 10px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.game-summary-sheet thead th {
+  background: #d7d7d7;
+  color: #111111;
+}
+
+.game-summary-sheet tbody th {
+  background: #f7f7f7;
+  color: var(--red);
+  text-align: left;
+}
+
+.game-summary-sheet tbody th span {
+  color: #555555;
+  display: inline-block;
+  font-size: 11px;
+  margin-right: 10px;
+}
+
+.game-summary-sheet tbody td {
+  background: #ffffff;
+  font-family: "Oswald", sans-serif;
+  font-size: 22px;
+}
+
+.game-summary-sheet tbody tr.is-home th,
+.game-summary-sheet tbody tr.is-home td {
+  border-top-width: 3px;
+}
+
+.game-summary-sheet .is-diff {
+  color: var(--red);
+}
+
 .game-team-panels {
   display: grid;
   gap: 18px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   margin-top: 18px;
 }
 
@@ -997,8 +1053,20 @@ h1 {
 
 .game-team-panel h3 {
   color: var(--red);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   font-size: 19px;
   margin: 0;
+  text-transform: uppercase;
+}
+
+.game-team-panel h3 span {
+  color: #666666;
+  font-family: "Open Sans", sans-serif;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -1041,6 +1109,134 @@ h1 {
 .game-roster-table .is-diff {
   color: var(--red);
   font-weight: 900;
+}
+
+.game-daily-compare {
+  min-width: 54px;
+}
+
+.game-daily-compare span,
+.game-daily-compare strong {
+  display: block;
+  line-height: 1.2;
+}
+
+.game-daily-compare span:first-child::before {
+  color: #777777;
+  content: "S ";
+  font-family: "Open Sans", sans-serif;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.game-daily-compare span:nth-child(2)::before {
+  color: #777777;
+  content: "M ";
+  font-family: "Open Sans", sans-serif;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.game-daily-compare button {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 900;
+  padding: 0;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.game-daily-compare strong {
+  color: #1e8f48;
+  font-size: 11px;
+}
+
+.game-daily-compare.is-diff strong {
+  color: var(--red);
+}
+
+.game-summary-sheet .game-daily-compare span,
+.game-summary-sheet .game-daily-compare strong {
+  font-size: 13px;
+}
+
+.game-detail-dialog {
+  max-width: 760px;
+}
+
+.game-detail-totals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.game-detail-totals span {
+  border: 1px solid var(--line);
+  color: #555555;
+  font-size: 12px;
+  font-weight: 900;
+  padding: 6px 8px;
+  text-transform: uppercase;
+}
+
+.game-detail-totals strong {
+  color: var(--ink);
+}
+
+.game-detail-entry {
+  border: 1px solid var(--line);
+  margin-top: 12px;
+  padding: 12px;
+}
+
+.game-detail-entry h3 {
+  color: var(--red);
+  font-size: 20px;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.game-detail-entry p {
+  color: #555555;
+  font-size: 12px;
+  font-weight: 800;
+  margin: 4px 0 10px;
+}
+
+.game-detail-entry table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.game-detail-entry th,
+.game-detail-entry td {
+  border: 1px solid var(--line);
+  font-size: 12px;
+  padding: 6px 8px;
+  text-align: right;
+}
+
+.game-detail-entry th:first-child,
+.game-detail-entry td:first-child {
+  text-align: left;
+}
+
+.game-detail-entry .is-sp-double td {
+  color: var(--red);
+  font-weight: 900;
+}
+
+.game-detail-entry > strong {
+  display: block;
+  font-size: 13px;
+  margin-top: 10px;
+  text-align: right;
+  text-transform: uppercase;
 }
 
 .substitution-track {
@@ -1355,6 +1551,29 @@ h1 {
   padding: 3px 6px;
   text-transform: uppercase;
   vertical-align: middle;
+}
+
+.lineup-decision-badge.is-w,
+.lineup-result-badge.is-win {
+  background: #1e8f48;
+}
+
+.lineup-decision-badge.is-l,
+.lineup-result-badge.is-loss {
+  background: var(--red);
+}
+
+.lineup-result-badge {
+  align-items: center;
+  border-radius: 999px;
+  color: #ffffff;
+  display: inline-flex;
+  font-size: 10px;
+  font-weight: 900;
+  height: 18px;
+  justify-content: center;
+  min-width: 18px;
+  padding: 0 5px;
 }
 
 .lineup-status-badge {

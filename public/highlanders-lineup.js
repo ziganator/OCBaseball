@@ -395,6 +395,7 @@ function playerGameContext(player, game, boxscore) {
 function pitcherDecisions(stats) {
   const decisions = [];
   if (number(stats.wins)) decisions.push("W");
+  if (number(stats.losses)) decisions.push("L");
   if (number(stats.saves)) decisions.push("SV");
   return decisions;
 }
@@ -653,7 +654,7 @@ function playerMetaHtml(player) {
 function gameLineHtml(player, game) {
   const starterBadge = game.scheduledStarter ? `<span class="lineup-starter-badge" aria-label="Scheduled starter">✓</span>` : "";
   const leadBadges = player.group === "pitcher"
-    ? `${starterBadge}${game.decisions.map((decision) => `<span class="lineup-decision-badge">${escapeHtml(decision)}</span>`).join("")}`
+    ? `${starterBadge}${game.decisions.map((decision) => `<span class="lineup-decision-badge is-${decision.toLowerCase()}">${escapeHtml(decision)}</span>`).join("")}`
     : Number.isFinite(game.battingOrder)
       ? `<span class="lineup-order-badge">${game.battingOrder}</span>`
       : game.lineupOut ? `<span class="lineup-out-badge" aria-label="Not in lineup">X</span>` : "";
@@ -816,7 +817,7 @@ function gameLogRow(player, split) {
     <tr>
       <td>${split.date}</td>
       <td>${split.isHome ? "vs" : "@"} ${escapeHtml(split.opponent?.name || "")}</td>
-      <td>${split.isWin ? "W" : "L"}</td>
+      <td><span class="lineup-result-badge ${split.isWin ? "is-win" : "is-loss"}">${split.isWin ? "W" : "L"}</span></td>
       <td>${escapeHtml(split.stat?.summary || "")}</td>
       <td>${formatPoints(points)}</td>
     </tr>
