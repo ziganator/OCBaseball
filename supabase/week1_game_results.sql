@@ -3613,5 +3613,5 @@ INSERT INTO game_player_daily_score_results (season_number, game_number, week_nu
 (32, 1, 1, 'DAL-SA', 'SAN ANTONIO OCOTILLOS', 'Matt Strahm', 'RP', '2026-04-03', 0, 0, '[]'::jsonb, '{"source":"XXXII Game1.xlsx","rowPlayer":"Phil Maton / Matt Strahm","group":"pitcher","day":"F"}'::jsonb),
 (32, 1, 1, 'DAL-SA', 'SAN ANTONIO OCOTILLOS', 'Matt Strahm', 'RP', '2026-04-04', 0, 0, '[]'::jsonb, '{"source":"XXXII Game1.xlsx","rowPlayer":"Phil Maton / Matt Strahm","group":"pitcher","day":"St"}'::jsonb),
 (32, 1, 1, 'DAL-SA', 'SAN ANTONIO OCOTILLOS', 'Matt Strahm', 'RP', '2026-04-05', 3, 3, '[]'::jsonb, '{"source":"XXXII Game1.xlsx","rowPlayer":"Phil Maton / Matt Strahm","group":"pitcher","day":"Su"}'::jsonb)
-ON CONFLICT (season_number, game_number, matchup_key, team_name, player_name, stat_date) DO UPDATE SET
+ON CONFLICT (season_number, game_number, matchup_key, team_name, player_name, roster_slot, stat_date) DO UPDATE SET
   week_number = EXCLUDED.week_number, roster_slot = EXCLUDED.roster_slot, sheet_points = EXCLUDED.sheet_points, calculated_points = EXCLUDED.calculated_points, scoring_breakdown = EXCLUDED.scoring_breakdown, raw_stats = EXCLUDED.raw_stats, calculated_at = NOW();

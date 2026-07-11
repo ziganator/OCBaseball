@@ -80,9 +80,24 @@ CREATE TABLE IF NOT EXISTS game_player_daily_score_results (
     matchup_key,
     team_name,
     player_name,
+    roster_slot,
     stat_date
   )
 );
+
+ALTER TABLE game_player_daily_score_results
+  DROP CONSTRAINT IF EXISTS uq_game_player_daily_score_results;
+
+ALTER TABLE game_player_daily_score_results
+  ADD CONSTRAINT uq_game_player_daily_score_results UNIQUE (
+    season_number,
+    game_number,
+    matchup_key,
+    team_name,
+    player_name,
+    roster_slot,
+    stat_date
+  );
 
 ALTER TABLE game_score_runs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE game_matchup_score_results ENABLE ROW LEVEL SECURITY;
