@@ -297,8 +297,22 @@ async function saveSupabaseDraft() {
       }, { onConflict: "draft_key" });
 
     if (error) throw error;
+    const { error: publishError } = await supabase
+      .from("team_site_data")
+      .upsert({
+        data_key: "team-data",
+        site_data: state,
+        updated_by: session.user.id,
+        updated_at: new Date().toISOString()
+      }, { onConflict: "data_key" });
+
+    if (publishError) {
+      setStatus(`Team draft saved, but public team pages were not updated: ${publishError.message}`, "error");
+      return;
+    }
+
     localStorage.setItem(DRAFT_KEY, JSON.stringify(state));
-    setStatus("Team draft saved to Supabase.");
+    setStatus("Team draft saved to Supabase and published to team pages.");
   } catch (error) {
     setStatus(`Supabase draft save failed: ${error.message}`, "error");
   }

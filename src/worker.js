@@ -1,12 +1,14 @@
 import { onRequestGet as config } from "../functions/api/config.js";
 import { onRequestGet as gameResults } from "../functions/api/game-results.js";
 import { onRequestGet as standings } from "../functions/api/standings.js";
+import { onRequestGet as teamSiteData } from "../functions/api/team-site-data.js";
 
 const routes = new Map([
   ["/api/config", config],
   ["/api/game-results", gameResults],
   ["/api/game1-results", gameResults],
-  ["/api/standings", standings]
+  ["/api/standings", standings],
+  ["/api/team-site-data", teamSiteData]
 ]);
 
 export default {

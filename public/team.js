@@ -1,11 +1,35 @@
-import { displayTeam, favoriteTeams, findTeam, teams } from "./team-data.js?v=20260708c";
+import {
+  displayTeam as seedDisplayTeam,
+  favoriteTeams as seedFavoriteTeams,
+  findTeam as seedFindTeam,
+  teams as seedTeams
+} from "./team-data.js?v=20260708c";
 
 const params = new URLSearchParams(window.location.search);
 const pathParts = window.location.pathname.split("/").filter(Boolean);
 const pathSlug = pathParts[0] === "teams" && pathParts.length > 1 ? pathParts[1] : "";
-const slug = params.get("team") || pathSlug || teams[0].slug;
-const sourceTeam = findTeam(slug) || teams[0];
-const team = displayTeam(sourceTeam);
+const slug = params.get("team") || pathSlug || seedTeams[0].slug;
+let favoriteTeams = seedFavoriteTeams;
+let teams = seedTeams;
+let displayTeam = seedDisplayTeam;
+let sourceTeam = seedFindTeam(slug) || seedTeams[0];
+let team = displayTeam(sourceTeam);
+
+async function loadPublishedTeamData() {
+  try {
+    const response = await fetch("/api/team-site-data", { cache: "no-store" });
+    if (!response.ok) return;
+    const payload = await response.json();
+    if (!payload.data?.teams || !payload.data?.favoriteTeams) return;
+    favoriteTeams = payload.data.favoriteTeams;
+    teams = payload.data.teams;
+    displayTeam = (source) => source;
+    sourceTeam = teams.find((item) => item.slug === slug) || sourceTeam;
+    team = displayTeam(sourceTeam);
+  } catch {
+    // Static team-data.js remains the fallback.
+  }
+}
 
 function teamImage(src, alt) {
   return src ? `<img src="${src}" alt="${alt}">` : "";
@@ -91,4 +115,4 @@ function renderTeamPage() {
   `;
 }
 
-renderTeamPage();
+loadPublishedTeamData().finally(renderTeamPage);

@@ -1,6 +1,8 @@
-import { displayTeam, teams, teamUrl } from "./team-data.js?v=20260708c";
+import { displayTeam as seedDisplayTeam, teams as seedTeams, teamUrl } from "./team-data.js?v=20260708c";
 
 const teamsBoard = document.querySelector("#teams-board");
+let teams = seedTeams;
+let displayTeam = seedDisplayTeam;
 
 function logoFor(team) {
   return team.capImage || team.listBanner || team.banner;
@@ -39,7 +41,24 @@ function renderLeague(leagueName) {
   `;
 }
 
-teamsBoard.innerHTML = `${renderLeague("Keystone")}${renderLeague("Diamond")}`;
+async function loadPublishedTeamData() {
+  try {
+    const response = await fetch("/api/team-site-data", { cache: "no-store" });
+    if (!response.ok) return;
+    const payload = await response.json();
+    if (!payload.data?.teams) return;
+    teams = payload.data.teams;
+    displayTeam = (source) => source;
+  } catch {
+    // Static team-data.js remains the fallback.
+  }
+}
+
+function renderBoard() {
+  teamsBoard.innerHTML = `${renderLeague("Keystone")}${renderLeague("Diamond")}`;
+}
+
+loadPublishedTeamData().finally(renderBoard);
 
 teamsBoard.addEventListener("toggle", (event) => {
   const openedRow = event.target;

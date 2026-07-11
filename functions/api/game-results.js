@@ -21,6 +21,15 @@ async function fetchSupabaseJson(baseUrl, key, path, params) {
   return response.json();
 }
 
+async function fetchOptionalSupabaseJson(baseUrl, key, path, params) {
+  try {
+    return await fetchSupabaseJson(baseUrl, key, path, params);
+  } catch (error) {
+    if (error.message.includes("PGRST205")) return [];
+    throw error;
+  }
+}
+
 export async function onRequestGet(context) {
   const SUPABASE_URL = context.env.SUPABASE_URL || FALLBACK_SUPABASE_URL;
   const SUPABASE_ANON_KEY = context.env.SUPABASE_ANON_KEY || FALLBACK_SUPABASE_ANON_KEY;
@@ -39,7 +48,7 @@ export async function onRequestGet(context) {
 
   try {
     const [runs, matchups, teams, players] = await Promise.all([
-      fetchSupabaseJson(SUPABASE_URL, SUPABASE_ANON_KEY, "game_score_runs", {
+      fetchOptionalSupabaseJson(SUPABASE_URL, SUPABASE_ANON_KEY, "game_score_runs", {
         select: "id,season_number,game_number,week_number,status,started_at,completed_at,source,metadata",
         season_number: `eq.${season}`,
         game_number: `eq.${game}`,
@@ -47,21 +56,21 @@ export async function onRequestGet(context) {
         order: "started_at.desc",
         limit: "1"
       }),
-      fetchSupabaseJson(SUPABASE_URL, SUPABASE_ANON_KEY, "game_matchup_score_results", {
+      fetchOptionalSupabaseJson(SUPABASE_URL, SUPABASE_ANON_KEY, "game_matchup_score_results", {
         select: "*",
         season_number: `eq.${season}`,
         game_number: `eq.${game}`,
         week_number: `eq.${week}`,
         order: "league_code.asc,matchup_key.asc"
       }),
-      fetchSupabaseJson(SUPABASE_URL, SUPABASE_ANON_KEY, "game_team_daily_score_results", {
+      fetchOptionalSupabaseJson(SUPABASE_URL, SUPABASE_ANON_KEY, "game_team_daily_score_results", {
         select: "*",
         season_number: `eq.${season}`,
         game_number: `eq.${game}`,
         week_number: `eq.${week}`,
         order: "matchup_key.asc,team_name.asc,stat_date.asc"
       }),
-      fetchSupabaseJson(SUPABASE_URL, SUPABASE_ANON_KEY, "game_player_daily_score_results", {
+      fetchOptionalSupabaseJson(SUPABASE_URL, SUPABASE_ANON_KEY, "game_player_daily_score_results", {
         select: "*",
         season_number: `eq.${season}`,
         game_number: `eq.${game}`,
