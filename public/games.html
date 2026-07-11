@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login - Owners Club Baseball</title>
+    <title>Games - Owners Club Baseball</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
@@ -17,36 +17,31 @@
         </a>
         <nav class="nav" aria-label="Main navigation">
           <a href="/">Season</a>
-          <a href="/games.html">Games</a>
+          <a href="/games.html" aria-current="page">Games</a>
           <a href="/teams.html">Teams</a>
           <a href="/event-cards.html">Event Cards</a>
           <a href="/archives.html">Archives</a>
-          <a href="/login.html">Login</a>
+          <a href="/admin.html">Admin</a>
         </nav>
       </div>
     </header>
 
-    <main>
-      <section class="admin-shell auth-shell">
-        <div class="section-heading">
-          <h1>Login</h1>
-          <p class="section-kicker">Team owners and commissioner tools</p>
-        </div>
-
-        <form id="login-form" class="admin-form auth-form">
-          <label>
-            Email
-            <input id="login-email" type="email" autocomplete="email" required>
-          </label>
-          <label>
-            Password
-            <input id="login-password" type="password" autocomplete="current-password" required>
-          </label>
-          <button class="admin-primary" type="submit">Log In</button>
-          <p class="auth-switch">Need an account? <a href="/signup.html">Create one here</a>.</p>
-          <p id="login-status" class="admin-status" role="status"></p>
-        </form>
+    <main class="games-shell">
+      <section class="players-hero">
+        <span class="section-kicker">Season 32</span>
+        <h1>Games</h1>
       </section>
+
+      <section class="games-toolbar">
+        <label>
+          Week
+          <select id="games-week-select"></select>
+        </label>
+        <p id="games-status" class="admin-note" role="status"></p>
+      </section>
+
+      <section id="games-scoreboard" class="games-scoreboard" aria-live="polite"></section>
+      <section id="games-detail" class="games-detail" aria-live="polite"></section>
     </main>
 
     <footer class="site-footer">
@@ -56,6 +51,6 @@
       <span>Owners Club Baseball ALL RIGHTS RESERVED &reg;</span>
     </footer>
 
-    <script src="/login.js?v=20260708c" type="module"></script>
+    <script src="/games.js?v=20260710l" type="module"></script>
   </body>
 </html>

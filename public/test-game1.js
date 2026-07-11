@@ -575,7 +575,7 @@ function playerNameHtml(row) {
   return `
     <div class="game-player-sub-tags">
       ${row.substitutions.map((segment, index) => `
-        <span class="game-sub-color-${index % 6}">
+        <span class="${substitutionColorClass(index)}">
           ${escapeHtml(segment.name)}
           <em>${escapeHtml(formatDays(segment.days))}</em>
         </span>
@@ -593,7 +593,11 @@ function formatDays(days) {
 function substitutionClassForDay(row, day) {
   if (!row.substitutions || row.substitutions.length <= 1) return "";
   const index = row.substitutions.findIndex((segment) => segment.days.includes(day));
-  return index >= 0 ? `game-sub-day game-sub-color-${index % 6}` : "";
+  return index > 0 ? `game-sub-day ${substitutionColorClass(index)}` : "";
+}
+
+function substitutionColorClass(index) {
+  return index > 0 ? `game-sub-color-${(index - 1) % 6}` : "game-sub-primary";
 }
 
 function dailyCompareCell(sheet, calculated, details = null, title = "", dayClass = "") {

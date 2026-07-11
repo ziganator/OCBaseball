@@ -1,9 +1,12 @@
+import { getSession, getSupabaseClient } from "./auth.js";
+
 const API_ROOT = "https://statsapi.mlb.com/api/v1";
 const ESPN_NEWS_ROOT = "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/news";
 const STORAGE_KEY = "ownersclub.highlandersLineup";
 const PLAYER_ID_KEY = "ownersclub.highlandersMlbPlayerIds";
 const SEASON_START = "2026-03-26";
 const SEASON = "2026";
+const TEAM_SLUG = "cleveland-highlanders";
 
 const hitters = [
   { id: "joe-mack", mlbId: 691788, name: "Joe Mack", positions: ["C"], mlb: "MIA" },
@@ -93,6 +96,8 @@ const defaultLineup = {
 };
 
 const dateEl = document.querySelector("#lineup-date");
+const prevDayEl = document.querySelector("#lineup-prev-day");
+const nextDayEl = document.querySelector("#lineup-next-day");
 const rangeEl = document.querySelector("#lineup-range");
 const windowLabelEl = document.querySelector("#lineup-window-label");
 const statusEl = document.querySelector("#lineup-status");
@@ -122,6 +127,9 @@ const dataState = {
   errors: []
 };
 let state = loadState();
+let supabase = null;
+let session = null;
+let loadingLineupDate = "";
 dateEl.value = state.date;
 rangeEl.value = state.range;
 
@@ -143,10 +151,13 @@ function loadJson(key, fallback) {
 
 function loadState() {
   const saved = loadJson(STORAGE_KEY, {});
+  const date = saved.date || todayString();
+  const lineups = saved.lineups || {};
   return {
-    date: saved.date || todayString(),
-    range: "day",
-    lineup: sanitizeLineup(saved.lineup || defaultLineup)
+    date,
+    range: saved.range || "day",
+    lineups,
+    lineup: sanitizeLineup(lineups[date] || saved.lineup || defaultLineup)
   };
 }
 
@@ -160,9 +171,80 @@ function sanitizeLineup(lineup) {
   return next;
 }
 
-function saveState(message) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+function saveState(message, options = {}) {
+  saveLocalState();
+  if (!options.skipRemote) saveLineupToDatabase();
   if (message) statusEl.textContent = message;
+}
+
+function saveLocalState() {
+  state.lineups = { ...(state.lineups || {}), [state.date]: sanitizeLineup(state.lineup) };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    date: state.date,
+    range: state.range,
+    lineup: state.lineup,
+    lineups: state.lineups
+  }));
+}
+
+async function initLineupStorage() {
+  try {
+    supabase = await getSupabaseClient();
+    session = await getSession();
+  } catch {
+    supabase = null;
+    session = null;
+  }
+
+  await loadLineupForDate(state.date);
+}
+
+async function loadLineupForDate(date) {
+  const localLineup = state.lineups?.[date] || defaultLineup;
+  let lineup = localLineup;
+  loadingLineupDate = date;
+
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from("team_daily_lineups")
+        .select("lineup")
+        .eq("team_slug", TEAM_SLUG)
+        .eq("lineup_date", date)
+        .maybeSingle();
+
+      if (error) throw error;
+      if (data?.lineup) lineup = data.lineup;
+    } catch {
+      lineup = localLineup;
+    }
+  }
+
+  if (loadingLineupDate !== date) return;
+  state.lineup = sanitizeLineup(lineup);
+  state.lineups = { ...(state.lineups || {}), [date]: state.lineup };
+  saveLocalState();
+}
+
+async function saveLineupToDatabase() {
+  if (!supabase || !session?.user || !state.date) return;
+  const lineupDate = state.date;
+  const lineup = sanitizeLineup(state.lineup);
+  try {
+    const { error } = await supabase
+      .from("team_daily_lineups")
+      .upsert({
+        team_slug: TEAM_SLUG,
+        lineup_date: lineupDate,
+        lineup,
+        updated_by: session.user.id,
+        updated_at: new Date().toISOString()
+      }, { onConflict: "team_slug,lineup_date" });
+
+    if (error) throw error;
+  } catch {
+    // Local storage remains the fallback until the Supabase migration is run.
+  }
 }
 
 function allPlayers() {
@@ -363,6 +445,7 @@ function playerGameContext(player, game, boxscore) {
   const scoreOpp = game.teams[otherSide]?.score;
   const hasScore = Number.isFinite(scoreMine) && Number.isFinite(scoreOpp);
   const result = hasScore && gameFinal ? `${scoreMine > scoreOpp ? "W" : "L"} ${scoreMine}-${scoreOpp}` : "";
+  const liveScore = hasScore && gameStarted && !gameFinal ? `${scoreMine}-${scoreOpp} ${inningLabel(game.linescore)}`.trim() : "";
   const gameTime = new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" }).format(new Date(game.gameDate));
   const battingOrder = playerBox?.battingOrder ? Math.floor(Number.parseInt(playerBox.battingOrder, 10) / 100) : null;
   const probablePitcherId = game.teams[side]?.probablePitcher?.id;
@@ -384,12 +467,18 @@ function playerGameContext(player, game, boxscore) {
     gameStarted,
     gameInProgress: gameStarted && !gameFinal,
     line: gameStarted
-      ? `${result || game.status?.detailedState || "In progress"} ${isHome ? "vs" : "@"} ${opponent}`
+      ? `${result || liveScore || game.status?.detailedState || "In progress"} ${isHome ? "vs" : "@"} ${opponent}`
       : `${gameTime} ${isHome ? "vs" : "@"} ${opponent}`,
     lineup: gameStarted
       ? position
       : position
   };
+}
+
+function inningLabel(linescore) {
+  if (!linescore?.currentInning) return "";
+  const half = linescore.isTopInning ? "Top" : "Bottom";
+  return `${half} ${linescore.currentInning}`;
 }
 
 function pitcherDecisions(stats) {
@@ -944,15 +1033,24 @@ document.querySelectorAll("[data-dialog-close]").forEach((button) => {
 });
 
 dateEl.addEventListener("change", () => {
-  state.date = dateEl.value || todayString();
-  saveState();
+  updateLineupDate(dateEl.value || todayString());
+});
+
+prevDayEl?.addEventListener("click", () => updateLineupDate(addDays(state.date, -1)));
+nextDayEl?.addEventListener("click", () => updateLineupDate(addDays(state.date, 1)));
+
+async function updateLineupDate(value) {
+  state.date = value || todayString();
+  dateEl.value = state.date;
+  saveLocalState();
+  await loadLineupForDate(state.date);
   renderTables();
   loadMlbData();
-});
+}
 
 rangeEl.addEventListener("change", () => {
   state.range = rangeEl.value || "day";
-  saveState();
+  saveState("", { skipRemote: true });
   renderTables();
 });
 
@@ -961,7 +1059,12 @@ mobileToggleEl?.addEventListener("click", () => {
   mobileToggleEl.textContent = mobile ? "Web" : "Mobile";
 });
 
-renderTables();
-loadMlbData().catch((error) => {
+async function boot() {
+  await initLineupStorage();
+  renderTables();
+  await loadMlbData();
+}
+
+boot().catch((error) => {
   statusEl.textContent = `Could not load MLB data: ${error.message}`;
 });
