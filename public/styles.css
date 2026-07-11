@@ -1028,6 +1028,11 @@ h1 {
   outline-offset: -2px;
 }
 
+.game-scoreboard-table tbody tr.is-selected th,
+.game-scoreboard-table tbody tr.is-selected td {
+  background: #fff2c4;
+}
+
 .game-scoreboard-table tbody tr.is-keystone th {
   background: #dce8f7;
 }
