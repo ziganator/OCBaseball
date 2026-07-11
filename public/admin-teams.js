@@ -40,6 +40,41 @@ try {
   setStatus(error.message, "error");
 }
 
+async function loadDatabaseTeamData() {
+  if (!session) return;
+  try {
+    const supabase = await getSupabaseClient();
+    const { data: published, error: publishedError } = await supabase
+      .from("team_site_data")
+      .select("site_data")
+      .eq("data_key", "team-data")
+      .maybeSingle();
+
+    if (publishedError) throw publishedError;
+    if (published?.site_data?.teams && published?.site_data?.favoriteTeams) {
+      state = normalizeDraftState(published.site_data);
+      activeSlug = state.teams.some((team) => team.slug === activeSlug) ? activeSlug : state.teams[0]?.slug || "";
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(state));
+      return;
+    }
+
+    const { data: draft, error: draftError } = await supabase
+      .from("team_admin_drafts")
+      .select("draft_data")
+      .eq("draft_key", "team-data")
+      .maybeSingle();
+
+    if (draftError) throw draftError;
+    if (draft?.draft_data?.teams && draft?.draft_data?.favoriteTeams) {
+      state = normalizeDraftState(draft.draft_data);
+      activeSlug = state.teams.some((team) => team.slug === activeSlug) ? activeSlug : state.teams[0]?.slug || "";
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(state));
+    }
+  } catch (error) {
+    setStatus(`Could not load saved team data: ${error.message}`, "error");
+  }
+}
+
 function slugify(value) {
   return value
     .toLowerCase()
@@ -284,7 +319,7 @@ async function saveSupabaseDraft() {
   }
   syncCurrentTeamFromForm();
   associateFavoriteWithActiveTeam();
-  setStatus("Saving draft to Supabase...");
+  setStatus("Saving teams to Supabase...");
 
   try {
     const supabase = await getSupabaseClient();
@@ -307,14 +342,14 @@ async function saveSupabaseDraft() {
       }, { onConflict: "data_key" });
 
     if (publishError) {
-      setStatus(`Team draft saved, but public team pages were not updated: ${publishError.message}`, "error");
+      setStatus(`Teams saved privately, but public team pages were not updated: ${publishError.message}`, "error");
       return;
     }
 
     localStorage.setItem(DRAFT_KEY, JSON.stringify(state));
-    setStatus("Team draft saved to Supabase and published to team pages.");
+    setStatus("Teams saved to Supabase and published to team pages.");
   } catch (error) {
-    setStatus(`Supabase draft save failed: ${error.message}`, "error");
+    setStatus(`Supabase team save failed: ${error.message}`, "error");
   }
 }
 
@@ -373,5 +408,8 @@ exportButton.addEventListener("click", exportTeamData);
 addFavoriteButton.addEventListener("click", addFavoriteTeam);
 logoutButton.addEventListener("click", signOut);
 
+await loadDatabaseTeamData();
 renderForm();
-setStatus(`Logged in as ${session?.user?.email || "admin"}.`);
+if (!statusEl.textContent) {
+  setStatus(`Logged in as ${session?.user?.email || "admin"}.`);
+}
