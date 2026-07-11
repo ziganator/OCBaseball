@@ -101,6 +101,15 @@ function activeTeam() {
   return state.teams.find((team) => team.slug === activeSlug) || state.teams[0];
 }
 
+function associateFavoriteWithActiveTeam(key = form.elements.favoriteTeam?.value || "") {
+  const team = activeTeam();
+  if (!team) return;
+  team.favoriteTeam = key;
+  if (form.elements.favoriteTeam) {
+    form.elements.favoriteTeam.value = key;
+  }
+}
+
 function syncCurrentTeamFromForm() {
   const team = activeTeam();
   if (!team) return;
@@ -119,7 +128,7 @@ function syncCurrentTeamFromForm() {
   team.league = data.get("league");
   team.conference = data.get("conference");
   team.division = data.get("division").trim();
-  team.favoriteTeam = data.get("favoriteTeam") || "";
+  associateFavoriteWithActiveTeam(data.get("favoriteTeam") || "");
   team.capImage = data.get("capImage").trim();
   team.listBanner = team.capImage || team.listBanner;
   team.logo = data.get("logo").trim();
@@ -248,11 +257,11 @@ function addFavoriteTeam() {
 
   const team = activeTeam();
   if (team) {
-    team.favoriteTeam = key;
+    associateFavoriteWithActiveTeam(key);
   }
 
   renderSelectors();
-  form.elements.favoriteTeam.value = key;
+  associateFavoriteWithActiveTeam(key);
   keyEl.value = "";
   nameEl.value = "";
   logoEl.value = "";
@@ -274,6 +283,7 @@ async function saveSupabaseDraft() {
     return;
   }
   syncCurrentTeamFromForm();
+  associateFavoriteWithActiveTeam();
   setStatus("Saving draft to Supabase...");
 
   try {

@@ -1,4 +1,6 @@
 const DEFAULT_SEASON = "32";
+const FALLBACK_SUPABASE_URL = "https://xahrxrjyowghmcwmxetc.supabase.co";
+const FALLBACK_SUPABASE_ANON_KEY = "sb_publishable_jEBLgV4-_qoI3bVPQ7_pxQ_O-2yTGfV";
 
 function supabaseHeaders(key) {
   return {
@@ -20,7 +22,8 @@ async function fetchSupabaseJson(baseUrl, key, path, params) {
 }
 
 export async function onRequestGet(context) {
-  const { SUPABASE_URL, SUPABASE_ANON_KEY } = context.env;
+  const SUPABASE_URL = context.env.SUPABASE_URL || FALLBACK_SUPABASE_URL;
+  const SUPABASE_ANON_KEY = context.env.SUPABASE_ANON_KEY || FALLBACK_SUPABASE_ANON_KEY;
 
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     return Response.json(
