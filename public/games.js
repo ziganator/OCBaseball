@@ -53,9 +53,10 @@ function fillWeeks() {
 
 async function loadWeek() {
   const week = Number(weekSelect.value);
-  statusEl.textContent = `Loading Season ${SEASON}, Week ${week}...`;
+  statusEl.textContent = "";
   scoreboardEl.innerHTML = "";
   detailEl.innerHTML = "";
+  selectedMatchup = "";
 
   try {
     const response = await fetch(`/api/game-results?season=${SEASON}&week=${week}&game=${week}`);
@@ -65,16 +66,12 @@ async function loadWeek() {
     const matchups = currentData.matchups || [];
 
     if (!matchups.length) {
-      statusEl.textContent = `Season ${SEASON}, Week ${week}`;
+      statusEl.textContent = "";
       return;
     }
 
-    selectedMatchup = selectedMatchup && matchups.some((game) => game.matchup_key === selectedMatchup)
-      ? selectedMatchup
-      : matchups[0].matchup_key;
-    statusEl.textContent = `Loaded ${matchups.length} games for Season ${SEASON}, Week ${week}.`;
+    statusEl.textContent = "";
     renderScoreboard();
-    renderSelectedMatchup();
   } catch (error) {
     statusEl.textContent = `Could not load games: ${error.message}`;
   }
@@ -378,7 +375,6 @@ weekSelect.addEventListener("change", () => {
   const params = new URLSearchParams(location.search);
   params.set("week", weekSelect.value);
   history.replaceState(null, "", `${location.pathname}?${params}`);
-  selectedMatchup = "";
   loadWeek();
 });
 loadWeek();
