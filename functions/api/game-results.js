@@ -2,11 +2,12 @@ const DEFAULT_SEASON = "32";
 const FALLBACK_SUPABASE_URL = "https://xahrxrjyowghmcwmxetc.supabase.co";
 const FALLBACK_SUPABASE_ANON_KEY = "sb_publishable_jEBLgV4-_qoI3bVPQ7_pxQ_O-2yTGfV";
 
-function supabaseHeaders(key) {
+function supabaseHeaders(key, extra = {}) {
   return {
     apikey: key,
     authorization: `Bearer ${key}`,
-    accept: "application/json"
+    accept: "application/json",
+    ...extra
   };
 }
 
@@ -21,9 +22,42 @@ async function fetchSupabaseJson(baseUrl, key, path, params) {
   return response.json();
 }
 
+async function fetchSupabaseJsonPage(baseUrl, key, path, params, from, to) {
+  const url = new URL(`/rest/v1/${path}`, baseUrl);
+  for (const [name, value] of Object.entries(params)) url.searchParams.set(name, value);
+
+  const response = await fetch(url, {
+    headers: supabaseHeaders(key, { range: `${from}-${to}` })
+  });
+  if (!response.ok) {
+    throw new Error(`${path} returned ${response.status}: ${await response.text()}`);
+  }
+  return response.json();
+}
+
+async function fetchSupabaseJsonAll(baseUrl, key, path, params) {
+  const pageSize = 1000;
+  const rows = [];
+  for (let from = 0; ; from += pageSize) {
+    const page = await fetchSupabaseJsonPage(baseUrl, key, path, params, from, from + pageSize - 1);
+    rows.push(...page);
+    if (page.length < pageSize) break;
+  }
+  return rows;
+}
+
 async function fetchOptionalSupabaseJson(baseUrl, key, path, params) {
   try {
     return await fetchSupabaseJson(baseUrl, key, path, params);
+  } catch (error) {
+    if (error.message.includes("PGRST205")) return [];
+    throw error;
+  }
+}
+
+async function fetchOptionalSupabaseJsonAll(baseUrl, key, path, params) {
+  try {
+    return await fetchSupabaseJsonAll(baseUrl, key, path, params);
   } catch (error) {
     if (error.message.includes("PGRST205")) return [];
     throw error;
@@ -70,7 +104,7 @@ export async function onRequestGet(context) {
         week_number: `eq.${week}`,
         order: "matchup_key.asc,team_name.asc,stat_date.asc"
       }),
-      fetchOptionalSupabaseJson(SUPABASE_URL, SUPABASE_ANON_KEY, "game_player_daily_score_results", {
+      fetchOptionalSupabaseJsonAll(SUPABASE_URL, SUPABASE_ANON_KEY, "game_player_daily_score_results", {
         select: "*",
         season_number: `eq.${season}`,
         game_number: `eq.${game}`,
