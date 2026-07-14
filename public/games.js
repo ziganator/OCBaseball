@@ -163,9 +163,9 @@ function renderSelectedMatchup() {
       </div>
     </header>
     ${spreadsheetMatchupSummary(matchup)}
-    ${matchupSummary(matchup, away, home)}
     <div class="game-team-panels">
       ${teamPanel(away, "Away")}
+      ${matchupSummary(matchup, away, home)}
       ${teamPanel(home, "Home")}
     </div>
   `;

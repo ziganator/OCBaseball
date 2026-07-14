@@ -1188,16 +1188,28 @@ h1 {
 
 .game-summary-sheet {
   border: 8px solid #0c0c0c;
-  margin-top: 18px;
+  margin-top: 0;
   overflow-x: auto;
   padding: 12px;
+  position: relative;
+}
+
+.game-summary-sheet::before {
+  background: url("/assets/OC%20Icon.png") center / contain no-repeat;
+  content: "";
+  inset: 18px;
+  opacity: 0.08;
+  pointer-events: none;
+  position: absolute;
 }
 
 .game-summary-sheet table {
   border-bottom: 1px solid #222222;
   border-collapse: collapse;
   min-width: 760px;
+  position: relative;
   width: 100%;
+  z-index: 1;
 }
 
 .game-summary-sheet th,
@@ -2224,7 +2236,159 @@ body.lineup-force-mobile .lineup-player-game {
 
 .standings-grid {
   display: grid;
-  gap: 28px;
+  gap: 34px;
+}
+
+.season-standings-board {
+  background: #050505;
+  border: 1px solid #050505;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  margin: 0 auto;
+  max-width: 1450px;
+  width: 100%;
+}
+
+.season-standings-board.is-keystone .league-rail {
+  background: #1166ba;
+}
+
+.season-standings-board.is-diamond .league-rail {
+  background: #d50000;
+}
+
+.league-rail {
+  align-items: center;
+  color: #ffffff;
+  display: flex;
+  font-family: "Oswald", sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  justify-content: center;
+  letter-spacing: 6px;
+  line-height: 1.35;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.league-rail span {
+  writing-mode: vertical-rl;
+}
+
+.league-board-content {
+  background: #ffffff;
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+}
+
+.season-conference-block {
+  border: 1px solid #111111;
+  overflow: hidden;
+}
+
+.season-conference-block h2 {
+  background: #ffffff;
+  border-bottom: 1px solid #111111;
+  color: #b00000;
+  font-family: "Oswald", sans-serif;
+  font-size: 18px;
+  line-height: 1;
+  margin: 0;
+  padding: 7px 12px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.season-division-row + .season-division-row {
+  border-top: 7px solid #111111;
+}
+
+.season-division-row {
+  overflow-x: auto;
+}
+
+.season-division-title {
+  background: #9e9e9e;
+  color: #b00000;
+  font-size: 10px;
+  font-weight: 900;
+  padding: 5px 54px;
+  text-transform: uppercase;
+}
+
+.season-standings-table {
+  border-collapse: collapse;
+  min-width: 1120px;
+  width: 100%;
+}
+
+.season-standings-table th,
+.season-standings-table td {
+  border-bottom: 1px solid #222222;
+  border-right: 1px solid #9b9b9b;
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1.05;
+  padding: 5px 6px;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.season-standings-table thead th {
+  background: #d7d7d7;
+  color: #111111;
+  font-size: 8px;
+}
+
+.season-standings-table tbody th,
+.season-standings-table tbody td {
+  background: #ffffff;
+  color: #111111;
+}
+
+.season-standings-table tbody tr:nth-child(odd) th,
+.season-standings-table tbody tr:nth-child(odd) td {
+  background: #f3f3f3;
+}
+
+.season-standings-table tbody tr:last-child th,
+.season-standings-table tbody tr:last-child td {
+  border-bottom: 1px solid #222222;
+}
+
+.season-standings-table .team-col {
+  min-width: 300px;
+  text-align: left;
+}
+
+.season-team-cell {
+  padding: 0;
+}
+
+.season-team-cell a {
+  align-items: center;
+  color: #111111;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 34px 1fr;
+  min-height: 31px;
+  padding: 3px 8px;
+  text-align: left;
+  text-decoration: none;
+}
+
+.season-team-cell img {
+  display: block;
+  height: 25px;
+  max-width: 30px;
+  object-fit: contain;
+  width: 30px;
+}
+
+.season-team-cell span {
+  font-size: 12px;
 }
 
 .division-table {

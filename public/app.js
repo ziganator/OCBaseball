@@ -1,169 +1,316 @@
-const sampleStandings = [
-  {
-    league_code: "NL",
-    conference_code: "R",
-    division_code: "D",
-    team_name: "SAN FRANCISCO SPIDERS",
-    wins: 5,
-    losses: 2,
-    win_pct: 0.71429,
-    rank_in_group: 2,
-    offense_points: 1162,
-    pitching_points: 855,
-    total_points: 2017,
-    plus_minus: 137,
-    average_per_week: 288.14
+import {
+  displayTeam,
+  teams as seedTeams,
+  teamUrl
+} from "./team-data.js?v=20260714a";
+
+const SEASON = 32;
+const WEEK_COUNT = 18;
+const LEAGUE_ORDER = ["Keystone", "Diamond"];
+const CONFERENCE_ORDER = ["Red", "Black"];
+const DIVISION_ORDER = {
+  Keystone: {
+    Red: ["Seilhan", "Cox"],
+    Black: ["Carranza", "Reasbeck"]
   },
-  {
-    league_code: "NL",
-    conference_code: "R",
-    division_code: "D",
-    team_name: "BROOKLYN ROBINS",
-    wins: 4,
-    losses: 3,
-    win_pct: 0.57143,
-    rank_in_group: 5,
-    offense_points: 996,
-    pitching_points: 976,
-    total_points: 1972,
-    plus_minus: 62,
-    average_per_week: 281.71
-  },
-  {
-    league_code: "NL",
-    conference_code: "R",
-    division_code: "D",
-    team_name: "COLORADO CRUSADERS",
-    wins: 4,
-    losses: 3,
-    win_pct: 0.57143,
-    rank_in_group: 5,
-    offense_points: 1060,
-    pitching_points: 760,
-    total_points: 1820,
-    plus_minus: -147,
-    average_per_week: 260.00
-  },
-  {
-    league_code: "NL",
-    conference_code: "R",
-    division_code: "D",
-    team_name: "CHICAGO ROGUES",
-    wins: 5,
-    losses: 2,
-    win_pct: 0.71429,
-    rank_in_group: 2,
-    offense_points: 1032,
-    pitching_points: 831,
-    total_points: 1863,
-    plus_minus: 50,
-    average_per_week: 266.14
+  Diamond: {
+    Red: ["Seilhan", "Cox"],
+    Black: ["Carranza", "Reasbeck"]
   }
-];
+};
 
 const statusEl = document.querySelector("#status");
 const standingsEl = document.querySelector("#standings");
+const teams = seedTeams.map(displayTeam);
+const teamsByName = new Map(teams.map((team) => [normalizeTeam(team.name), team]));
+const teamAliases = new Map([
+  ["SAN ANTONIO OCOTILLOS", "SAN ANTONIO OCATILLOS"]
+]);
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function normalizeTeam(value) {
+  return String(value || "").trim().toUpperCase();
+}
 
 function numberValue(value, digits = 0) {
-  if (value === null || value === undefined || value === "") return "-";
-  return Number(value).toLocaleString(undefined, {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return "-";
+  return number.toLocaleString(undefined, {
     maximumFractionDigits: digits,
     minimumFractionDigits: digits
   });
 }
 
 function pctValue(value) {
-  if (value === null || value === undefined || value === "") return "-";
-  return Number(value).toFixed(3);
+  const number = Number(value);
+  if (!Number.isFinite(number)) return "-";
+  return number.toFixed(3).replace(/^0/, "");
 }
 
-function groupStandings(rows) {
-  return rows.reduce((groups, row) => {
-    const key = `${row.league_code || "League"}-${row.conference_code || "Conference"}-${row.division_code || "Division"}`;
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key).push(row);
-    return groups;
-  }, new Map());
+function percentToAverage(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return "-";
+  return `${number > 0 ? "+" : ""}${number.toFixed(2)}%`;
 }
 
-function renderStandings(rows) {
-  const groups = groupStandings(rows);
-  standingsEl.innerHTML = "";
+function initStanding(team) {
+  return {
+    team,
+    key: normalizeTeam(team.name),
+    wins: 0,
+    losses: 0,
+    divisionWins: 0,
+    divisionLosses: 0,
+    conferenceWins: 0,
+    conferenceLosses: 0,
+    pointsFor: 0,
+    pointsAgainst: 0,
+    offense: 0,
+    pitching: 0,
+    games: 0,
+    outcomes: []
+  };
+}
 
-  for (const [key, groupRows] of groups.entries()) {
-    const [league, conference, division] = key.split("-");
-    const sortedRows = [...groupRows].sort((a, b) => {
-      if ((a.rank_in_group || 999) !== (b.rank_in_group || 999)) {
-        return (a.rank_in_group || 999) - (b.rank_in_group || 999);
-      }
-      return String(a.team_name).localeCompare(String(b.team_name));
-    });
+function opponentMeta(name) {
+  return teamsByName.get(teamKey(name));
+}
 
-    const section = document.createElement("section");
-    section.className = "division-table";
-    section.innerHTML = `
-      <div class="division-title">
-        <h2>${division} Division</h2>
-        <span>${league} / ${conference}</span>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Team</th>
-              <th>W</th>
-              <th>L</th>
-              <th>Win %</th>
-              <th>Rank</th>
-              <th>Off</th>
-              <th>Pit</th>
-              <th>Total</th>
-              <th>+/-</th>
-              <th>Week Avg</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${sortedRows.map((row) => `
-              <tr>
-                <td class="team-name">${row.team_name}</td>
-                <td>${numberValue(row.wins)}</td>
-                <td>${numberValue(row.losses)}</td>
-                <td>${pctValue(row.win_pct)}</td>
-                <td>${numberValue(row.rank_in_group)}</td>
-                <td>${numberValue(row.offense_points)}</td>
-                <td>${numberValue(row.pitching_points)}</td>
-                <td>${numberValue(row.total_points)}</td>
-                <td>${numberValue(row.plus_minus)}</td>
-                <td>${numberValue(row.average_per_week, 2)}</td>
-              </tr>
-            `).join("")}
-          </tbody>
-        </table>
-      </div>
-    `;
+function teamKey(name) {
+  const key = normalizeTeam(name);
+  return teamAliases.get(key) || key;
+}
 
-    standingsEl.append(section);
+function recordGame(row, matchup, teamName, opponentName, didWin) {
+  const team = row.team;
+  const opponent = opponentMeta(opponentName);
+  if (didWin) row.wins += 1;
+  else row.losses += 1;
+
+  if (opponent?.division === team.division && opponent?.conference === team.conference && opponent?.league === team.league) {
+    if (didWin) row.divisionWins += 1;
+    else row.divisionLosses += 1;
   }
+
+  if (opponent?.conference === team.conference && opponent?.league === team.league) {
+    if (didWin) row.conferenceWins += 1;
+    else row.conferenceLosses += 1;
+  }
+
+  row.pointsFor += Number(matchup[teamName === matchup.away_team_name ? "away_score" : "home_score"] || 0);
+  row.pointsAgainst += Number(matchup[teamName === matchup.away_team_name ? "home_score" : "away_score"] || 0);
+  row.games += 1;
+  row.outcomes.push({ week: Number(matchup.week_number || 0), result: didWin ? "W" : "L" });
+}
+
+function addTeamDaily(row, teamRows) {
+  for (const teamRow of teamRows) {
+    row.offense += Number(teamRow.offense_points || 0);
+    row.pitching += Number(teamRow.pitching_points || 0);
+  }
+}
+
+function sortStandings(rows) {
+  return rows.sort((a, b) => {
+    const winPctDiff = b.winPct - a.winPct;
+    if (winPctDiff) return winPctDiff;
+    const avgDiff = b.averagePerWeek - a.averagePerWeek;
+    if (avgDiff) return avgDiff;
+    return a.team.name.localeCompare(b.team.name);
+  });
+}
+
+function finalizeStandings(map) {
+  const rows = Array.from(map.values()).map((row) => {
+    const games = row.games || 0;
+    const totalPoints = row.offense + row.pitching;
+    return {
+      ...row,
+      totalPoints,
+      winPct: games ? row.wins / games : 0,
+      averagePerWeek: games ? row.pointsFor / games : 0,
+      plusMinus: row.pointsFor - row.pointsAgainst,
+      streak: streak(row.outcomes)
+    };
+  });
+
+  for (const league of LEAGUE_ORDER) {
+    const leagueRows = sortStandings(rows.filter((row) => row.team.league === league));
+    const leagueAverage = leagueRows.length
+      ? leagueRows.reduce((sum, row) => sum + row.averagePerWeek, 0) / leagueRows.length
+      : 0;
+    leagueRows.forEach((row, index) => {
+      row.rank = index + 1;
+      row.toAverage = leagueAverage ? ((row.averagePerWeek - leagueAverage) / leagueAverage) * 100 : 0;
+    });
+  }
+
+  return rows;
+}
+
+function streak(outcomes) {
+  const ordered = [...outcomes].sort((a, b) => a.week - b.week);
+  const last = ordered.at(-1);
+  if (!last) return "-";
+  let count = 0;
+  for (let index = ordered.length - 1; index >= 0; index -= 1) {
+    if (ordered[index].result !== last.result) break;
+    count += 1;
+  }
+  return `${last.result} ${count}`;
+}
+
+async function fetchWeek(week) {
+  const response = await fetch(`/api/game-results?season=${SEASON}&week=${week}&game=${week}`);
+  if (!response.ok) return null;
+  const payload = await response.json();
+  return payload.data || null;
+}
+
+async function loadSeasonResults() {
+  const weeks = await Promise.all(
+    Array.from({ length: WEEK_COUNT }, (_, index) => fetchWeek(index + 1).catch(() => null))
+  );
+  return weeks.filter((week) => week?.matchups?.length);
+}
+
+function buildStandings(weeks) {
+  const map = new Map(teams.map((team) => [normalizeTeam(team.name), initStanding(team)]));
+
+  for (const week of weeks) {
+    for (const matchup of week.matchups || []) {
+      const awayKey = teamKey(matchup.away_team_name);
+      const homeKey = teamKey(matchup.home_team_name);
+      const away = map.get(awayKey);
+      const home = map.get(homeKey);
+      if (!away || !home) continue;
+
+      const awayScore = Number(matchup.away_score || 0);
+      const homeScore = Number(matchup.home_score || 0);
+      recordGame(away, matchup, matchup.away_team_name, matchup.home_team_name, awayScore > homeScore);
+      recordGame(home, matchup, matchup.home_team_name, matchup.away_team_name, homeScore > awayScore);
+    }
+
+    const teamRowsByName = new Map();
+    for (const teamRow of week.teams || []) {
+      const key = teamKey(teamRow.team_name);
+      if (!teamRowsByName.has(key)) teamRowsByName.set(key, []);
+      teamRowsByName.get(key).push(teamRow);
+    }
+    for (const [key, rows] of teamRowsByName.entries()) {
+      const standing = map.get(key);
+      if (standing) addTeamDaily(standing, rows);
+    }
+  }
+
+  return finalizeStandings(map);
+}
+
+function renderStandings(rows, loadedWeeks) {
+  standingsEl.innerHTML = LEAGUE_ORDER.map((league) => leagueBoard(league, rows)).join("");
+  statusEl.textContent = loadedWeeks ? "" : "No loaded game results yet.";
+}
+
+function leagueBoard(league, rows) {
+  const leagueRows = rows.filter((row) => row.team.league === league);
+  return `
+    <section class="season-standings-board is-${league.toLowerCase()}">
+      <div class="league-rail"><span>${escapeHtml(league)} League</span></div>
+      <div class="league-board-content">
+        ${CONFERENCE_ORDER.map((conference) => conferenceBoard(league, conference, leagueRows)).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function conferenceBoard(league, conference, rows) {
+  const conferenceRows = rows.filter((row) => row.team.conference === conference);
+  const divisions = DIVISION_ORDER[league]?.[conference] || [...new Set(conferenceRows.map((row) => row.team.division))];
+  return `
+    <section class="season-conference-block">
+      <h2>${escapeHtml(conference)} Conference</h2>
+      ${divisions.map((division) => divisionTable(division, conferenceRows.filter((row) => row.team.division === division))).join("")}
+    </section>
+  `;
+}
+
+function divisionTable(division, rows) {
+  const sorted = sortStandings([...rows]);
+  return `
+    <section class="season-division-row">
+      <div class="season-division-title">${escapeHtml(division)} Division</div>
+      <table class="season-standings-table">
+        <thead>
+          <tr>
+            <th class="team-col">Team</th>
+            <th>W</th>
+            <th>L</th>
+            <th>Win %</th>
+            <th>Rank</th>
+            <th>Avg/Week</th>
+            <th colspan="2">Division</th>
+            <th colspan="2">Conference</th>
+            <th>Streak</th>
+            <th>+/-</th>
+            <th>% To Ave</th>
+            <th>Offense</th>
+            <th>Pitching</th>
+            <th>Total Pts</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${sorted.map(standingsRow).join("")}
+        </tbody>
+      </table>
+    </section>
+  `;
+}
+
+function standingsRow(row) {
+  const logo = row.team.logo || row.team.capImage || row.team.listBanner;
+  return `
+    <tr>
+      <th class="season-team-cell">
+        <a href="${escapeHtml(teamUrl(row.team))}">
+          ${logo ? `<img src="${escapeHtml(logo)}" alt="">` : ""}
+          <span>${escapeHtml(row.team.name)}</span>
+        </a>
+      </th>
+      <td>${numberValue(row.wins)}</td>
+      <td>${numberValue(row.losses)}</td>
+      <td>${pctValue(row.winPct)}</td>
+      <td>${numberValue(row.rank)}</td>
+      <td>${numberValue(row.averagePerWeek, 2)}</td>
+      <td>${numberValue(row.divisionWins)}</td>
+      <td>${numberValue(row.divisionLosses)}</td>
+      <td>${numberValue(row.conferenceWins)}</td>
+      <td>${numberValue(row.conferenceLosses)}</td>
+      <td>${escapeHtml(row.streak)}</td>
+      <td>${numberValue(row.plusMinus)}</td>
+      <td>${percentToAverage(row.toAverage)}</td>
+      <td>${numberValue(row.offense)}</td>
+      <td>${numberValue(row.pitching)}</td>
+      <td>${numberValue(row.totalPoints)}</td>
+    </tr>
+  `;
 }
 
 async function loadStandings() {
   try {
-    const response = await fetch("/api/standings");
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const payload = await response.json();
-    const rows = payload.data || [];
-
-    if (rows.length === 0) {
-      statusEl.textContent = "No standings rows found yet. Showing sample Season 28 data.";
-      renderStandings(sampleStandings);
-      return;
-    }
-
-    statusEl.textContent = "";
-    renderStandings(rows);
+    const weeks = await loadSeasonResults();
+    const rows = buildStandings(weeks);
+    renderStandings(rows, weeks.length);
   } catch (error) {
-    statusEl.textContent = "Supabase is not connected yet. Showing sample Season 28 data.";
-    renderStandings(sampleStandings);
+    statusEl.textContent = `Could not load standings: ${error.message}`;
+    standingsEl.innerHTML = "";
   }
 }
 
