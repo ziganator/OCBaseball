@@ -2,15 +2,7 @@ const SEASON = 32;
 const WEEK_COUNT = 18;
 const WEEK_ONE_START = "2026-03-30T00:00:00";
 const MS_PER_WEEK = 7 * 24 * 60 * 60 * 1000;
-const DAYS = [
-  { key: "M", date: "2026-03-30" },
-  { key: "Tu", date: "2026-03-31" },
-  { key: "W", date: "2026-04-01" },
-  { key: "Th", date: "2026-04-02" },
-  { key: "F", date: "2026-04-03" },
-  { key: "St", date: "2026-04-04" },
-  { key: "Su", date: "2026-04-05" }
-];
+let DAYS = makeWeekDays(1);
 
 const weekSelect = document.querySelector("#games-week-select");
 const statusEl = document.querySelector("#games-status");
@@ -41,6 +33,18 @@ function currentWeek() {
   return Math.min(WEEK_COUNT, Math.max(1, week));
 }
 
+function makeWeekDays(week) {
+  const keys = ["M", "Tu", "W", "Th", "F", "St", "Su"];
+  const start = new Date(WEEK_ONE_START);
+  start.setDate(start.getDate() + ((Number(week) || 1) - 1) * 7);
+
+  return keys.map((key, index) => {
+    const day = new Date(start);
+    day.setDate(start.getDate() + index);
+    return { key, date: day.toISOString().slice(0, 10) };
+  });
+}
+
 function fillWeeks() {
   weekSelect.innerHTML = Array.from({ length: WEEK_COUNT }, (_, index) => {
     const week = index + 1;
@@ -53,6 +57,7 @@ function fillWeeks() {
 
 async function loadWeek() {
   const week = Number(weekSelect.value);
+  DAYS = makeWeekDays(week);
   statusEl.textContent = "";
   scoreboardEl.innerHTML = "";
   detailEl.innerHTML = "";
