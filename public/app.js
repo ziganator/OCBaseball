@@ -2,7 +2,7 @@ import {
   displayTeam,
   teams as seedTeams,
   teamUrl
-} from "./team-data.js?v=20260714a";
+} from "./team-data.js?v=20260714b";
 
 const SEASON = 32;
 const WEEK_COUNT = 18;

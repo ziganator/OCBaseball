@@ -1,4 +1,4 @@
-import { displayTeam as seedDisplayTeam, teams as seedTeams, teamUrl } from "./team-data.js?v=20260708c";
+import { displayTeam as seedDisplayTeam, teams as seedTeams, teamUrl } from "./team-data.js?v=20260714b";
 
 const teamsBoard = document.querySelector("#teams-board");
 let teams = seedTeams;

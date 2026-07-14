@@ -3,7 +3,7 @@ import {
   favoriteTeams as seedFavoriteTeams,
   findTeam as seedFindTeam,
   teams as seedTeams
-} from "./team-data.js?v=20260708c";
+} from "./team-data.js?v=20260714b";
 
 const params = new URLSearchParams(window.location.search);
 const pathParts = window.location.pathname.split("/").filter(Boolean);
