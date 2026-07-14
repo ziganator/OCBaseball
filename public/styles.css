@@ -2319,7 +2319,7 @@ body.lineup-force-mobile .lineup-player-game {
 
 .season-standings-table {
   border-collapse: collapse;
-  min-width: 1040px;
+  min-width: 1090px;
   width: 100%;
 }
 
@@ -2327,10 +2327,10 @@ body.lineup-force-mobile .lineup-player-game {
 .season-standings-table td {
   border-bottom: 1px solid #222222;
   border-right: 1px solid #9b9b9b;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 900;
   line-height: 1.05;
-  padding: 5px 6px;
+  padding: 6px 7px;
   text-align: center;
   text-transform: uppercase;
   white-space: nowrap;
@@ -2339,7 +2339,7 @@ body.lineup-force-mobile .lineup-player-game {
 .season-standings-table thead th {
   background: #d7d7d7;
   color: #111111;
-  font-size: 9px;
+  font-size: 10px;
 }
 
 .season-standings-table tbody th,
@@ -2372,23 +2372,23 @@ body.lineup-force-mobile .lineup-player-game {
   color: #111111;
   display: grid;
   gap: 8px;
-  grid-template-columns: 38px 1fr;
-  min-height: 34px;
-  padding: 3px 8px;
+  grid-template-columns: 42px 1fr;
+  min-height: 38px;
+  padding: 4px 9px;
   text-align: left;
   text-decoration: none;
 }
 
 .season-team-cell img {
   display: block;
-  height: 28px;
-  max-width: 34px;
+  height: 31px;
+  max-width: 38px;
   object-fit: contain;
-  width: 34px;
+  width: 38px;
 }
 
 .season-team-cell span {
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .division-table {
