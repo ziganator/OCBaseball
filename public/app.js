@@ -143,14 +143,18 @@ function finalizeStandings(map) {
   });
 
   for (const league of LEAGUE_ORDER) {
-    const leagueRows = sortStandings(rows.filter((row) => row.team.league === league));
-    const leagueAverage = leagueRows.length
-      ? leagueRows.reduce((sum, row) => sum + row.averagePerWeek, 0) / leagueRows.length
-      : 0;
-    leagueRows.forEach((row, index) => {
-      row.rank = index + 1;
-      row.toAverage = leagueAverage ? ((row.averagePerWeek - leagueAverage) / leagueAverage) * 100 : 0;
-    });
+    for (const conference of CONFERENCE_ORDER) {
+      const conferenceRows = sortStandings(rows.filter((row) => (
+        row.team.league === league && row.team.conference === conference
+      )));
+      const conferenceAverage = conferenceRows.length
+        ? conferenceRows.reduce((sum, row) => sum + row.averagePerWeek, 0) / conferenceRows.length
+        : 0;
+      conferenceRows.forEach((row, index) => {
+        row.rank = index + 1;
+        row.toAverage = conferenceAverage ? ((row.averagePerWeek - conferenceAverage) / conferenceAverage) * 100 : 0;
+      });
+    }
   }
 
   return rows;
