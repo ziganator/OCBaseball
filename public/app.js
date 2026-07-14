@@ -362,12 +362,13 @@ function divisionTable(division, rows) {
 }
 
 function standingsRow(row) {
-  const logo = row.team.capImage || row.team.listBanner || row.team.logo;
+  const fallbackLogo = row.team.capImage || row.team.listBanner || row.team.logo;
+  const logo = highResolutionCap(row.team) || fallbackLogo;
   return `
     <tr>
       <th class="season-team-cell">
         <a href="${escapeHtml(teamUrl(row.team))}">
-          ${logo ? `<img src="${escapeHtml(logo)}" alt="">` : ""}
+          ${logo ? `<img src="${escapeHtml(logo)}" alt="" ${fallbackLogo && fallbackLogo !== logo ? `onerror="this.onerror=null;this.src='${escapeHtml(fallbackLogo)}';"` : ""}>` : ""}
           <span>${escapeHtml(row.team.name)}</span>
         </a>
       </th>
@@ -388,6 +389,14 @@ function standingsRow(row) {
       <td>${numberValue(row.totalPoints)}</td>
     </tr>
   `;
+}
+
+function highResolutionCap(team) {
+  const cap = team.capImage || "";
+  if (!cap) return "";
+  if (cap.includes("768x541")) return cap.replace("768x541", "1024x722");
+  if (cap.includes("768-541")) return cap.replace("768-541", "1024x722");
+  return cap;
 }
 
 async function loadStandings() {

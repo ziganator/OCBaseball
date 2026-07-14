@@ -2372,8 +2372,8 @@ body.lineup-force-mobile .lineup-player-game {
   color: #111111;
   display: grid;
   gap: 8px;
-  grid-template-columns: 52px 1fr;
-  min-height: 38px;
+  grid-template-columns: 66px 1fr;
+  min-height: 42px;
   padding: 0 9px 0 0;
   text-align: left;
   text-decoration: none;
@@ -2381,10 +2381,10 @@ body.lineup-force-mobile .lineup-player-game {
 
 .season-team-cell img {
   display: block;
-  height: 38px;
+  height: 42px;
   max-width: none;
   object-fit: contain;
-  width: 52px;
+  width: 66px;
 }
 
 .season-team-cell span {
