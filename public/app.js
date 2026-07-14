@@ -275,7 +275,7 @@ function divisionTable(division, rows) {
 }
 
 function standingsRow(row) {
-  const logo = row.team.logo || row.team.capImage || row.team.listBanner;
+  const logo = row.team.capImage || row.team.listBanner || row.team.logo;
   return `
     <tr>
       <th class="season-team-cell">

@@ -171,6 +171,12 @@ function renderSelectedMatchup() {
   `;
 }
 
+function scrollToMatchupDetail() {
+  requestAnimationFrame(() => {
+    detailEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+}
+
 function spreadsheetMatchupSummary(matchup) {
   return `
     <section class="game-spreadsheet-score is-${escapeHtml(matchup.league_code)}" aria-label="Stored matchup score">
@@ -363,6 +369,7 @@ scoreboardEl.addEventListener("click", (event) => {
   selectedMatchup = row.dataset.matchup;
   renderScoreboard();
   renderSelectedMatchup();
+  scrollToMatchupDetail();
 });
 
 scoreboardEl.addEventListener("keydown", (event) => {
@@ -373,6 +380,7 @@ scoreboardEl.addEventListener("keydown", (event) => {
   selectedMatchup = row.dataset.matchup;
   renderScoreboard();
   renderSelectedMatchup();
+  scrollToMatchupDetail();
 });
 
 fillWeeks();
