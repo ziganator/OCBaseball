@@ -147,10 +147,10 @@ function bestOfWeek(data) {
   return ["keystone", "diamond"].map((league) => ({
     key: league,
     topTeam: topTeamOfWeek(matchups, league),
-    topHitter: topPlayerOfWeek(players, leagueByMatchup, league, (row) => !["SP", "RP"].includes(String(row.roster_slot || "").toUpperCase())),
-    topStarter: topPlayerOfWeek(players, leagueByMatchup, league, (row) => String(row.roster_slot || "").toUpperCase() === "SP"),
-    topReliever: topPlayerOfWeek(players, leagueByMatchup, league, (row) => String(row.roster_slot || "").toUpperCase() === "RP")
-  })).filter((league) => league.topTeam || league.topHitter || league.topStarter || league.topReliever);
+    topHitter: topPlayersOfWeek(players, leagueByMatchup, league, (row) => !["SP", "RP"].includes(String(row.roster_slot || "").toUpperCase())),
+    topStarter: topPlayersOfWeek(players, leagueByMatchup, league, (row) => String(row.roster_slot || "").toUpperCase() === "SP"),
+    topReliever: topPlayersOfWeek(players, leagueByMatchup, league, (row) => String(row.roster_slot || "").toUpperCase() === "RP")
+  })).filter((league) => league.topTeam || league.topHitter.length || league.topStarter.length || league.topReliever.length);
 }
 
 function topTeamOfWeek(matchups, league) {
@@ -162,7 +162,7 @@ function topTeamOfWeek(matchups, league) {
   return entries.sort((a, b) => b.points - a.points || a.team.localeCompare(b.team))[0] || null;
 }
 
-function topPlayerOfWeek(players, leagueByMatchup, league, predicate) {
+function topPlayersOfWeek(players, leagueByMatchup, league, predicate) {
   const totals = new Map();
   for (const row of players) {
     if (leagueByMatchup.get(row.matchup_key) !== league || !predicate(row)) continue;
@@ -175,8 +175,11 @@ function topPlayerOfWeek(players, leagueByMatchup, league, predicate) {
     current.points += Number(row.calculated_points || 0);
     totals.set(key, current);
   }
-  return Array.from(totals.values())
-    .sort((a, b) => b.points - a.points || a.name.localeCompare(b.name))[0] || null;
+  const sorted = Array.from(totals.values())
+    .sort((a, b) => b.points - a.points || a.name.localeCompare(b.name));
+  const topScore = sorted[0]?.points;
+  if (!Number.isFinite(topScore)) return [];
+  return sorted.filter((entry) => entry.points === topScore);
 }
 
 function bestTeamPanel(league) {
@@ -195,23 +198,24 @@ function bestPlayerRows(best) {
   const keystone = best.find((league) => league.key === "keystone") || {};
   const diamond = best.find((league) => league.key === "diamond") || {};
   return [
-    { label: "Top Player", keystone: keystone.topHitter, diamond: diamond.topHitter },
-    { label: "Top Starting Pitcher", keystone: keystone.topStarter, diamond: diamond.topStarter },
-    { label: "Top Reliever", keystone: keystone.topReliever, diamond: diamond.topReliever }
+    { label: "Top Player", keystone: keystone.topHitter || [], diamond: diamond.topHitter || [] },
+    { label: "Top Starting Pitcher", keystone: keystone.topStarter || [], diamond: diamond.topStarter || [] },
+    { label: "Top Reliever", keystone: keystone.topReliever || [], diamond: diamond.topReliever || [] }
   ].map(bestPlayerAwardRow);
 }
 
 function bestPlayerAwardRow(row) {
   const entries = [
-    { league: "keystone", entry: row.keystone },
-    { league: "diamond", entry: row.diamond }
+    ...row.keystone.map((entry) => ({ league: "keystone", entry })),
+    ...row.diamond.map((entry) => ({ league: "diamond", entry }))
   ];
   const visibleEntries = collapseMatchingEntries(entries);
 
   return `
     <div class="best-player-row">
       <div class="best-player-marks">
-        ${entries.map(({ league, entry }) => bestPlayerMark(league, entry)).join("")}
+        ${bestPlayerMark("keystone", row.keystone[0])}
+        ${bestPlayerMark("diamond", row.diamond[0])}
       </div>
       <p>
         <span>${escapeHtml(row.label)}</span>
@@ -223,10 +227,16 @@ function bestPlayerAwardRow(row) {
 
 function collapseMatchingEntries(entries) {
   const actual = entries.filter(({ entry }) => entry);
-  if (actual.length === 2 && samePlayerAward(actual[0].entry, actual[1].entry)) {
-    return [{ ...actual[0], league: "both" }];
+  const collapsed = [];
+  for (const item of actual) {
+    const existing = collapsed.find((entry) => samePlayerAward(entry.entry, item.entry));
+    if (existing) {
+      existing.league = "both";
+    } else {
+      collapsed.push({ ...item });
+    }
   }
-  return actual;
+  return collapsed;
 }
 
 function samePlayerAward(a, b) {
@@ -234,7 +244,8 @@ function samePlayerAward(a, b) {
 }
 
 function bestPlayerMark(league, entry) {
-  const cap = entry ? teamImage(entry.team, "cap") : "";
+  const firstEntry = Array.isArray(entry) ? entry[0] : entry;
+  const cap = firstEntry ? teamImage(firstEntry.team, "cap") : "";
   return `
     <div class="best-player-team-mark is-${escapeHtml(league)}">
       ${cap ? `<img src="${escapeHtml(cap)}" alt="">` : ""}
