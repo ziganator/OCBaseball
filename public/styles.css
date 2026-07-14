@@ -2383,7 +2383,7 @@ body.lineup-force-mobile .lineup-player-game {
   display: block;
   height: 38px;
   max-width: none;
-  object-fit: cover;
+  object-fit: contain;
   width: 52px;
 }
 
