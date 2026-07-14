@@ -978,6 +978,210 @@ h1 {
   overflow-x: auto;
 }
 
+.best-of-week {
+  margin-bottom: 22px;
+}
+
+.best-week-card {
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  color: #050505;
+  margin: 0 auto;
+  max-width: 980px;
+  padding: clamp(18px, 3vw, 30px);
+}
+
+.best-week-header {
+  align-items: center;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1fr) 190px minmax(0, 1fr);
+}
+
+.best-week-title {
+  align-items: center;
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.best-week-title span {
+  font-size: 34px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.best-week-title strong {
+  font-family: "Oswald", sans-serif;
+  font-size: 42px;
+  line-height: 1;
+}
+
+.best-week-title em,
+.best-week-player-title {
+  background: #ffffff;
+  border: 3px solid #111111;
+  display: inline-block;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 1.15;
+  padding: 10px 14px;
+  text-transform: uppercase;
+}
+
+.best-team {
+  align-items: center;
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  min-height: 210px;
+  text-align: center;
+}
+
+.best-team img {
+  display: block;
+  max-height: 142px;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.best-team strong {
+  color: #111111;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.best-team span {
+  font-family: "Oswald", sans-serif;
+  font-size: 31px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.best-team.is-keystone strong {
+  color: #0f376d;
+}
+
+.best-team.is-diamond strong {
+  color: #a90808;
+}
+
+.best-week-rule {
+  background: #111111;
+  height: 7px;
+  margin: 14px -30px 8px;
+}
+
+.best-week-player-title {
+  display: table;
+  font-size: 24px;
+  margin: 0 auto 12px;
+  padding: 6px 14px;
+}
+
+.best-week-players {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.best-player-column {
+  display: grid;
+  gap: 8px;
+}
+
+.best-player-column h3 {
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 900;
+  margin: 0;
+  padding: 7px 10px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.best-player-column.is-keystone h3 {
+  background: #244f88;
+}
+
+.best-player-column.is-diamond h3 {
+  background: #a90808;
+}
+
+.best-player-row {
+  align-items: center;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 82px minmax(0, 1fr);
+  min-height: 70px;
+}
+
+.best-player-team-mark {
+  align-items: center;
+  border: 2px solid #111111;
+  display: flex;
+  height: 70px;
+  justify-content: center;
+}
+
+.best-player-team-mark.is-keystone {
+  background: #244f88;
+}
+
+.best-player-team-mark.is-diamond {
+  background: #a90808;
+}
+
+.best-player-team-mark img {
+  display: block;
+  height: 100%;
+  object-fit: contain;
+  width: 100%;
+}
+
+.best-player-row p {
+  margin: 0;
+}
+
+.best-player-row span {
+  color: #666666;
+  display: block;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.best-player-row strong {
+  display: block;
+  font-family: "Oswald", sans-serif;
+  font-size: clamp(23px, 2.4vw, 34px);
+  line-height: 1.05;
+}
+
+@media (max-width: 820px) {
+  .best-week-header,
+  .best-week-players {
+    grid-template-columns: 1fr;
+  }
+
+  .best-week-title {
+    order: -1;
+  }
+
+  .best-week-rule {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .best-team {
+    min-height: 0;
+  }
+}
+
 .game-scoreboard-league h3 {
   color: #666666;
   font-family: "Open Sans", sans-serif;

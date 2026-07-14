@@ -1,3 +1,8 @@
+import {
+  displayTeam,
+  teams as seedTeams
+} from "./team-data.js?v=20260714b";
+
 const SEASON = 32;
 const WEEK_COUNT = 18;
 const WEEK_ONE_START = "2026-03-30T00:00:00";
@@ -6,8 +11,14 @@ let DAYS = makeWeekDays(1);
 
 const weekSelect = document.querySelector("#games-week-select");
 const statusEl = document.querySelector("#games-status");
+const bestOfWeekEl = document.querySelector("#best-of-week");
 const scoreboardEl = document.querySelector("#games-scoreboard");
 const detailEl = document.querySelector("#games-detail");
+const teamAliases = new Map([
+  ["SAN ANTONIO OCOTILLOS", "SAN ANTONIO OCATILLOS"]
+]);
+const teams = seedTeams.map(displayTeam);
+const teamsByName = new Map(teams.map((team) => [normalizeTeam(team.name), team]));
 let currentData = null;
 let selectedMatchup = "";
 
@@ -24,6 +35,23 @@ function formatPoints(value) {
   const number = Number(value);
   if (!Number.isFinite(number)) return "";
   return Number.isInteger(number) ? String(number) : number.toFixed(1);
+}
+
+function normalizeTeam(value) {
+  const normalized = String(value || "").trim().toUpperCase();
+  return teamAliases.get(normalized) || normalized;
+}
+
+function teamMeta(teamName) {
+  return teamsByName.get(normalizeTeam(teamName)) || null;
+}
+
+function teamImage(teamName, type = "logo") {
+  const team = teamMeta(teamName);
+  if (!team) return "";
+  return type === "cap"
+    ? team.capImage || team.listBanner || team.logo || ""
+    : team.logo || team.listBanner || team.capImage || "";
 }
 
 function currentWeek() {
@@ -59,6 +87,7 @@ async function loadWeek() {
   const week = Number(weekSelect.value);
   DAYS = makeWeekDays(week);
   statusEl.textContent = "";
+  bestOfWeekEl.innerHTML = "";
   scoreboardEl.innerHTML = "";
   detailEl.innerHTML = "";
   selectedMatchup = "";
@@ -76,10 +105,129 @@ async function loadWeek() {
     }
 
     statusEl.textContent = "";
+    renderBestOfWeek();
     renderScoreboard();
   } catch (error) {
     statusEl.textContent = `Could not load games: ${error.message}`;
   }
+}
+
+function renderBestOfWeek() {
+  const best = bestOfWeek(currentData);
+  if (!best.length) {
+    bestOfWeekEl.innerHTML = "";
+    return;
+  }
+
+  bestOfWeekEl.innerHTML = `
+    <section class="best-week-card">
+      <header class="best-week-header">
+        ${bestTeamPanel(best.find((league) => league.key === "keystone"))}
+        <div class="best-week-title">
+          <span>Game</span>
+          <strong>${formatPoints(currentData.game || currentData.week || weekSelect.value)}</strong>
+          <em>Teams of the Week</em>
+        </div>
+        ${bestTeamPanel(best.find((league) => league.key === "diamond"))}
+      </header>
+      <div class="best-week-rule"></div>
+      <div class="best-week-player-title">Players of the Week</div>
+      <div class="best-week-players">
+        ${best.map(bestPlayerColumn).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function bestOfWeek(data) {
+  const matchups = data?.matchups || [];
+  const players = data?.players || [];
+  const leagueByMatchup = new Map(matchups.map((matchup) => [matchup.matchup_key, matchup.league_code]));
+
+  return ["keystone", "diamond"].map((league) => ({
+    key: league,
+    topTeam: topTeamOfWeek(matchups, league),
+    topHitter: topPlayerOfWeek(players, leagueByMatchup, league, (row) => !["SP", "RP"].includes(String(row.roster_slot || "").toUpperCase())),
+    topStarter: topPlayerOfWeek(players, leagueByMatchup, league, (row) => String(row.roster_slot || "").toUpperCase() === "SP"),
+    topReliever: topPlayerOfWeek(players, leagueByMatchup, league, (row) => String(row.roster_slot || "").toUpperCase() === "RP")
+  })).filter((league) => league.topTeam || league.topHitter || league.topStarter || league.topReliever);
+}
+
+function topTeamOfWeek(matchups, league) {
+  const entries = [];
+  for (const matchup of matchups.filter((game) => game.league_code === league)) {
+    entries.push({ team: matchup.away_team_name, points: Number(matchup.away_score || 0) });
+    entries.push({ team: matchup.home_team_name, points: Number(matchup.home_score || 0) });
+  }
+  return entries.sort((a, b) => b.points - a.points || a.team.localeCompare(b.team))[0] || null;
+}
+
+function topPlayerOfWeek(players, leagueByMatchup, league, predicate) {
+  const totals = new Map();
+  for (const row of players) {
+    if (leagueByMatchup.get(row.matchup_key) !== league || !predicate(row)) continue;
+    const name = row.player_name || row.raw_stats?.rowPlayer || "";
+    if (!name) continue;
+    const team = row.team_name || "";
+    const slot = row.roster_slot || "";
+    const key = `${name}|${team}|${slot}`;
+    const current = totals.get(key) || { name, team, slot, points: 0 };
+    current.points += Number(row.calculated_points || 0);
+    totals.set(key, current);
+  }
+  return Array.from(totals.values())
+    .sort((a, b) => b.points - a.points || a.name.localeCompare(b.name))[0] || null;
+}
+
+function bestTeamPanel(league) {
+  if (!league?.topTeam) return `<div class="best-team is-empty"></div>`;
+  const image = teamImage(league.topTeam.team, "logo");
+  return `
+    <div class="best-team is-${escapeHtml(league.key)}">
+      ${image ? `<img src="${escapeHtml(image)}" alt="">` : ""}
+      <strong>${escapeHtml(league.topTeam.team)}</strong>
+      <span>${formatPoints(league.topTeam.points)} Points</span>
+    </div>
+  `;
+}
+
+function bestPlayerColumn(league) {
+  const rows = [
+    { label: "Player", entry: league.topHitter },
+    { label: "SP", entry: league.topStarter },
+    { label: "RP", entry: league.topReliever }
+  ];
+
+  return `
+    <section class="best-player-column is-${escapeHtml(league.key)}">
+      <h3>${escapeHtml(league.key)}</h3>
+      ${rows.map((row) => bestPlayerRow(league.key, row)).join("")}
+    </section>
+  `;
+}
+
+function bestPlayerRow(league, row) {
+  const entry = row.entry;
+  if (!entry) {
+    return `
+      <div class="best-player-row">
+        <div class="best-player-team-mark is-${escapeHtml(league)}"></div>
+        <p><span>${escapeHtml(row.label)}</span></p>
+      </div>
+    `;
+  }
+  const cap = teamImage(entry.team, "cap");
+  return `
+    <div class="best-player-row">
+      <div class="best-player-team-mark is-${escapeHtml(league)}">
+        ${cap ? `<img src="${escapeHtml(cap)}" alt="">` : ""}
+      </div>
+      <p>
+        <span>${escapeHtml(row.label)}</span>
+        <strong>${escapeHtml(entry.name)}: ${formatPoints(entry.points)} Points</strong>
+      </p>
+    </div>
+  `;
 }
 
 function renderScoreboard() {
