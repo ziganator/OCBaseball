@@ -133,7 +133,7 @@ function renderBestOfWeek() {
       <div class="best-week-rule"></div>
       <div class="best-week-player-title">Players of the Week</div>
       <div class="best-week-players">
-        ${best.map(bestPlayerColumn).join("")}
+        ${bestPlayerRows(best).join("")}
       </div>
     </section>
   `;
@@ -191,42 +191,65 @@ function bestTeamPanel(league) {
   `;
 }
 
-function bestPlayerColumn(league) {
-  const rows = [
-    { label: "Player", entry: league.topHitter },
-    { label: "SP", entry: league.topStarter },
-    { label: "RP", entry: league.topReliever }
-  ];
-
-  return `
-    <section class="best-player-column is-${escapeHtml(league.key)}">
-      <h3>${escapeHtml(league.key)}</h3>
-      ${rows.map((row) => bestPlayerRow(league.key, row)).join("")}
-    </section>
-  `;
+function bestPlayerRows(best) {
+  const keystone = best.find((league) => league.key === "keystone") || {};
+  const diamond = best.find((league) => league.key === "diamond") || {};
+  return [
+    { label: "Top Player", keystone: keystone.topHitter, diamond: diamond.topHitter },
+    { label: "Top Starting Pitcher", keystone: keystone.topStarter, diamond: diamond.topStarter },
+    { label: "Top Reliever", keystone: keystone.topReliever, diamond: diamond.topReliever }
+  ].map(bestPlayerAwardRow);
 }
 
-function bestPlayerRow(league, row) {
-  const entry = row.entry;
-  if (!entry) {
-    return `
-      <div class="best-player-row">
-        <div class="best-player-team-mark is-${escapeHtml(league)}"></div>
-        <p><span>${escapeHtml(row.label)}</span></p>
-      </div>
-    `;
-  }
-  const cap = teamImage(entry.team, "cap");
+function bestPlayerAwardRow(row) {
+  const entries = [
+    { league: "keystone", entry: row.keystone },
+    { league: "diamond", entry: row.diamond }
+  ];
+  const visibleEntries = collapseMatchingEntries(entries);
+
   return `
     <div class="best-player-row">
-      <div class="best-player-team-mark is-${escapeHtml(league)}">
-        ${cap ? `<img src="${escapeHtml(cap)}" alt="">` : ""}
+      <div class="best-player-marks">
+        ${entries.map(({ league, entry }) => bestPlayerMark(league, entry)).join("")}
       </div>
       <p>
         <span>${escapeHtml(row.label)}</span>
-        <strong>${escapeHtml(entry.name)}: ${formatPoints(entry.points)} Points</strong>
+        ${visibleEntries.map(bestPlayerText).join("")}
       </p>
     </div>
+  `;
+}
+
+function collapseMatchingEntries(entries) {
+  const actual = entries.filter(({ entry }) => entry);
+  if (actual.length === 2 && samePlayerAward(actual[0].entry, actual[1].entry)) {
+    return [{ ...actual[0], league: "both" }];
+  }
+  return actual;
+}
+
+function samePlayerAward(a, b) {
+  return String(a?.name || "").toLowerCase() === String(b?.name || "").toLowerCase();
+}
+
+function bestPlayerMark(league, entry) {
+  const cap = entry ? teamImage(entry.team, "cap") : "";
+  return `
+    <div class="best-player-team-mark is-${escapeHtml(league)}">
+      ${cap ? `<img src="${escapeHtml(cap)}" alt="">` : ""}
+    </div>
+  `;
+}
+
+function bestPlayerText({ league, entry }) {
+  if (!entry) return "";
+  const leagueLabel = league === "both" ? "" : `<em>${escapeHtml(league)}</em>`;
+  return `
+    <strong>
+      ${leagueLabel}
+      ${escapeHtml(entry.name)}: ${formatPoints(entry.points)} Points
+    </strong>
   `;
 }
 

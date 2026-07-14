@@ -1085,39 +1085,21 @@ h1 {
 
 .best-week-players {
   display: grid;
-  gap: 18px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.best-player-column {
-  display: grid;
   gap: 8px;
-}
-
-.best-player-column h3 {
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 900;
-  margin: 0;
-  padding: 7px 10px;
-  text-align: center;
-  text-transform: uppercase;
-}
-
-.best-player-column.is-keystone h3 {
-  background: #244f88;
-}
-
-.best-player-column.is-diamond h3 {
-  background: #a90808;
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .best-player-row {
   align-items: center;
   display: grid;
   gap: 12px;
-  grid-template-columns: 82px minmax(0, 1fr);
+  grid-template-columns: 166px minmax(0, 1fr);
   min-height: 70px;
+}
+
+.best-player-marks {
+  display: grid;
+  grid-template-columns: repeat(2, 82px);
 }
 
 .best-player-team-mark {
@@ -1162,9 +1144,24 @@ h1 {
   line-height: 1.05;
 }
 
+.best-player-row strong + strong {
+  margin-top: 8px;
+}
+
+.best-player-row strong em {
+  color: #666666;
+  display: inline-block;
+  font-family: "Open Sans", sans-serif;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 900;
+  margin-right: 8px;
+  min-width: 64px;
+  text-transform: uppercase;
+}
+
 @media (max-width: 820px) {
-  .best-week-header,
-  .best-week-players {
+  .best-week-header {
     grid-template-columns: 1fr;
   }
 
@@ -1179,6 +1176,13 @@ h1 {
 
   .best-team {
     min-height: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  .best-player-row {
+    align-items: start;
+    grid-template-columns: 1fr;
   }
 }
 
