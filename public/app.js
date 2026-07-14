@@ -76,7 +76,8 @@ function initStanding(team) {
     offense: 0,
     pitching: 0,
     games: 0,
-    outcomes: []
+    outcomes: [],
+    headToHead: new Map()
   };
 }
 
@@ -92,6 +93,7 @@ function teamKey(name) {
 function recordGame(row, matchup, teamName, opponentName, didWin) {
   const team = row.team;
   const opponent = opponentMeta(opponentName);
+  const opponentKey = teamKey(opponentName);
   if (didWin) row.wins += 1;
   else row.losses += 1;
 
@@ -109,6 +111,13 @@ function recordGame(row, matchup, teamName, opponentName, didWin) {
   row.pointsAgainst += Number(matchup[teamName === matchup.away_team_name ? "home_score" : "away_score"] || 0);
   row.games += 1;
   row.outcomes.push({ week: Number(matchup.week_number || 0), result: didWin ? "W" : "L" });
+
+  if (!row.headToHead.has(opponentKey)) {
+    row.headToHead.set(opponentKey, { wins: 0, losses: 0 });
+  }
+  const headToHead = row.headToHead.get(opponentKey);
+  if (didWin) headToHead.wins += 1;
+  else headToHead.losses += 1;
 }
 
 function addTeamDaily(row, teamRows) {
@@ -119,13 +128,42 @@ function addTeamDaily(row, teamRows) {
 }
 
 function sortStandings(rows) {
-  return rows.sort((a, b) => {
-    const winPctDiff = b.winPct - a.winPct;
-    if (winPctDiff) return winPctDiff;
-    const avgDiff = b.averagePerWeek - a.averagePerWeek;
-    if (avgDiff) return avgDiff;
-    return a.team.name.localeCompare(b.team.name);
-  });
+  return rows.sort(compareStandingsRows);
+}
+
+function recordPct(wins, losses) {
+  const total = Number(wins || 0) + Number(losses || 0);
+  return total ? Number(wins || 0) / total : 0;
+}
+
+function headToHeadPct(row, opponent) {
+  const record = row.headToHead.get(opponent.key);
+  if (!record) return null;
+  return recordPct(record.wins, record.losses);
+}
+
+function compareNumberDesc(a, b) {
+  if (a === b) return 0;
+  return b - a;
+}
+
+function compareStandingsRows(a, b) {
+  const checks = [
+    compareNumberDesc(a.winPct, b.winPct),
+    compareNullableHeadToHead(a, b),
+    compareNumberDesc(recordPct(a.divisionWins, a.divisionLosses), recordPct(b.divisionWins, b.divisionLosses)),
+    compareNumberDesc(recordPct(a.conferenceWins, a.conferenceLosses), recordPct(b.conferenceWins, b.conferenceLosses)),
+    compareNumberDesc(a.averagePerWeek, b.averagePerWeek),
+    compareNumberDesc(a.averagePitchingPerWeek, b.averagePitchingPerWeek)
+  ];
+  return checks.find(Boolean) || a.team.name.localeCompare(b.team.name);
+}
+
+function compareNullableHeadToHead(a, b) {
+  const aPct = headToHeadPct(a, b);
+  const bPct = headToHeadPct(b, a);
+  if (aPct === null || bPct === null || aPct === bPct) return 0;
+  return compareNumberDesc(aPct, bPct);
 }
 
 function finalizeStandings(map) {
@@ -137,6 +175,7 @@ function finalizeStandings(map) {
       totalPoints,
       winPct: games ? row.wins / games : 0,
       averagePerWeek: games ? row.pointsFor / games : 0,
+      averagePitchingPerWeek: games ? row.pitching / games : 0,
       plusMinus: row.pointsFor - row.pointsAgainst,
       streak: streak(row.outcomes)
     };
@@ -151,13 +190,57 @@ function finalizeStandings(map) {
         ? conferenceRows.reduce((sum, row) => sum + row.averagePerWeek, 0) / conferenceRows.length
         : 0;
       conferenceRows.forEach((row, index) => {
-        row.rank = index + 1;
         row.toAverage = conferenceAverage ? ((row.averagePerWeek - conferenceAverage) / conferenceAverage) * 100 : 0;
       });
+      applyDivisionRanks(league, conference, rows);
+      applyConferenceRanks(league, conference, rows);
     }
   }
 
   return rows;
+}
+
+function divisionRows(league, conference, division, rows) {
+  return sortStandings(rows.filter((row) => (
+    row.team.league === league &&
+    row.team.conference === conference &&
+    row.team.division === division
+  )));
+}
+
+function applyDivisionRanks(league, conference, rows) {
+  const divisions = DIVISION_ORDER[league]?.[conference] || [];
+  for (const division of divisions) {
+    divisionRows(league, conference, division, rows).forEach((row, index) => {
+      row.divisionRank = index + 1;
+    });
+  }
+}
+
+function applyConferenceRanks(league, conference, rows) {
+  const conferenceRows = rows.filter((row) => row.team.league === league && row.team.conference === conference);
+  const divisions = DIVISION_ORDER[league]?.[conference] || [...new Set(conferenceRows.map((row) => row.team.division))];
+  const divisionLeaders = sortStandings(divisions.map((division) => (
+    divisionRows(league, conference, division, rows)[0]
+  )).filter(Boolean));
+  const leaderKeys = new Set(divisionLeaders.map((row) => row.key));
+  const remaining = sortStandings(conferenceRows.filter((row) => !leaderKeys.has(row.key)));
+  const ranked = [...divisionLeaders, ...remaining];
+
+  ranked.forEach((row, index) => {
+    row.conferenceRank = index + 1;
+    row.postseasonSeed = "";
+  });
+
+  ranked.slice(0, 5).forEach((row, index) => {
+    row.postseasonSeed = index + 1;
+  });
+
+  const wildCard = [...ranked.slice(5)].sort((a, b) => (
+    compareNumberDesc(a.averagePerWeek, b.averagePerWeek) ||
+    compareStandingsRows(a, b)
+  ))[0];
+  if (wildCard) wildCard.postseasonSeed = 6;
 }
 
 function streak(outcomes) {
@@ -247,7 +330,7 @@ function conferenceBoard(league, conference, rows) {
 }
 
 function divisionTable(division, rows) {
-  const sorted = sortStandings([...rows]);
+  const sorted = [...rows].sort((a, b) => (a.divisionRank || 99) - (b.divisionRank || 99));
   return `
     <section class="season-division-row">
       <div class="season-division-title">${escapeHtml(division)} Division</div>
@@ -258,7 +341,9 @@ function divisionTable(division, rows) {
             <th>W</th>
             <th>L</th>
             <th>Win %</th>
-            <th>Rank</th>
+            <th>Div</th>
+            <th>Conf</th>
+            <th>Seed</th>
             <th>Avg/Week</th>
             <th colspan="2">Division</th>
             <th colspan="2">Conference</th>
@@ -291,7 +376,9 @@ function standingsRow(row) {
       <td>${numberValue(row.wins)}</td>
       <td>${numberValue(row.losses)}</td>
       <td>${pctValue(row.winPct)}</td>
-      <td>${numberValue(row.rank)}</td>
+      <td>${numberValue(row.divisionRank)}</td>
+      <td>${numberValue(row.conferenceRank)}</td>
+      <td>${row.postseasonSeed ? numberValue(row.postseasonSeed) : ""}</td>
       <td>${numberValue(row.averagePerWeek, 2)}</td>
       <td>${numberValue(row.divisionWins)}</td>
       <td>${numberValue(row.divisionLosses)}</td>
