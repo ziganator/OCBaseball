@@ -342,7 +342,6 @@ function divisionTable(division, rows) {
             <th>L</th>
             <th>Win %</th>
             <th>Rank</th>
-            <th>Seed</th>
             <th>Avg/Week</th>
             <th colspan="2">Division</th>
             <th colspan="2">Conference</th>
@@ -376,7 +375,6 @@ function standingsRow(row) {
       <td>${numberValue(row.losses)}</td>
       <td>${pctValue(row.winPct)}</td>
       <td>${numberValue(row.conferenceRank)}</td>
-      <td>${row.postseasonSeed ? numberValue(row.postseasonSeed) : ""}</td>
       <td>${numberValue(row.averagePerWeek, 2)}</td>
       <td>${numberValue(row.divisionWins)}</td>
       <td>${numberValue(row.divisionLosses)}</td>
