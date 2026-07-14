@@ -2358,6 +2358,22 @@ body.lineup-force-mobile .lineup-player-game {
   border-bottom: 1px solid #222222;
 }
 
+.season-standings-row {
+  cursor: pointer;
+}
+
+.season-standings-row:hover th,
+.season-standings-row:hover td,
+.season-standings-row:focus-visible th,
+.season-standings-row:focus-visible td {
+  background: #fff6d6;
+}
+
+.season-standings-row:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
 .season-standings-table .team-col {
   min-width: 285px;
   text-align: left;

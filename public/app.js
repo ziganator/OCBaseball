@@ -303,6 +303,7 @@ function buildStandings(weeks) {
 
 function renderStandings(rows, loadedWeeks) {
   standingsEl.innerHTML = LEAGUE_ORDER.map((league) => leagueBoard(league, rows)).join("");
+  wireStandingsLinks();
   statusEl.textContent = loadedWeeks ? "" : "No loaded game results yet.";
 }
 
@@ -364,10 +365,11 @@ function divisionTable(division, rows) {
 function standingsRow(row) {
   const fallbackLogo = row.team.capImage || row.team.listBanner || row.team.logo;
   const logo = highResolutionCap(row.team) || fallbackLogo;
+  const url = teamUrl(row.team);
   return `
-    <tr>
+    <tr class="season-standings-row" data-team-url="${escapeHtml(url)}" tabindex="0" role="link" aria-label="Open ${escapeHtml(row.team.name)} team page">
       <th class="season-team-cell">
-        <a href="${escapeHtml(teamUrl(row.team))}">
+        <a href="${escapeHtml(url)}">
           ${logo ? `<img src="${escapeHtml(logo)}" alt="" ${fallbackLogo && fallbackLogo !== logo ? `onerror="this.onerror=null;this.src='${escapeHtml(fallbackLogo)}';"` : ""}>` : ""}
           <span>${escapeHtml(row.team.name)}</span>
         </a>
@@ -389,6 +391,21 @@ function standingsRow(row) {
       <td>${numberValue(row.totalPoints)}</td>
     </tr>
   `;
+}
+
+function wireStandingsLinks() {
+  standingsEl.querySelectorAll(".season-standings-row[data-team-url]").forEach((row) => {
+    row.addEventListener("click", (event) => {
+      if (event.target.closest("a")) return;
+      window.location.href = row.dataset.teamUrl;
+    });
+
+    row.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      window.location.href = row.dataset.teamUrl;
+    });
+  });
 }
 
 function highResolutionCap(team) {
