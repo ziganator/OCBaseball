@@ -259,6 +259,8 @@ function renderSelectors() {
 }
 
 function renderAssignmentTables() {
+  if (!powerHoldersTable || !eventCardCapsTable) return;
+
   powerHoldersTable.innerHTML = state.powers.map((power) => {
     const team = state.teams.find((item) => item.power === power);
     const renderedTeam = team ? displayTeam(team) : null;
