@@ -7,10 +7,43 @@ import {
 import { getSupabaseClient, requireSession, signOut } from "./auth.js";
 
 const DRAFT_KEY = "ownersclub.teamAdminDraft";
+const defaultPowers = [
+  "1 Up",
+  "Black Lotus",
+  "Doomsday Clock",
+  "History Eraser Button",
+  "Immunity Idol",
+  "Magic Number",
+  "Omniscience",
+  "Powerslave",
+  "The Box",
+  "The Decider",
+  "The Eye",
+  "The Franchise",
+  "The Kingfish",
+  "The Man",
+  "Time Warp",
+  "Unbreakable Vow",
+  "Wish"
+];
+const defaultEventCardCaps = [
+  "Cap 1",
+  "Cap 2",
+  "Cap 3",
+  "Cap 4",
+  "Cap 5",
+  "Cap 6",
+  "Cap 7",
+  "Cap 8"
+];
 const form = document.querySelector("#team-form");
 const statusEl = document.querySelector("#admin-status");
 const teamSelect = document.querySelector("#team-select");
 const favoriteSelect = document.querySelector("#favorite-team-select");
+const powerSelect = document.querySelector("#power-select");
+const eventCardCapSelect = document.querySelector("#event-card-cap-select");
+const powerHoldersTable = document.querySelector("#power-holders-table");
+const eventCardCapsTable = document.querySelector("#event-card-caps-table");
 const logoutButton = document.querySelector("#logout-button");
 const newTeamButton = document.querySelector("#new-team-button");
 const saveLocalButton = document.querySelector("#save-local-button");
@@ -28,6 +61,15 @@ let state = loadDraft() || {
 state = normalizeDraftState(state);
 let activeSlug = state.teams[0]?.slug || "";
 let session = null;
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
 
 function setStatus(message, tone = "") {
   statusEl.textContent = message;
@@ -95,6 +137,8 @@ function loadDraft() {
 function normalizeDraftState(draft) {
   const next = {
     favoriteTeams: draft.favoriteTeams || structuredClone(seedFavoriteTeams),
+    powers: draft.powers || structuredClone(defaultPowers),
+    eventCardCaps: draft.eventCardCaps || structuredClone(defaultEventCardCaps),
     teams: draft.teams || structuredClone(seedTeams)
   };
 
@@ -164,6 +208,8 @@ function syncCurrentTeamFromForm() {
   team.conference = data.get("conference");
   team.division = data.get("division").trim();
   associateFavoriteWithActiveTeam(data.get("favoriteTeam") || "");
+  team.power = data.get("power") || "";
+  team.eventCardCap = data.get("eventCardCap") || "";
   team.capImage = data.get("capImage").trim();
   team.listBanner = team.capImage || team.listBanner;
   team.logo = data.get("logo").trim();
@@ -207,6 +253,46 @@ function renderSelectors() {
       `<option value="${key}">${item.name}</option>`
     ))
   ].join("");
+
+  powerSelect.innerHTML = [
+    `<option value="">No Power</option>`,
+    ...state.powers.map((power) => `<option value="${escapeHtml(power)}">${escapeHtml(power)}</option>`)
+  ].join("");
+
+  eventCardCapSelect.innerHTML = [
+    `<option value="">No Event Card Cap</option>`,
+    ...state.eventCardCaps.map((cap) => `<option value="${escapeHtml(cap)}">${escapeHtml(cap)}</option>`)
+  ].join("");
+}
+
+function renderAssignmentTables() {
+  const powerRows = state.teams
+    .filter((team) => team.power)
+    .sort((a, b) => a.power.localeCompare(b.power) || displayTeam(a).name.localeCompare(displayTeam(b).name));
+  powerHoldersTable.innerHTML = powerRows.length ? powerRows.map((team) => {
+    const renderedTeam = displayTeam(team);
+    return `
+      <tr>
+        <td>${escapeHtml(team.power)}</td>
+        <td>${team.capImage ? `<img src="${escapeHtml(team.capImage)}" alt="${escapeHtml(renderedTeam.name)} cap">` : ""}</td>
+        <td>${escapeHtml(renderedTeam.name)}</td>
+      </tr>
+    `;
+  }).join("") : `<tr><td colspan="3">No power holders selected.</td></tr>`;
+
+  const capRows = state.teams
+    .filter((team) => team.eventCardCap)
+    .sort((a, b) => a.eventCardCap.localeCompare(b.eventCardCap) || displayTeam(a).name.localeCompare(displayTeam(b).name));
+  eventCardCapsTable.innerHTML = capRows.length ? capRows.map((team) => {
+    const renderedTeam = displayTeam(team);
+    return `
+      <tr>
+        <td>${escapeHtml(team.eventCardCap)}</td>
+        <td>${team.capImage ? `<img src="${escapeHtml(team.capImage)}" alt="${escapeHtml(renderedTeam.name)} cap">` : ""}</td>
+        <td>${escapeHtml(renderedTeam.name)}</td>
+      </tr>
+    `;
+  }).join("") : `<tr><td colspan="3">No event card caps selected.</td></tr>`;
 }
 
 function renderForm() {
@@ -225,6 +311,8 @@ function renderForm() {
   form.elements.conference.value = team.conference || "Red";
   form.elements.division.value = team.division || "";
   form.elements.favoriteTeam.value = team.favoriteTeam || "";
+  form.elements.power.value = team.power || "";
+  form.elements.eventCardCap.value = team.eventCardCap || "";
   form.elements.capImage.value = team.capImage || "";
   form.elements.logo.value = team.logo || "";
   form.elements.flagsImage.value = team.flagsImage || "";
@@ -232,6 +320,7 @@ function renderForm() {
   form.elements.colorBarBackground.value = team.colorBar?.background || "#1f3d29";
   form.elements.colorBarAccent.value = team.colorBar?.accent || "#d9c79e";
   form.elements.useDonkeysIdentity.checked = Boolean(team.seasonIdentity?.useDonkeys);
+  renderAssignmentTables();
 }
 
 function addTeam() {
@@ -254,6 +343,8 @@ function addTeam() {
     colorBar: { background: "#1f3d29", accent: "#d9c79e" },
     logo: "",
     favoriteTeam: "",
+    power: "",
+    eventCardCap: "",
     flagsImage: "",
     featureImage: "",
     infoImage: "",
@@ -394,6 +485,12 @@ form.addEventListener("input", () => {
   if (fullName && !form.elements.slug.value) {
     form.elements.slug.value = uniqueSlug(slugify(fullName));
   }
+  syncCurrentTeamFromForm();
+  renderAssignmentTables();
+});
+form.addEventListener("change", () => {
+  syncCurrentTeamFromForm();
+  renderAssignmentTables();
 });
 openFavoriteDialogButton.addEventListener("click", () => {
   favoriteDialog.showModal();

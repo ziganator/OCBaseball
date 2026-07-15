@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/styles.css?v=20260711d">
+    <link rel="stylesheet" href="/styles.css?v=20260714o">
   </head>
   <body>
     <header class="site-header menu-header">
@@ -93,6 +93,46 @@
             </section>
 
             <section class="admin-panel">
+              <h2>Event Card Assignments</h2>
+              <div class="admin-grid">
+                <label>Power
+                  <select name="power" id="power-select"></select>
+                </label>
+                <label>Event Card Cap
+                  <select name="eventCardCap" id="event-card-cap-select"></select>
+                </label>
+              </div>
+              <div class="admin-assignment-tables">
+                <div>
+                  <h3>Power Holders</h3>
+                  <table class="admin-mini-table">
+                    <thead>
+                      <tr>
+                        <th>Power</th>
+                        <th>Cap</th>
+                        <th>Team</th>
+                      </tr>
+                    </thead>
+                    <tbody id="power-holders-table"></tbody>
+                  </table>
+                </div>
+                <div>
+                  <h3>Current Event Card Caps</h3>
+                  <table class="admin-mini-table">
+                    <thead>
+                      <tr>
+                        <th>Cap</th>
+                        <th>Team Cap</th>
+                        <th>Team</th>
+                      </tr>
+                    </thead>
+                    <tbody id="event-card-caps-table"></tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+
+            <section class="admin-panel">
               <h2>Images</h2>
               <div class="admin-grid">
                 <label>Cap Image <input name="capImage"></label>
@@ -141,6 +181,6 @@
       <span>Owners Club Baseball ALL RIGHTS RESERVED &reg;</span>
     </footer>
 
-    <script src="/admin-teams.js?v=20260714b" type="module"></script>
+    <script src="/admin-teams.js?v=20260714o" type="module"></script>
   </body>
 </html>

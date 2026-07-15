@@ -427,6 +427,51 @@ h1 {
   margin: 12px 0 0;
 }
 
+.admin-assignment-tables {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 18px;
+}
+
+.admin-assignment-tables h3 {
+  color: #555555;
+  font-size: 14px;
+  margin: 0 0 8px;
+  text-transform: uppercase;
+}
+
+.admin-mini-table {
+  border: 1px solid var(--line);
+  min-width: 0;
+}
+
+.admin-mini-table th,
+.admin-mini-table td {
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+  font-weight: 800;
+  padding: 9px 10px;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.admin-mini-table th {
+  background: #f1f1f1;
+  color: var(--red);
+}
+
+.admin-mini-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.admin-mini-table img {
+  display: block;
+  height: 34px;
+  object-fit: contain;
+  width: 48px;
+}
+
 .admin-dialog {
   border: 0;
   padding: 0;
@@ -3125,6 +3170,232 @@ body.lineup-force-mobile .lineup-player-game {
   max-width: min(100%, 980px);
 }
 
+.event-card-page {
+  background: #ffffff;
+}
+
+.event-card-hero {
+  align-items: center;
+  display: grid;
+  gap: 24px;
+  grid-template-columns: minmax(180px, 0.7fr) minmax(280px, 1.1fr) minmax(180px, 0.7fr);
+  margin: 0 auto;
+  max-width: 1420px;
+  overflow: hidden;
+  padding: clamp(26px, 5vw, 64px) clamp(18px, 5vw, 72px) 28px;
+}
+
+.event-card-brand,
+.event-card-rules,
+.event-card-caps,
+.event-card-power-wrap img {
+  display: block;
+  height: auto;
+  max-width: 100%;
+}
+
+.event-card-brand {
+  justify-self: center;
+  max-width: 260px;
+}
+
+.event-card-rules {
+  justify-self: center;
+  max-width: min(100%, 560px);
+}
+
+.event-card-power-wrap {
+  align-self: end;
+  justify-self: center;
+}
+
+.event-card-actions {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  grid-column: 1 / -1;
+  justify-content: center;
+  min-height: 148px;
+}
+
+.event-race-button,
+.event-doomsday-button {
+  color: #ffffff;
+  display: inline-flex;
+  font-family: "Oswald", Arial, sans-serif;
+  font-weight: 700;
+  justify-content: center;
+  line-height: 1;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.event-race-button {
+  animation: raceButtonEnter 950ms cubic-bezier(0.18, 0.88, 0.28, 1.08) 250ms both;
+  background: #e7a725;
+  box-shadow: 0 9px 0 #9c6810;
+  clip-path: polygon(18% 0, 100% 0, 82% 100%, 0 100%);
+  font-size: clamp(24px, 4vw, 44px);
+  min-width: min(520px, 82vw);
+  padding: 19px 42px 21px;
+}
+
+.event-doomsday-button {
+  animation: doomsdayButtonEnter 850ms ease-out 950ms both;
+  background: #c80000;
+  border: 2px solid #7d0000;
+  box-shadow: 0 8px 0 #5d0000;
+  font-size: clamp(18px, 2.4vw, 29px);
+  min-width: min(340px, 74vw);
+  padding: 16px 30px 18px;
+}
+
+.event-card-caps {
+  grid-column: 1 / -1;
+  justify-self: center;
+  max-width: 580px;
+  width: min(100%, 580px);
+}
+
+.event-card-gallery-shell {
+  margin: 0 auto;
+  max-width: 1480px;
+  padding: 26px clamp(16px, 4vw, 54px) 72px;
+}
+
+.event-card-title {
+  margin-bottom: 32px;
+}
+
+.event-card-grid {
+  display: grid;
+  gap: clamp(14px, 2vw, 24px);
+  grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+}
+
+.event-card-tile {
+  background: #f6f6f6;
+  border: 1px solid #d5d5d5;
+  cursor: pointer;
+  padding: 7px;
+}
+
+.event-card-tile:hover,
+.event-card-tile:focus-visible {
+  border-color: #b50000;
+  box-shadow: 0 0 0 3px rgba(181, 0, 0, 0.18);
+  outline: 0;
+}
+
+.event-card-tile img {
+  display: block;
+  height: auto;
+  width: 100%;
+}
+
+.event-card-lightbox {
+  align-items: center;
+  background: rgba(0, 0, 0, 0.86);
+  bottom: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  justify-items: center;
+  left: 0;
+  padding: 58px clamp(12px, 3vw, 34px) 28px;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: 1000;
+}
+
+.event-card-lightbox[hidden] {
+  display: none;
+}
+
+.event-card-lightbox figure {
+  margin: 0;
+  max-height: 100%;
+  text-align: center;
+}
+
+.event-card-lightbox img {
+  display: block;
+  height: auto;
+  margin: 0 auto;
+  max-height: calc(100vh - 130px);
+  max-width: min(92vw, 760px);
+}
+
+.event-card-lightbox figcaption {
+  color: #ffffff;
+  font-family: "Oswald", Arial, sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  margin-top: 12px;
+  text-transform: uppercase;
+}
+
+.event-card-close,
+.event-card-nav-button {
+  background: #ffffff;
+  border: 1px solid #ffffff;
+  color: #111111;
+  cursor: pointer;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.event-card-close {
+  position: fixed;
+  right: clamp(14px, 3vw, 34px);
+  top: 18px;
+  padding: 11px 16px;
+}
+
+.event-card-nav-button {
+  align-items: center;
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 48px;
+  height: 62px;
+  justify-content: center;
+  line-height: 1;
+  width: 62px;
+}
+
+.lightbox-open {
+  overflow: hidden;
+}
+
+@keyframes raceButtonEnter {
+  0% {
+    clip-path: polygon(28% 0, 100% 0, 72% 100%, 0 100%);
+    transform: translateX(-120vw);
+  }
+
+  70% {
+    clip-path: polygon(18% 0, 100% 0, 82% 100%, 0 100%);
+  }
+
+  100% {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    transform: translateX(0);
+  }
+}
+
+@keyframes doomsdayButtonEnter {
+  from {
+    opacity: 0;
+    transform: translateY(130px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 860px) {
   .archive-quick-links {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3152,6 +3423,29 @@ body.lineup-force-mobile .lineup-player-game {
     grid-template-columns: 1fr;
     justify-items: center;
     text-align: center;
+  }
+
+  .event-card-hero {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .event-card-lightbox {
+    grid-template-columns: 1fr;
+  }
+
+  .event-card-nav-button {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .event-card-nav-button.is-prev {
+    left: 10px;
+  }
+
+  .event-card-nav-button.is-next {
+    right: 10px;
   }
 
   .archive-cap-track a {
@@ -3872,6 +4166,7 @@ tbody tr:last-child td {
   .admin-grid,
   .admin-card-grid,
   .favorite-grid,
+  .admin-assignment-tables,
   .admin-inline-grid {
     grid-template-columns: 1fr;
   }

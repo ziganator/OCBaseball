@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Event Cards - Owners Club Baseball</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css?v=20260714o">
+  </head>
+  <body>
+    <header class="site-header menu-header">
+      <div class="header-inner">
+        <a class="header-logo" href="/" aria-label="Owners Club Baseball home"><img src="/assets/OC%20Icon.png" alt=""></a>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="/">Season</a>
+          <a href="/games.html">Games</a>
+          <a href="/teams.html">Teams</a>
+          <a href="/event-cards.html" aria-current="page">Event Cards</a>
+          <a href="/archives.html">Archives</a>
+          <a href="/admin.html">Admin</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="event-card-page">
+      <section class="event-card-hero" aria-label="Owners Club Event Cards">
+        <img class="event-card-brand" src="https://oceventcards.com/wp-content/uploads/2023/10/OC-Scoreboard-Red.jpg" alt="">
+        <img class="event-card-rules" src="https://oceventcards.com/wp-content/uploads/2023/12/Event-Card-Rules.jpg" alt="Event Card Rules">
+        <div class="event-card-power-wrap">
+          <img src="https://oceventcards.com/wp-content/uploads/2026/07/Power.jpg" alt="Power">
+        </div>
+        <div class="event-card-actions" aria-label="Event card actions">
+          <a class="event-race-button" href="https://oceventcards.com/elementor-page-796/">The Race</a>
+          <a class="event-doomsday-button" href="https://oceventcards.com/doomsday-clocks/">Doomsday Clock</a>
+        </div>
+        <img class="event-card-caps" src="https://oceventcards.com/wp-content/uploads/2026/07/Card-Caps-1.webp" alt="">
+      </section>
+
+      <section class="event-card-gallery-shell">
+        <div class="archive-title event-card-title">
+          <span class="section-kicker">Owners Club Baseball</span>
+          <h1>Event Cards</h1>
+        </div>
+        <div id="eventCardGrid" class="event-card-grid" aria-label="Event card gallery"></div>
+      </section>
+    </main>
+
+    <div id="eventCardLightbox" class="event-card-lightbox" hidden>
+      <button id="eventCardClose" class="event-card-close" type="button" aria-label="Close card preview">Close</button>
+      <button id="eventCardPrev" class="event-card-nav-button is-prev" type="button" aria-label="Previous card">‹</button>
+      <figure>
+        <img id="eventCardPreview" src="" alt="">
+        <figcaption id="eventCardCaption"></figcaption>
+      </figure>
+      <button id="eventCardNext" class="event-card-nav-button is-next" type="button" aria-label="Next card">›</button>
+    </div>
+
+    <footer class="site-footer">
+      <a class="footer-logo" href="/" aria-label="Owners Club Baseball home"><img src="/assets/OC%20Icon.png" alt=""></a>
+      <span>Owners Club Baseball ALL RIGHTS RESERVED &reg;</span>
+    </footer>
+
+    <script>
+      const eventCardUrls = [
+        "https://oceventcards.com/wp-content/uploads/2023/12/SchwarberSux.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/1-Up.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/1-Year-Extension.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/2-Year-Extension.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/440.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/All-In.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/And-1.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Arbitration.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Authoritarianism.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Bag-of-Holding.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Bait.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Bankrupt.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Behind-the-Wheel.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Big-Al.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Big-Market.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Black-Lotus.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Bonus-Baby.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Bum-Fight.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/C-Block.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Called-Shot.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Cannonball-1.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Capitalism.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Catch.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Chain-Reaction.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Chaos.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Clique.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Clone.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Coconuts.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Collateral-Damage.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Collusion.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Communism.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Compensation.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Core-Unit.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Cost-Cutting.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Count.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Crystal-Chamber.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Dead-Cuban-Money.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Defender.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Deflection.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Delegate.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Doomsday-Clock.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Draft-Maneuver.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Eminence-Grise.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Enforcer.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Evil.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Expedite.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Extra-Damage.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Fate.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Favoritism.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Free-Agent.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Friends.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Gift-Exchange.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/History-Eraser-Button.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Hombre.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Immunity-Idol.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Instigator.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Justice-League.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Kaboom.jpg",
+        "https://oceventcards.com/wp-content/uploads/2025/04/Klingon-Proverb.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Lifetime-Contract.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Lock-Box.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Long-Term-Deal.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Luxury-Tax.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Madman.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Magic-Number.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Magician.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Memory-Loss.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Muck.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Nailed.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/No-Soup.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/No-Trade-Clause.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Numbers.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Odds-Maker.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/O-Fer.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Omniscience.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Oprah.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Opt-Out.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Out-of-Options.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Parlay.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Pickpocket.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Play-With-Fire.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Potato.jpg",
+        "https://oceventcards.com/wp-content/uploads/2025/03/Powerslave.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Purge.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Radical-Inclusion.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Raiders.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Randomize.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Renegotiation.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Restructure.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Reveal.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Revenue-Sharing.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Reversal.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Reverse-Jinx.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Reward.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Rivals.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Robin-Hood.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Sabotage.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Sacrifice.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Sanctions.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Sandy-Claws.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Shawn-Green.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Sherlock.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Shield.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Signed.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Silencio.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Slump-Buster.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Smackdown.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Sniper.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Socialism.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Spinach.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Stop.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Supplementals.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Surplus.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Sus.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Swipe.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Tagged.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Taxman.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/The-Box.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/The-Decider.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/The-Eye.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/The-Franchise.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/The-Kingfish.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/The-Man.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Thumbs-Up.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Time-Out.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Time-Warp.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/To-the-Table.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Trading-Cards.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Transform.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Trending.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Tuaca.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Turf-War.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Twister.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Unbreakable-Vow.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Under-the-Radar.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Undermine.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Unholy-Contract.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Unlimited.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Upgrade.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Vacant.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Variant.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Vigorish.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Villain.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Voltron.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Whistleblower.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/White-Elephant.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Wild-Card.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Winning-Streak.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Wish.jpg",
+        "https://oceventcards.com/wp-content/uploads/2023/12/Zero.jpg"
+      ];
+
+      const grid = document.getElementById("eventCardGrid");
+      const lightbox = document.getElementById("eventCardLightbox");
+      const preview = document.getElementById("eventCardPreview");
+      const caption = document.getElementById("eventCardCaption");
+      const closeButton = document.getElementById("eventCardClose");
+      const previousButton = document.getElementById("eventCardPrev");
+      const nextButton = document.getElementById("eventCardNext");
+      let activeIndex = 0;
+
+      function cardName(url) {
+        return decodeURIComponent(url.split("/").pop().replace(/\.[^.]+$/, "").replace(/-/g, " "));
+      }
+
+      function openCard(index) {
+        activeIndex = (index + eventCardUrls.length) % eventCardUrls.length;
+        const url = eventCardUrls[activeIndex];
+        preview.src = url;
+        preview.alt = cardName(url);
+        caption.textContent = cardName(url);
+        lightbox.hidden = false;
+        document.body.classList.add("lightbox-open");
+        closeButton.focus();
+      }
+
+      function closeCard() {
+        lightbox.hidden = true;
+        preview.src = "";
+        document.body.classList.remove("lightbox-open");
+      }
+
+      grid.innerHTML = eventCardUrls.map((url, index) => `
+        <button class="event-card-tile" type="button" data-card-index="${index}" aria-label="Open ${cardName(url)}">
+          <img src="${url}" alt="${cardName(url)}" loading="lazy">
+        </button>
+      `).join("");
+
+      grid.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-card-index]");
+        if (!button) return;
+        openCard(Number(button.dataset.cardIndex));
+      });
+
+      closeButton.addEventListener("click", closeCard);
+      previousButton.addEventListener("click", () => openCard(activeIndex - 1));
+      nextButton.addEventListener("click", () => openCard(activeIndex + 1));
+      lightbox.addEventListener("click", (event) => {
+        if (event.target === lightbox) closeCard();
+      });
+      window.addEventListener("keydown", (event) => {
+        if (lightbox.hidden) return;
+        if (event.key === "Escape") closeCard();
+        if (event.key === "ArrowLeft") openCard(activeIndex - 1);
+        if (event.key === "ArrowRight") openCard(activeIndex + 1);
+      });
+    </script>
+  </body>
+</html>
