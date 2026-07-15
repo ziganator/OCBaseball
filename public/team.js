@@ -102,7 +102,7 @@ function renderTeamPage() {
       </div>
 
       <div class="hermanos-actions" aria-label="${team.name} actions">
-        <a href="#">History</a>
+        <a href="/teams/${sourceTeam.slug}/history.html">History</a>
         <a href="#">Event Cards</a>
       </div>
     </section>

@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/styles.css?v=20260714m">
+    <link rel="stylesheet" href="/styles.css?v=20260714n">
   </head>
   <body>
     <header class="site-header menu-header">
@@ -29,27 +29,35 @@
         <h1>Awards</h1>
       </section>
       <section class="awards-display" aria-label="Owners Club Baseball trophy tiers">
-        <article class="award-tier">
+        <div class="award-tier-tabs" role="tablist" aria-label="Award tiers">
+          <button type="button" class="is-active" data-award-tier="1">Tier 1</button>
+          <button type="button" data-award-tier="2">Tier 2</button>
+          <button type="button" data-award-tier="3">Tier 3</button>
+          <button type="button" data-award-tier="4">Tier 4</button>
+          <button type="button" data-award-tier="5">Tier 5</button>
+          <button type="button" data-award-tier="6">Tier 6</button>
+        </div>
+        <article class="award-tier is-active" data-award-panel="1">
           <h2>Tier 1</h2>
           <img src="https://ownersclubbaseball.com/wp-content/uploads/2026/03/T1.jpg" alt="Owners Club Baseball awards tier 1">
         </article>
-        <article class="award-tier">
+        <article class="award-tier" data-award-panel="2" hidden>
           <h2>Tier 2</h2>
           <img src="https://ownersclubbaseball.com/wp-content/uploads/2026/03/T2.jpg" alt="Owners Club Baseball awards tier 2" loading="lazy">
         </article>
-        <article class="award-tier">
+        <article class="award-tier" data-award-panel="3" hidden>
           <h2>Tier 3</h2>
           <img src="https://ownersclubbaseball.com/wp-content/uploads/2026/03/T3.jpg" alt="Owners Club Baseball awards tier 3" loading="lazy">
         </article>
-        <article class="award-tier">
+        <article class="award-tier" data-award-panel="4" hidden>
           <h2>Tier 4</h2>
           <img src="https://ownersclubbaseball.com/wp-content/uploads/2026/03/T4.jpg" alt="Owners Club Baseball awards tier 4" loading="lazy">
         </article>
-        <article class="award-tier">
+        <article class="award-tier" data-award-panel="5" hidden>
           <h2>Tier 5</h2>
           <img src="https://ownersclubbaseball.com/wp-content/uploads/2026/03/T5.jpg" alt="Owners Club Baseball awards tier 5" loading="lazy">
         </article>
-        <article class="award-tier">
+        <article class="award-tier" data-award-panel="6" hidden>
           <h2>Tier 6</h2>
           <img src="https://ownersclubbaseball.com/wp-content/uploads/2026/03/T6.jpg" alt="Owners Club Baseball awards tier 6" loading="lazy">
         </article>
@@ -59,5 +67,21 @@
       <a class="footer-logo" href="/" aria-label="Owners Club Baseball home"><img src="/assets/OC%20Icon.png" alt=""></a>
       <span>Owners Club Baseball ALL RIGHTS RESERVED &reg;</span>
     </footer>
+    <script>
+      const tierButtons = document.querySelectorAll("[data-award-tier]");
+      const tierPanels = document.querySelectorAll("[data-award-panel]");
+
+      tierButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const tier = button.dataset.awardTier;
+          tierButtons.forEach((item) => item.classList.toggle("is-active", item === button));
+          tierPanels.forEach((panel) => {
+            const active = panel.dataset.awardPanel === tier;
+            panel.hidden = !active;
+            panel.classList.toggle("is-active", active);
+          });
+        });
+      });
+    </script>
   </body>
 </html>
