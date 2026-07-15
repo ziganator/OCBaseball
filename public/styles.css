@@ -1052,7 +1052,6 @@ h1 {
   font-size: 15px;
   font-weight: 900;
   line-height: 1.1;
-  padding: 6px 10px;
   text-transform: uppercase;
 }
 
@@ -1064,13 +1063,11 @@ h1 {
 }
 
 .best-team.is-keystone strong {
-  background: #1f66c2;
-  color: #ffffff;
+  color: #1f66c2;
 }
 
 .best-team.is-diamond strong {
-  background: #a90808;
-  color: #ffffff;
+  color: #a90808;
 }
 
 .best-week-rule {
