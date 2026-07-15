@@ -3293,9 +3293,9 @@ body.lineup-force-mobile .lineup-player-game {
   align-items: start;
   display: grid;
   gap: clamp(18px, 2vw, 26px);
-  grid-template-columns: minmax(420px, 0.88fr) minmax(540px, 1.12fr);
+  grid-template-columns: minmax(360px, 0.88fr) minmax(470px, 1.12fr);
   justify-content: center;
-  max-width: 1480px;
+  max-width: 1180px;
   width: 100%;
 }
 
@@ -3332,7 +3332,7 @@ body.lineup-force-mobile .lineup-player-game {
   border: 3px solid #000000;
   box-sizing: border-box;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 76px minmax(0, 1fr) 76px;
+  grid-template-columns: minmax(0, 1fr) 66px minmax(0, 1fr) 66px;
   width: 100%;
 }
 
@@ -3343,7 +3343,7 @@ body.lineup-force-mobile .lineup-player-game {
   border: 2px solid #000000;
   box-sizing: border-box;
   display: flex;
-  height: 58px;
+  height: 52px;
 }
 
 .event-power-name {
@@ -3370,7 +3370,7 @@ body.lineup-force-mobile .lineup-player-game {
   display: block;
   height: 100%;
   margin: 0 auto;
-  object-fit: cover;
+  object-fit: contain;
   width: 100%;
 }
 
@@ -3479,7 +3479,7 @@ body.lineup-force-mobile .lineup-player-game {
   font-size: 22px;
   font-weight: 800;
   justify-content: center;
-  height: 62px;
+  height: 54px;
   padding: 0;
   width: auto;
 }
@@ -3487,7 +3487,7 @@ body.lineup-force-mobile .lineup-player-game {
 .event-card-cap-logo img {
   display: block;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   width: 100%;
 }
 
