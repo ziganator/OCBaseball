@@ -1252,14 +1252,24 @@ h1 {
   background: #f3dddd;
 }
 
-.game-scoreboard-table tbody tr.is-diamond th,
-.game-scoreboard-table tbody tr.is-diamond td.is-winner {
+.game-scoreboard-table tbody tr.is-diamond th {
   color: #a90808;
 }
 
-.game-scoreboard-table tbody tr.is-keystone th,
-.game-scoreboard-table tbody tr.is-keystone td.is-winner {
+.game-scoreboard-table tbody tr.is-keystone th {
   color: #0f376d;
+}
+
+.game-scoreboard-table tbody tr.is-keystone td.is-winner,
+.game-scoreboard-table tbody tr.is-keystone.is-selected td.is-winner {
+  background: #244f88;
+  color: #ffffff;
+}
+
+.game-scoreboard-table tbody tr.is-diamond td.is-winner,
+.game-scoreboard-table tbody tr.is-diamond.is-selected td.is-winner {
+  background: #a90808;
+  color: #ffffff;
 }
 
 .game-scoreboard-table tbody th:nth-child(3),
