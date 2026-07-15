@@ -8,34 +8,18 @@ import { getSupabaseClient, requireSession, signOut } from "./auth.js";
 
 const DRAFT_KEY = "ownersclub.teamAdminDraft";
 const defaultPowers = [
-  "1 Up",
-  "Black Lotus",
-  "Doomsday Clock",
-  "History Eraser Button",
-  "Immunity Idol",
-  "Magic Number",
-  "Omniscience",
-  "Powerslave",
-  "The Box",
-  "The Decider",
+  "Clone",
+  "Defender",
+  "Eminence Grise",
+  "Evil",
+  "Magician",
+  "Oprah",
+  "Sherlock",
   "The Eye",
-  "The Franchise",
   "The Kingfish",
-  "The Man",
-  "Time Warp",
-  "Unbreakable Vow",
-  "Wish"
+  "Voltron"
 ];
-const defaultEventCardCaps = [
-  "Cap 1",
-  "Cap 2",
-  "Cap 3",
-  "Cap 4",
-  "Cap 5",
-  "Cap 6",
-  "Cap 7",
-  "Cap 8"
-];
+const defaultEventCardCaps = Array.from({ length: 24 }, (_, index) => String(index + 1));
 const form = document.querySelector("#team-form");
 const statusEl = document.querySelector("#admin-status");
 const teamSelect = document.querySelector("#team-select");
@@ -137,8 +121,8 @@ function loadDraft() {
 function normalizeDraftState(draft) {
   const next = {
     favoriteTeams: draft.favoriteTeams || structuredClone(seedFavoriteTeams),
-    powers: draft.powers || structuredClone(defaultPowers),
-    eventCardCaps: draft.eventCardCaps || structuredClone(defaultEventCardCaps),
+    powers: structuredClone(defaultPowers),
+    eventCardCaps: structuredClone(defaultEventCardCaps),
     teams: draft.teams || structuredClone(seedTeams)
   };
 
@@ -147,6 +131,12 @@ function normalizeDraftState(draft) {
     team.city ||= teamCity(team);
     team.name = [team.city, team.nickname || team.shortName].filter(Boolean).join(" ");
     team.shortName = team.nickname || team.shortName || "";
+    if (String(team.eventCardCap || "").startsWith("Cap ")) {
+      team.eventCardCap = String(team.eventCardCap).replace("Cap ", "");
+    }
+    if (team.power && !next.powers.includes(team.power)) {
+      team.power = "";
+    }
     if (team.identityHistory && team.slug !== "new-york-donkeys") {
       delete team.identityHistory;
     }
@@ -261,38 +251,39 @@ function renderSelectors() {
 
   eventCardCapSelect.innerHTML = [
     `<option value="">No Event Card Cap</option>`,
-    ...state.eventCardCaps.map((cap) => `<option value="${escapeHtml(cap)}">${escapeHtml(cap)}</option>`)
+    ...state.eventCardCaps.map((cap) => {
+      const suffix = String(cap) === "1" ? "card" : "cards";
+      return `<option value="${escapeHtml(cap)}">${escapeHtml(cap)} ${suffix}</option>`;
+    })
   ].join("");
 }
 
 function renderAssignmentTables() {
-  const powerRows = state.teams
-    .filter((team) => team.power)
-    .sort((a, b) => a.power.localeCompare(b.power) || displayTeam(a).name.localeCompare(displayTeam(b).name));
-  powerHoldersTable.innerHTML = powerRows.length ? powerRows.map((team) => {
-    const renderedTeam = displayTeam(team);
+  powerHoldersTable.innerHTML = state.powers.map((power) => {
+    const team = state.teams.find((item) => item.power === power);
+    const renderedTeam = team ? displayTeam(team) : null;
     return `
       <tr>
-        <td>${escapeHtml(team.power)}</td>
-        <td>${team.capImage ? `<img src="${escapeHtml(team.capImage)}" alt="${escapeHtml(renderedTeam.name)} cap">` : ""}</td>
-        <td>${escapeHtml(renderedTeam.name)}</td>
+        <td>${escapeHtml(power)}</td>
+        <td>${team?.capImage ? `<img src="${escapeHtml(team.capImage)}" alt="${escapeHtml(renderedTeam.name)} cap">` : ""}</td>
+        <td>${renderedTeam ? escapeHtml(renderedTeam.name) : "Unassigned"}</td>
       </tr>
     `;
-  }).join("") : `<tr><td colspan="3">No power holders selected.</td></tr>`;
+  }).join("");
 
   const capRows = state.teams
     .filter((team) => team.eventCardCap)
-    .sort((a, b) => a.eventCardCap.localeCompare(b.eventCardCap) || displayTeam(a).name.localeCompare(displayTeam(b).name));
+    .sort((a, b) => displayTeam(a).name.localeCompare(displayTeam(b).name));
   eventCardCapsTable.innerHTML = capRows.length ? capRows.map((team) => {
     const renderedTeam = displayTeam(team);
+    const suffix = String(team.eventCardCap) === "1" ? "card" : "cards";
     return `
       <tr>
-        <td>${escapeHtml(team.eventCardCap)}</td>
-        <td>${team.capImage ? `<img src="${escapeHtml(team.capImage)}" alt="${escapeHtml(renderedTeam.name)} cap">` : ""}</td>
         <td>${escapeHtml(renderedTeam.name)}</td>
+        <td>${escapeHtml(team.eventCardCap)} ${suffix}</td>
       </tr>
     `;
-  }).join("") : `<tr><td colspan="3">No event card caps selected.</td></tr>`;
+  }).join("") : `<tr><td colspan="2">No event card caps selected.</td></tr>`;
 }
 
 function renderForm() {

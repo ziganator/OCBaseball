@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/styles.css?v=20260714o">
+    <link rel="stylesheet" href="/styles.css?v=20260714p">
   </head>
   <body>
     <header class="site-header menu-header">
@@ -26,16 +26,44 @@
 
     <main class="event-card-page">
       <section class="event-card-hero" aria-label="Owners Club Event Cards">
-        <img class="event-card-brand" src="https://oceventcards.com/wp-content/uploads/2023/10/OC-Scoreboard-Red.jpg" alt="">
-        <img class="event-card-rules" src="https://oceventcards.com/wp-content/uploads/2023/12/Event-Card-Rules.jpg" alt="Event Card Rules">
-        <div class="event-card-power-wrap">
-          <img src="https://oceventcards.com/wp-content/uploads/2026/07/Power.jpg" alt="Power">
+        <div class="event-card-rules-copy">
+          <p>Event Cards awarded to an Owner that exceed their Card Cap total will be lost.</p>
+          <p>At any time, an Owner may sacrifice three of NON-HITTER cards that they possess in order to draw one card.</p>
         </div>
-        <div class="event-card-actions" aria-label="Event card actions">
-          <a class="event-race-button" href="https://oceventcards.com/elementor-page-796/">The Race</a>
-          <a class="event-doomsday-button" href="https://oceventcards.com/doomsday-clocks/">Doomsday Clock</a>
+
+        <div class="event-card-control-grid">
+          <section class="event-card-panel event-power-panel" aria-labelledby="power-holders-title">
+            <h2 id="power-holders-title">Power Holders</h2>
+            <table class="event-power-table">
+              <tbody id="eventPowerTable"></tbody>
+            </table>
+          </section>
+
+          <section class="event-card-panel event-card-type-panel" aria-labelledby="card-types-title">
+            <h2 id="card-types-title">Card Types</h2>
+            <ul class="event-card-type-list">
+              <li><span class="event-card-dot is-common"></span><b>Common:</b> 8 or more of these cards in the deck</li>
+              <li><span class="event-card-dot is-uncommon"></span><b>Uncommon:</b> 4 to 7 of these cards in the deck</li>
+              <li><span class="event-card-dot is-rare"></span><b>Rare:</b> Only 3 of these cards in the deck</li>
+              <li><span class="event-card-dot is-epic"></span><b>Epic:</b> Only 2 of these cards in the deck</li>
+              <li><span class="event-card-dot is-legendary"></span><b>Legendary:</b> Only 1 of these cards in the deck</li>
+            </ul>
+          </section>
+
+          <div class="event-card-action-slot">
+            <a class="event-race-button" href="https://oceventcards.com/elementor-page-796/">The Race</a>
+          </div>
+          <div class="event-card-action-slot">
+            <a class="event-doomsday-button" href="https://oceventcards.com/doomsday-clocks/">Doomsday Clock</a>
+          </div>
         </div>
-        <img class="event-card-caps" src="https://oceventcards.com/wp-content/uploads/2026/07/Card-Caps-1.webp" alt="">
+
+        <section class="event-card-caps-panel" aria-labelledby="current-card-caps-title">
+          <h2 id="current-card-caps-title">Current Event Card Caps</h2>
+          <table class="event-card-caps-table">
+            <tbody id="eventCardCapsTable"></tbody>
+          </table>
+        </section>
       </section>
 
       <section class="event-card-gallery-shell">
@@ -62,7 +90,23 @@
       <span>Owners Club Baseball ALL RIGHTS RESERVED &reg;</span>
     </footer>
 
-    <script>
+    <script type="module">
+      import { displayTeam, teams as seedTeams } from "./team-data.js?v=20260714b";
+
+      const eventPowers = [
+        "Clone",
+        "Defender",
+        "Eminence Grise",
+        "Evil",
+        "Magician",
+        "Oprah",
+        "Sherlock",
+        "The Eye",
+        "The Kingfish",
+        "Voltron"
+      ];
+      let eventTeams = seedTeams.map((team) => displayTeam(team));
+
       const eventCardUrls = [
         "https://oceventcards.com/wp-content/uploads/2023/12/SchwarberSux.jpg",
         "https://oceventcards.com/wp-content/uploads/2023/12/1-Up.jpg",
@@ -217,6 +261,8 @@
       ];
 
       const grid = document.getElementById("eventCardGrid");
+      const eventPowerTable = document.getElementById("eventPowerTable");
+      const eventCardCapsTable = document.getElementById("eventCardCapsTable");
       const lightbox = document.getElementById("eventCardLightbox");
       const preview = document.getElementById("eventCardPreview");
       const caption = document.getElementById("eventCardCaption");
@@ -227,6 +273,67 @@
 
       function cardName(url) {
         return decodeURIComponent(url.split("/").pop().replace(/\.[^.]+$/, "").replace(/-/g, " "));
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function capCell(team) {
+        if (!team) return "";
+        return team.capImage
+          ? `<img src="${escapeHtml(team.capImage)}" alt="${escapeHtml(team.name)} cap">`
+          : "";
+      }
+
+      function renderEventAssignments() {
+        const holderRows = [];
+        for (let index = 0; index < eventPowers.length; index += 2) {
+          const leftPower = eventPowers[index];
+          const rightPower = eventPowers[index + 1];
+          const leftTeam = eventTeams.find((team) => team.power === leftPower);
+          const rightTeam = eventTeams.find((team) => team.power === rightPower);
+          holderRows.push(`
+            <tr>
+              <th>${escapeHtml(leftPower)}</th>
+              <td>${capCell(leftTeam)}</td>
+              <th>${rightPower ? escapeHtml(rightPower) : ""}</th>
+              <td>${capCell(rightTeam)}</td>
+            </tr>
+          `);
+        }
+        eventPowerTable.innerHTML = holderRows.join("");
+
+        const capTeams = eventTeams
+          .filter((team) => team.eventCardCap)
+          .sort((a, b) => a.name.localeCompare(b.name));
+        eventCardCapsTable.innerHTML = capTeams.length ? capTeams.map((team) => `
+          <tr>
+            <td>${capCell(team)}</td>
+            <th>${escapeHtml(team.name)}</th>
+            <td>${escapeHtml(team.eventCardCap)}</td>
+          </tr>
+        `).join("") : `<tr><td colspan="3">Event card caps have not been assigned.</td></tr>`;
+      }
+
+      async function loadPublishedTeamData() {
+        try {
+          const response = await fetch("/api/team-site-data", { cache: "no-store" });
+          if (!response.ok || !response.headers.get("content-type")?.includes("application/json")) return;
+          const payload = await response.json();
+          const teams = payload?.teams || payload?.site_data?.teams;
+          if (Array.isArray(teams)) {
+            eventTeams = teams.map((team) => displayTeam(team));
+            renderEventAssignments();
+          }
+        } catch {
+          // Static team-data.js is enough when the database endpoint is unavailable.
+        }
       }
 
       function openCard(index) {
@@ -251,6 +358,9 @@
           <img src="${url}" alt="${cardName(url)}" loading="lazy">
         </button>
       `).join("");
+
+      renderEventAssignments();
+      loadPublishedTeamData();
 
       grid.addEventListener("click", (event) => {
         const button = event.target.closest("[data-card-index]");
