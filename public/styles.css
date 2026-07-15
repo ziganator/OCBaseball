@@ -3228,7 +3228,7 @@ body.lineup-force-mobile .lineup-player-game {
   gap: 42px;
   grid-template-columns: 1fr;
   margin: 0 auto;
-  max-width: 920px;
+  max-width: 1080px;
   overflow: hidden;
   padding: 28px clamp(18px, 5vw, 72px) 32px;
 }
@@ -3278,17 +3278,16 @@ body.lineup-force-mobile .lineup-player-game {
 .event-card-control-grid {
   align-items: start;
   display: grid;
-  gap: 28px clamp(26px, 4vw, 54px);
-  grid-template-columns: 330px 416px;
+  gap: 28px clamp(28px, 4vw, 48px);
+  grid-template-columns: 458px 416px;
   justify-content: center;
-  max-width: 810px;
+  max-width: 930px;
   width: 100%;
 }
 
 .event-power-panel {
   justify-self: end;
-  overflow: hidden;
-  width: 330px;
+  width: 458px;
 }
 
 .event-card-panel h2 {
@@ -3318,23 +3317,23 @@ body.lineup-force-mobile .lineup-player-game {
   border-collapse: collapse;
   min-width: 0;
   table-layout: fixed;
-  width: 330px;
+  width: 458px;
 }
 
 .event-power-name-col {
-  width: 138px;
+  width: 176px;
 }
 
 .event-power-cap-col {
-  width: 27px;
+  width: 53px;
 }
 
 .event-power-table th,
 .event-power-table td {
   background: #dedede;
   border: 2px solid #000000;
-  height: 24px;
-  padding: 1px 6px;
+  height: 34px;
+  padding: 2px 8px;
 }
 
 .event-power-table th {
@@ -3355,10 +3354,10 @@ body.lineup-force-mobile .lineup-player-game {
 
 .event-power-table img {
   display: block;
-  height: 24px;
+  height: 32px;
   margin: 0 auto;
   object-fit: contain;
-  width: 24px;
+  width: 32px;
 }
 
 .event-card-types-image {
@@ -3410,31 +3409,34 @@ body.lineup-force-mobile .lineup-player-game {
 }
 
 .event-card-caps-panel {
-  background: #000000;
-  color: #ffffff;
+  background: #ffffff;
+  color: #111111;
   justify-self: center;
-  padding: 32px 26px 26px;
-  width: min(100%, 520px);
+  padding: 0;
+  width: min(100%, 506px);
 }
 
 .event-card-caps-panel h2 {
-  background: #000000;
-  border: 0;
-  color: #ffffff;
-  font-family: "Open Sans", Arial, sans-serif;
-  font-size: clamp(25px, 2.4vw, 34px);
+  background: #d7a500;
+  border: 3px solid #000000;
+  border-bottom: 0;
+  color: #000000;
+  font-family: "Oswald", Arial, sans-serif;
+  font-size: clamp(20px, 2vw, 28px);
   font-weight: 800;
   letter-spacing: 0;
-  margin: 0 0 24px;
-  padding: 0;
-  text-align: left;
-  text-transform: none;
+  margin: 0;
+  padding: 8px 12px 10px;
+  text-align: center;
+  text-transform: uppercase;
 }
 
 .event-card-caps-grid {
+  border: 6px solid #000000;
   display: grid;
-  grid-template-columns: repeat(8, 41px);
-  justify-content: end;
+  grid-template-columns: repeat(8, 61px);
+  justify-content: center;
+  width: 506px;
 }
 
 .event-card-cap-logo,
@@ -3445,19 +3447,19 @@ body.lineup-force-mobile .lineup-player-game {
   color: #111111;
   display: flex;
   font-family: "Open Sans", Arial, sans-serif;
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 800;
   justify-content: center;
-  height: 41px;
+  height: 48px;
   padding: 0;
-  width: 41px;
+  width: 61px;
 }
 
 .event-card-cap-logo img {
   display: block;
-  height: 37px;
+  height: 44px;
   object-fit: contain;
-  width: 37px;
+  width: 44px;
 }
 
 .event-card-gallery-shell {
@@ -3634,6 +3636,24 @@ body.lineup-force-mobile .lineup-player-game {
 
   .event-card-control-grid {
     grid-template-columns: 1fr;
+    justify-items: center;
+    max-width: 100%;
+  }
+
+  .event-power-panel,
+  .event-power-table {
+    max-width: 100%;
+    width: min(458px, 100%);
+  }
+
+  .event-card-caps-panel,
+  .event-card-caps-grid {
+    max-width: 100%;
+    width: min(506px, 100%);
+  }
+
+  .event-card-caps-grid {
+    grid-template-columns: repeat(8, minmax(36px, 61px));
   }
 
   .event-power-table th {
