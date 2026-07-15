@@ -2661,6 +2661,160 @@ body.lineup-force-mobile .lineup-player-game {
   font-size: 14px;
 }
 
+.archive-cap-strip {
+  background: #ffffff;
+  border-bottom: 4px solid #b50000;
+  border-top: 4px solid #5b3f3f;
+  overflow: hidden;
+  width: 100%;
+}
+
+.archive-cap-track {
+  animation: archiveCapScroll 56s linear infinite;
+  display: flex;
+  width: max-content;
+}
+
+.archive-cap-strip:hover .archive-cap-track {
+  animation-play-state: paused;
+}
+
+.archive-cap-track a {
+  align-items: center;
+  background: #ffffff;
+  border-right: 1px solid #dedede;
+  display: flex;
+  height: 118px;
+  justify-content: center;
+  width: 168px;
+}
+
+.archive-cap-track img {
+  display: block;
+  height: 100%;
+  object-fit: contain;
+  width: 100%;
+}
+
+@keyframes archiveCapScroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.archive-shell {
+  margin: 0 auto;
+  max-width: 1220px;
+  padding: clamp(28px, 5vw, 58px) clamp(16px, 4vw, 46px) 70px;
+}
+
+.archive-title {
+  border-bottom: 3px solid #b50000;
+  border-top: 3px solid #b50000;
+  padding: 28px 0;
+  text-align: center;
+}
+
+.archive-title h1 {
+  font-size: clamp(52px, 8vw, 96px);
+  line-height: 0.95;
+  margin: 6px 0 0;
+  text-transform: uppercase;
+}
+
+.archive-quick-links {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  margin: 30px 0;
+}
+
+.archive-quick-links a {
+  align-items: center;
+  background: #b50000;
+  color: #ffffff;
+  display: flex;
+  font-weight: 900;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.archive-quick-links a:hover,
+.archive-link-grid a:hover {
+  background: #7f0000;
+  color: #ffffff;
+}
+
+.archive-section {
+  border: 1px solid var(--line);
+  margin-top: 22px;
+  padding: 18px;
+}
+
+.archive-section h2 {
+  color: #b50000;
+  font-family: "Oswald", sans-serif;
+  font-size: 30px;
+  margin: 0 0 16px;
+  text-transform: uppercase;
+}
+
+.archive-link-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+
+.archive-link-grid.is-seasons {
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+}
+
+.archive-link-grid.is-owners {
+  grid-template-columns: repeat(auto-fill, minmax(142px, 1fr));
+}
+
+.archive-link-grid a {
+  background: #f7f7f7;
+  border: 1px solid #d6d6d6;
+  color: #222222;
+  font-size: 13px;
+  font-weight: 900;
+  min-height: 36px;
+  padding: 9px 10px;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.archive-split {
+  display: grid;
+  gap: 22px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 860px) {
+  .archive-quick-links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .archive-split {
+    grid-template-columns: 1fr;
+  }
+
+  .archive-cap-track a {
+    height: 88px;
+    width: 126px;
+  }
+}
+
 .division-table {
   background: var(--paper);
   border: 1px solid var(--line);
