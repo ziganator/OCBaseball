@@ -3174,46 +3174,105 @@ body.lineup-force-mobile .lineup-player-game {
   background: #ffffff;
 }
 
+.event-card-title-banner {
+  align-items: center;
+  background: linear-gradient(to bottom, #ffffff 0 43px, #000000 43px 131px, #ffffff 131px 100%);
+  display: flex;
+  gap: clamp(24px, 5vw, 74px);
+  justify-content: center;
+  min-height: 158px;
+  overflow: visible;
+  padding: 0 clamp(12px, 3vw, 32px);
+}
+
+.event-card-title-banner span {
+  color: #ffffff;
+  font-family: "Open Sans", Arial, sans-serif;
+  font-size: clamp(48px, 7vw, 88px);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.event-card-title-banner img {
+  display: block;
+  height: clamp(130px, 13vw, 220px);
+  margin: 0;
+  object-fit: contain;
+  width: auto;
+  z-index: 1;
+}
+
 .event-card-hero {
   align-items: center;
   display: grid;
-  gap: 34px;
+  gap: 42px;
   grid-template-columns: 1fr;
   margin: 0 auto;
-  max-width: 1180px;
+  max-width: 980px;
   overflow: hidden;
-  padding: clamp(34px, 5vw, 68px) clamp(18px, 5vw, 72px) 32px;
+  padding: 28px clamp(18px, 5vw, 72px) 32px;
 }
 
 .event-card-rules-copy {
   color: #000000;
   display: grid;
-  gap: 38px;
-  font-size: clamp(20px, 2.05vw, 28px);
+  gap: 26px;
+  font-size: clamp(16px, 1.1vw, 20px);
   font-weight: 800;
-  line-height: 1.45;
+  line-height: 1.55;
+  text-align: left;
+}
+
+.event-card-rules-copy h1 {
+  color: #d50000;
+  font-family: "Open Sans", Arial, sans-serif;
+  font-size: clamp(22px, 2.1vw, 32px);
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1.15;
+  margin: 0 0 8px;
   text-align: center;
+  text-transform: uppercase;
 }
 
 .event-card-rules-copy p {
   margin: 0;
 }
 
+.event-rule-centered {
+  text-align: center;
+}
+
+.event-rule-red {
+  color: #e10000;
+}
+
+.event-rule-blue {
+  color: #0071bc;
+}
+
+.event-rule-gold {
+  color: #d8a900;
+}
+
 .event-card-control-grid {
   align-items: start;
   display: grid;
-  gap: 30px clamp(28px, 6vw, 86px);
-  grid-template-columns: minmax(340px, 0.95fr) minmax(300px, 0.75fr);
+  gap: 26px clamp(28px, 6vw, 82px);
+  grid-template-columns: minmax(280px, 420px) minmax(230px, 310px);
   justify-content: center;
+  width: 100%;
 }
 
 .event-card-panel h2 {
   background: #d7a500;
-  border: 3px solid #000000;
+  border: 2px solid #000000;
   border-bottom: 0;
   color: #000000;
   font-family: "Oswald", Arial, sans-serif;
-  font-size: clamp(24px, 2.2vw, 34px);
+  font-size: clamp(18px, 1.8vw, 24px);
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1.1;
@@ -3230,23 +3289,23 @@ body.lineup-force-mobile .lineup-player-game {
 
 .event-power-table {
   background: #000000;
-  border: 7px solid #000000;
+  border: 6px solid #000000;
   border-collapse: collapse;
   width: 100%;
 }
 
 .event-power-table th,
 .event-power-table td {
-  background: #e8e8e8;
+  background: #dedede;
   border: 2px solid #000000;
-  height: 38px;
-  padding: 4px 8px;
+  height: 25px;
+  padding: 2px 6px;
 }
 
 .event-power-table th {
   color: #111111;
   font-family: "Oswald", Arial, sans-serif;
-  font-size: clamp(17px, 1.45vw, 23px);
+  font-size: clamp(13px, 1.2vw, 16px);
   font-weight: 700;
   text-align: right;
   text-transform: uppercase;
@@ -3260,60 +3319,18 @@ body.lineup-force-mobile .lineup-player-game {
 
 .event-power-table img {
   display: block;
-  height: 34px;
+  height: 25px;
   margin: 0 auto;
   object-fit: contain;
-  width: 34px;
+  width: 25px;
 }
 
-.event-card-type-list {
-  display: grid;
-  gap: 18px;
-  list-style: none;
-  margin: 12px 0 0;
-  padding: 0;
-}
-
-.event-card-type-list li {
-  align-items: center;
-  color: #000000;
-  display: flex;
-  font-size: clamp(16px, 1.55vw, 22px);
-  font-weight: 800;
-  gap: 12px;
-}
-
-.event-card-type-list b {
-  text-transform: uppercase;
-}
-
-.event-card-dot {
-  border: 1px solid rgba(0, 0, 0, 0.35);
-  border-radius: 999px;
-  box-shadow: inset 5px 0 8px rgba(255, 255, 255, 0.65), inset -5px 0 8px rgba(0, 0, 0, 0.28);
-  flex: 0 0 auto;
-  height: 32px;
-  width: 32px;
-}
-
-.event-card-dot.is-common {
-  background: linear-gradient(90deg, #111111, #d8d8d8);
-}
-
-.event-card-dot.is-uncommon {
-  background: linear-gradient(90deg, #7c1d1d, #d8d8d8);
-}
-
-.event-card-dot.is-rare {
-  background: linear-gradient(90deg, #bf8a12, #f4d26b);
-}
-
-.event-card-dot.is-epic {
-  background: linear-gradient(90deg, #844078, #d8d8d8);
-}
-
-.event-card-dot.is-legendary {
-  background: linear-gradient(90deg, #2b2b2b, #c4a76b);
+.event-card-types-image {
+  display: block;
+  height: auto;
+  margin: 0 auto;
+  max-width: 100%;
+  width: min(100%, 300px);
 }
 
 .event-card-action-slot {
@@ -3350,7 +3367,7 @@ body.lineup-force-mobile .lineup-player-game {
   animation: doomsdayButtonEnter 850ms ease-out 950ms both;
   background: #a90000;
   border: 0;
-  box-shadow: 22px 18px 30px rgba(0, 0, 0, 0.32);
+  box-shadow: 24px 20px 34px rgba(0, 0, 0, 0.68);
   color: #000000;
   min-width: min(260px, 72vw);
   padding: 12px 28px 14px;
@@ -3358,10 +3375,12 @@ body.lineup-force-mobile .lineup-player-game {
 
 .event-card-caps-panel {
   background: #000000;
+  border-bottom: 2px solid #ffffff;
+  border-top: 2px solid #ffffff;
   color: #ffffff;
   justify-self: center;
-  padding: 14px;
-  width: min(100%, 580px);
+  padding: 12px 14px 14px;
+  width: min(100%, 520px);
 }
 
 .event-card-caps-panel h2 {
@@ -3379,7 +3398,8 @@ body.lineup-force-mobile .lineup-player-game {
 
 .event-card-caps-table tr {
   display: grid;
-  grid-template-columns: 54px minmax(0, 1fr) 54px;
+  grid-template-columns: repeat(4, 45px 45px);
+  justify-content: center;
 }
 
 .event-card-caps-table td,
@@ -3389,16 +3409,16 @@ body.lineup-force-mobile .lineup-player-game {
   border: 2px solid #000000;
   color: #111111;
   display: flex;
-  font-size: clamp(17px, 1.35vw, 22px);
+  font-size: clamp(16px, 1.35vw, 21px);
   font-weight: 800;
   justify-content: center;
-  min-height: 44px;
-  padding: 4px 8px;
+  min-height: 42px;
+  padding: 2px 5px;
 }
 
 .event-card-caps-table th {
-  justify-content: flex-start;
-  text-align: left;
+  justify-content: center;
+  text-align: center;
   text-transform: uppercase;
 }
 

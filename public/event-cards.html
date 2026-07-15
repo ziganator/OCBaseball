@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/styles.css?v=20260714p">
+    <link rel="stylesheet" href="/styles.css?v=20260714q">
   </head>
   <body>
     <header class="site-header menu-header">
@@ -25,10 +25,27 @@
     </header>
 
     <main class="event-card-page">
+      <section class="event-card-title-banner" aria-label="Event Cards">
+        <span>Event</span>
+        <img src="/assets/EventCards/oc-card-back.png" alt="Owners Club event card">
+        <span>Cards</span>
+      </section>
+
       <section class="event-card-hero" aria-label="Owners Club Event Cards">
         <div class="event-card-rules-copy">
+          <h1>The Commissioners Ruling On Any Play Of An Event Card Is Valid And Final</h1>
+          <p class="event-rule-centered">Check the upper right-hand corner of the Event Card to see when it can be legally played.</p>
+          <p><strong class="event-rule-red">HITTER</strong> (red) cards reward you for playing them. For playing a HITTER card, an Owner randomly gets a number from -1 to 2 to add to their current Race total.</p>
+          <p><strong class="event-rule-blue">DEFENSE</strong> (blue) cards affect other cards that have been played. DEFENSE cards must be played within a reasonable time (around 12 hours) of being notified on the Event Card thread that an Event Card has been played. If a DEFENSE card is played on another DEFENSE card, the most recent play is the first to take effect.</p>
+          <p><strong class="event-rule-gold">POWER</strong> (gold) cards grant a permanent, reusable benefit that lasts until the power is removed or if another Owner successfully plays the same card. Only one Owner may possess an individual POWER at a given time, although an Owner may possess two or more different POWERS.</p>
+          <p>Any card that requires a sacrifice or removal of contract years may only take a contract down to zero at the most. A Lifetime Contract may not be targeted in these circumstances.</p>
+          <p>A player with a <strong class="event-rule-red">Guaranteed</strong> Contract may not be traded or dropped by the Owner of that player until his contract expires or the player retires. He MUST be declared as a held player in the off-season.</p>
+          <p>The number of years on the <strong class="event-rule-red">Guaranteed</strong> Contract may be affected by other cards.</p>
+          <p>An Owner that is forced to discard more cards than currently held will still owe those cards through future earnings.</p>
+          <p>If a card states that an Owner may choose contracts or cards to lose, that Owner has 24 hours to notify the Commissioner of their choice. If that Owner fails to do so in the allotted time, the lost contracts and/or cards are determined randomly.</p>
+          <p>Likewise if an Owner receives contract years, that Owner has 24 hours to make any relevant choices known to the Commissioner or the contract years will be lost.</p>
           <p>Event Cards awarded to an Owner that exceed their Card Cap total will be lost.</p>
-          <p>At any time, an Owner may sacrifice three of NON-HITTER cards that they possess in order to draw one card.</p>
+          <p class="event-rule-centered">At any time, an Owner may sacrifice three of NON-HITTER cards that they possess in order to draw one card.</p>
         </div>
 
         <div class="event-card-control-grid">
@@ -41,13 +58,7 @@
 
           <section class="event-card-panel event-card-type-panel" aria-labelledby="card-types-title">
             <h2 id="card-types-title">Card Types</h2>
-            <ul class="event-card-type-list">
-              <li><span class="event-card-dot is-common"></span><b>Common:</b> 8 or more of these cards in the deck</li>
-              <li><span class="event-card-dot is-uncommon"></span><b>Uncommon:</b> 4 to 7 of these cards in the deck</li>
-              <li><span class="event-card-dot is-rare"></span><b>Rare:</b> Only 3 of these cards in the deck</li>
-              <li><span class="event-card-dot is-epic"></span><b>Epic:</b> Only 2 of these cards in the deck</li>
-              <li><span class="event-card-dot is-legendary"></span><b>Legendary:</b> Only 1 of these cards in the deck</li>
-            </ul>
+            <img class="event-card-types-image" src="/assets/EventCards/card-types.png" alt="Common, uncommon, rare, epic, and legendary card type counts">
           </section>
 
           <div class="event-card-action-slot">
@@ -104,6 +115,32 @@
         "The Eye",
         "The Kingfish",
         "Voltron"
+      ];
+      const eventCardCapGrid = [
+        [
+          { slug: "arizona-diablos", cap: 18 },
+          { slug: "portland-hopheads", cap: 17 },
+          { slug: "houston-hackers", cap: 15 },
+          { slug: "chicago-rogues", cap: 19 }
+        ],
+        [
+          { slug: "atlanta-anacondas", cap: 17 },
+          { slug: "hartford-dark-blues", cap: 18 },
+          { slug: "california-leopards", cap: 16 },
+          { slug: "seattle-slayers", cap: 14 }
+        ],
+        [
+          { slug: "pittsburgh-bombers", cap: 18 },
+          { slug: "albuquerque-hermanos", cap: 20 },
+          { slug: "philadelphia-peregrines", cap: 17 },
+          { slug: "san-francisco-spiders", cap: 17 }
+        ],
+        [
+          { slug: "baltimore-cobras", cap: 20 },
+          { slug: "cleveland-highlanders", cap: 17 },
+          { slug: "indiana-raiders", cap: 16 },
+          { slug: "toronto-vixens", cap: 16 }
+        ]
       ];
       let eventTeams = seedTeams.map((team) => displayTeam(team));
 
@@ -309,16 +346,17 @@
         }
         eventPowerTable.innerHTML = holderRows.join("");
 
-        const capTeams = eventTeams
-          .filter((team) => team.eventCardCap)
-          .sort((a, b) => a.name.localeCompare(b.name));
-        eventCardCapsTable.innerHTML = capTeams.length ? capTeams.map((team) => `
+        eventCardCapsTable.innerHTML = eventCardCapGrid.map((row) => `
           <tr>
-            <td>${capCell(team)}</td>
-            <th>${escapeHtml(team.name)}</th>
-            <td>${escapeHtml(team.eventCardCap)}</td>
+            ${row.map((item) => {
+              const team = eventTeams.find((candidate) => candidate.slug === item.slug);
+              return `
+                <td>${capCell(team)}</td>
+                <th>${escapeHtml(item.cap)}</th>
+              `;
+            }).join("")}
           </tr>
-        `).join("") : `<tr><td colspan="3">Event card caps have not been assigned.</td></tr>`;
+        `).join("");
       }
 
       async function loadPublishedTeamData() {
