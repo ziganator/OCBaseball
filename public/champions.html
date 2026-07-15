@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Champions - Owners Club Baseball</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css?v=20260714l">
+  </head>
+  <body>
+    <header class="site-header menu-header">
+      <div class="header-inner">
+        <a class="header-logo" href="/" aria-label="Owners Club Baseball home"><img src="/assets/OC%20Icon.png" alt=""></a>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="/">Season</a>
+          <a href="/games.html">Games</a>
+          <a href="/teams.html">Teams</a>
+          <a href="/event-cards.html">Event Cards</a>
+          <a href="/archives.html" aria-current="page">Archives</a>
+          <a href="/admin.html">Admin</a>
+        </nav>
+      </div>
+    </header>
+    <main class="archive-shell legacy-hall-shell">
+      <section class="legacy-hall-hero champions-hero">
+        <img src="https://ownersclubbaseball.com/wp-content/uploads/2025/05/OC-Header-1024x791.jpg" alt="">
+        <div>
+          <span class="section-kicker">Owners Club Baseball</span>
+          <h1>Hall of Champions</h1>
+        </div>
+      </section>
+      <section class="legacy-grid legacy-grid-champions" id="championsGrid" aria-label="Hall of Champions"></section>
+    </main>
+    <footer class="site-footer">
+      <a class="footer-logo" href="/" aria-label="Owners Club Baseball home"><img src="/assets/OC%20Icon.png" alt=""></a>
+      <span>Owners Club Baseball ALL RIGHTS RESERVED &reg;</span>
+    </footer>
+    <script>
+      const championImages = {
+        "BALTIMORE COBRAS": "https://ownersclubbaseball.com/wp-content/uploads/2026/03/BAL-C-Sologo2-1024x1024.jpg",
+        "CALIFORNIA LEOPARDS": "https://ownersclubbaseball.com/wp-content/uploads/2025/05/California-Leopards-1024x1024.jpg",
+        "CHICAGO BANDITS": "https://ownersclubbaseball.com/wp-content/uploads/2025/05/Chicago-Bandits-1024x1024.jpg",
+        "CHICAGO ROGUES": "https://ownersclubbaseball.com/wp-content/uploads/2026/03/CHI-R-Sologo-1024x1024.jpg",
+        "CLEVELAND OWLS": "https://ownersclubbaseball.com/wp-content/uploads/2025/05/Cleveland-Owls-1024x1024.jpg",
+        "DALLAS GHOSTS": "https://ownersclubbaseball.com/wp-content/uploads/2025/05/Dallas-Ghosts-1024x1024.jpg",
+        "DETROIT MUD HENS": "https://ownersclubbaseball.com/wp-content/uploads/2025/05/Detroit-Mud-Hens-1024x1024.jpg",
+        "HOUSTON HACKERS": "https://ownersclubbaseball.com/wp-content/uploads/2025/05/Houston-Hackers-1024x1024.jpg",
+        "KANSAS CITY MINERS": "https://ownersclubbaseball.com/wp-content/uploads/2025/05/Kansas-City-Miners-1024x1024.jpg",
+        "LOS ANGELES DIABLOS": "https://ownersclubbaseball.com/wp-content/uploads/2025/05/Los-Angeles-Diablos-1024x1024.jpg",
+        "LOS ANGELES SPARTANS": "https://ownersclubbaseball.com/wp-content/uploads/2025/05/Los-Angeles-Spartans-1024x1024.jpg",
+        "MONTREAL WOLVERINES": "https://ownersclubbaseball.com/wp-content/uploads/2025/05/Montreal-Wolverines-1024x1024.jpg",
+        "NEW YORK BROWNCOATS": "https://ownersclubbaseball.com/wp-content/uploads/2025/05/New-York-Browncoats-1024x1024.jpg",
+        "PHOENIX SCORPIONS": "https://ownersclubbaseball.com/wp-content/uploads/2025/05/Phoenix-Scorpions-1024x1024.jpg",
+        "PITTSBURGH BOMBERS": "https://ownersclubbaseball.com/wp-content/uploads/2025/05/Pittsburgh-Bombers-1024x1024.jpg",
+        "SAN DIEGO APOCALYPSE": "https://ownersclubbaseball.com/wp-content/uploads/2025/05/San-Diego-Apocalypse-1024x1024.jpg",
+        "SAN FRANCISCO DEMENTORS": "https://ownersclubbaseball.com/wp-content/uploads/2025/05/San-Francisco-Dementors-1024x1024.jpg",
+        "ST. LOUIS THIRTEENS": "https://ownersclubbaseball.com/wp-content/uploads/2025/05/St.-Louis-Thirteens-1024x1024.jpg",
+        "WINNIPEG STORMCLOAKS": "https://ownersclubbaseball.com/wp-content/uploads/2025/05/Winnipeg-Stormcloaks-1024x1024.jpg"
+      };
+
+      const champions = [
+        ["31N", "CHICAGO ROGUES", "ANDREW SING"],
+        ["31A", "BALTIMORE COBRAS", "APURVA MEHTA"],
+        ["30N", "MONTREAL WOLVERINES", "JORGE MONTAÑEZ"],
+        ["30A", "LOS ANGELES SPARTANS", "DEREK NGUYEN"],
+        ["29N", "PHOENIX SCORPIONS", "JOSH SCHILLING"],
+        ["29A", "PITTSBURGH BOMBERS", "JAKE DORAME"],
+        ["28N", "KANSAS CITY MINERS", "VICTOR YOUNG"],
+        ["28A", "LOS ANGELES SPARTANS", "DEREK NGUYEN"],
+        ["27", "KANSAS CITY MINERS", "VICTOR YOUNG"],
+        ["L1", "LOS ANGELES DIABLOS", "BRENT ANDREW"],
+        ["26", "CALIFORNIA LEOPARDS", "KYLE LEOPARD"],
+        ["C1", "SAN DIEGO APOCALYPSE", "MIKE ANDREW"],
+        ["25", "HOUSTON HACKERS", "AARON MEYLE"],
+        ["24", "CALIFORNIA LEOPARDS", "KYLE LEOPARD"],
+        ["23", "SAN DIEGO APOCALYPSE", "MIKE ANDREW"],
+        ["22", "PHOENIX SCORPIONS", "JOSH SCHILLING"],
+        ["21", "ST. LOUIS THIRTEENS", "JASON HARGROVE"],
+        ["20", "PHOENIX SCORPIONS", "JOSH SCHILLING"],
+        ["19", "CHICAGO BANDITS", "BRENT ANDREW"],
+        ["18", "PHOENIX SCORPIONS", "JOSH SCHILLING"],
+        ["17", "WINNIPEG STORMCLOAKS", "PABLO LOPEZ"],
+        ["16", "DALLAS GHOSTS", "DENNIS MORRIS"],
+        ["15N", "SAN FRANCISCO DEMENTORS", "JON AGUADO"],
+        ["15A", "NEW YORK BROWNCOATS", "JASON SUTTON"],
+        ["14", "WINNIPEG STORMCLOAKS", "PABLO LOPEZ"],
+        ["13", "WINNIPEG STORMCLOAKS", "PABLO LOPEZ"],
+        ["12", "PHOENIX SCORPIONS", "JOSH SCHILLING"],
+        ["11", "PHOENIX SCORPIONS", "JOSH SCHILLING"],
+        ["10", "PHOENIX SCORPIONS", "JOSH SCHILLING"],
+        ["9", "PHOENIX SCORPIONS", "JOSH SCHILLING"],
+        ["8", "CHICAGO BANDITS", "BRENT ANDREW"],
+        ["7", "PHOENIX SCORPIONS", "JOSH SCHILLING"],
+        ["6", "PHOENIX SCORPIONS", "JOSH SCHILLING"],
+        ["5", "PHOENIX SCORPIONS", "JOSH SCHILLING"],
+        ["4", "PHOENIX SCORPIONS", "JOSH SCHILLING"],
+        ["3", "PHOENIX SCORPIONS", "JOSH SCHILLING"],
+        ["2", "DETROIT MUD HENS", "BOB FULKERSON"],
+        ["1", "CLEVELAND OWLS", "MIKE HARVEY"]
+      ];
+
+      document.getElementById("championsGrid").innerHTML = champions.map(([season, team, owner]) => `
+        <article class="legacy-card champion-card">
+          <div class="legacy-season">${season}</div>
+          <img src="${championImages[team] || ""}" alt="${team}" loading="lazy">
+          <h2>${team}</h2>
+          <p>${owner}</p>
+        </article>
+      `).join("");
+    </script>
+  </body>
+</html>

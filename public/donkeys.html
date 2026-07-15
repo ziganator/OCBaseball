@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hall of Donkeys - Owners Club Baseball</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css?v=20260714l">
+  </head>
+  <body>
+    <header class="site-header menu-header">
+      <div class="header-inner">
+        <a class="header-logo" href="/" aria-label="Owners Club Baseball home"><img src="/assets/OC%20Icon.png" alt=""></a>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="/">Season</a>
+          <a href="/games.html">Games</a>
+          <a href="/teams.html">Teams</a>
+          <a href="/event-cards.html">Event Cards</a>
+          <a href="/archives.html" aria-current="page">Archives</a>
+          <a href="/admin.html">Admin</a>
+        </nav>
+      </div>
+    </header>
+    <main class="archive-shell legacy-hall-shell">
+      <section class="legacy-hall-hero donkey-hero">
+        <img src="https://ownersclubbaseball.com/wp-content/uploads/2025/05/DONK-Sologo-1024x1024.jpg" alt="">
+        <div>
+          <span class="section-kicker">Owners Club Baseball</span>
+          <h1>Hall of Donkeys</h1>
+        </div>
+      </section>
+      <section class="legacy-grid donkey-grid" id="donkeysGrid" aria-label="Hall of Donkeys"></section>
+    </main>
+    <footer class="site-footer">
+      <a class="footer-logo" href="/" aria-label="Owners Club Baseball home"><img src="/assets/OC%20Icon.png" alt=""></a>
+      <span>Owners Club Baseball ALL RIGHTS RESERVED &reg;</span>
+    </footer>
+    <script>
+      const donkeyBanner = "https://ownersclubbaseball.com/wp-content/uploads/2025/05/DONK-Banner-1024x722.jpg";
+      const donkeys = [
+        ["31N", "NEW YORK CAPTAINS", "SAM HUMPHREY"],
+        ["31A", "KANSAS CITY MINERS", "VICTOR YOUNG"],
+        ["30N", "NEW YORK CAPTAINS", "SAM HUMPHREY"],
+        ["30A", "LONG BEACH TRES EQUIS", "JUAN SEVILLA"],
+        ["29N", "BALTIMORE COBRAS", "APURVA MEHTA"],
+        ["29A", "PORTLAND HOPHEADS", "JAMESON DAVIS"],
+        ["28N", "COLORADO CRUSADERS", "DUSTIN JIZMEJIAN"],
+        ["28A", "ORLANDO UCHIHA", "DAVONTAE RANDOLPH"],
+        ["27", "LAS VEGAS GUNSLINGERS", "DAVID SCHMITT"],
+        ["L1", "SAN DIEGO APOCALYPSE", "MIKE ANDREW"],
+        ["26", "HOUSTON HACKERS", "AARON MEYLE"],
+        ["C1", "ANAHEIM COBRAS", "APURVA MEHTA"],
+        ["25", "ST. LOUIS THIRTEENS", "JASON HARGROVE"],
+        ["24", "HOUSTON HACKERS", "AARON MEYLE"],
+        ["23", "LOS ANGELES GREAT WHITES", "ALAN MOORE"],
+        ["22", "LOS ANGELES STORMCLOAKS", "PABLO LOPEZ"],
+        ["21", "CALIFORNIA LEOPARDS", "KYLE LEOPARD"],
+        ["20", "NEW YORK KNIGHTS", "MIKE CARRANZA"],
+        ["19", "SPRINGFIELD ISOTOPES", "JESSE SEILHAN"],
+        ["18", "COLORADO CRUSADERS", "DUSTIN JIZMEJIAN"],
+        ["17", "COLORADO CRUSADERS", "DUSTIN JIZMEJIAN"],
+        ["16", "COLORADO CRUSADERS", "DUSTIN JIZMEJIAN"],
+        ["15N", "MONTREAL MONSTERS", "ANTQUAN WASHINGTON"],
+        ["15A", "TEXAS SHERIFFS", "JUSTIN HICKS"],
+        ["14", "SAN JOSE MONARCHS", "JULIAN SANTIBANEZ"],
+        ["13", "DALLAS GHOSTS", "DENNIS MORRIS"],
+        ["12", "PORTLAND BOLTS", "JACKSON PEREZ"],
+        ["11", "CHICAGO BANDITS", "BRENT ANDREW"],
+        ["10", "CALIFORNIA LEOPARDS", "KYLE LEOPARD"],
+        ["9", "HOUSTON HACKERS", "AARON MEYLE"],
+        ["8", "NEW YORK BROWNCOATS", "JASON SUTTON"],
+        ["7", "NEW YORK BROWNCOATS", "JASON SUTTON"],
+        ["6", "MILWAUKEE BEERS", "BERT SANCHEZ"],
+        ["5", "NASHVILLE PILOTS", "SCOTT MONTICELLI"],
+        ["4", "ANAHEIM BIG Os", "ED MORROW"],
+        ["3", "ST. LOUIS REDBIRDS", "DAVE BORZILLERI"],
+        ["2", "BUFFALO BUFFALOS", "RICHARD UNZUETA"],
+        ["1", "BUFFALO BUFFALOS", "RICHARD UNZUETA"]
+      ];
+
+      document.getElementById("donkeysGrid").innerHTML = donkeys.map(([season, team, owner]) => `
+        <article class="legacy-card donkey-card">
+          <div class="legacy-season">${season}</div>
+          <img src="${donkeyBanner}" alt="" loading="lazy">
+          <h2>${team}</h2>
+          <p>${owner}</p>
+        </article>
+      `).join("");
+    </script>
+  </body>
+</html>

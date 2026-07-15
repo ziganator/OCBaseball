@@ -2926,6 +2926,118 @@ body.lineup-force-mobile .lineup-player-game {
   text-align: center;
 }
 
+.legacy-hall-shell {
+  max-width: 1320px;
+}
+
+.legacy-hall-hero {
+  align-items: center;
+  border-bottom: 3px solid #b50000;
+  border-top: 3px solid #b50000;
+  display: grid;
+  gap: clamp(18px, 4vw, 48px);
+  grid-template-columns: auto 1fr;
+  margin-bottom: 32px;
+  padding: 24px 0;
+}
+
+.legacy-hall-hero img {
+  display: block;
+  height: clamp(106px, 16vw, 190px);
+  object-fit: contain;
+  width: clamp(106px, 16vw, 190px);
+}
+
+.legacy-hall-hero h1 {
+  font-size: clamp(42px, 7vw, 92px);
+  line-height: 0.95;
+}
+
+.legacy-grid {
+  display: grid;
+  gap: clamp(16px, 3vw, 28px);
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+}
+
+.legacy-card {
+  border: 1px solid #d8d8d8;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  min-height: 100%;
+  padding: 14px;
+  text-align: center;
+}
+
+.legacy-season {
+  background: #111111;
+  color: #ffffff;
+  font-family: "Oswald", Arial, sans-serif;
+  font-size: 31px;
+  font-weight: 700;
+  line-height: 1;
+  margin: -14px -14px 12px;
+  padding: 10px;
+}
+
+.legacy-card img {
+  align-self: center;
+  display: block;
+  height: 178px;
+  margin: 0 auto 13px;
+  max-width: 100%;
+  object-fit: contain;
+  width: 100%;
+}
+
+.legacy-card h2 {
+  color: #111111;
+  font-family: "Oswald", Arial, sans-serif;
+  font-size: 25px;
+  line-height: 1.05;
+  margin: 0 0 10px;
+  text-transform: uppercase;
+}
+
+.legacy-card p {
+  color: #b50000;
+  font-weight: 900;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.champion-card .legacy-season {
+  background: #284f82;
+}
+
+.donkey-hero {
+  border-color: #111111;
+}
+
+.donkey-card .legacy-season {
+  background: #5a342e;
+}
+
+.donkey-card img {
+  height: 142px;
+}
+
+.awards-shell {
+  max-width: 980px;
+}
+
+.awards-display {
+  margin: 34px auto 0;
+  text-align: center;
+}
+
+.awards-display img {
+  border: 1px solid #d0d0d0;
+  display: block;
+  height: auto;
+  margin: 0 auto;
+  max-width: min(100%, 760px);
+}
+
 @media (max-width: 860px) {
   .archive-quick-links {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2937,6 +3049,12 @@ body.lineup-force-mobile .lineup-player-game {
 
   .hof-grid {
     grid-template-columns: 1fr;
+  }
+
+  .legacy-hall-hero {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
   }
 
   .archive-cap-track a {
