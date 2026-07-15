@@ -3228,7 +3228,7 @@ body.lineup-force-mobile .lineup-player-game {
   gap: 42px;
   grid-template-columns: 1fr;
   margin: 0 auto;
-  max-width: 980px;
+  max-width: 920px;
   overflow: hidden;
   padding: 28px clamp(18px, 5vw, 72px) 32px;
 }
@@ -3236,8 +3236,8 @@ body.lineup-force-mobile .lineup-player-game {
 .event-card-rules-copy {
   color: #000000;
   display: grid;
-  gap: 26px;
-  font-size: clamp(16px, 1.1vw, 20px);
+  gap: 22px;
+  font-size: clamp(14px, 1vw, 18px);
   font-weight: 800;
   line-height: 1.55;
   text-align: left;
@@ -3246,7 +3246,7 @@ body.lineup-force-mobile .lineup-player-game {
 .event-card-rules-copy h1 {
   color: #d50000;
   font-family: "Open Sans", Arial, sans-serif;
-  font-size: clamp(22px, 2.1vw, 32px);
+  font-size: clamp(20px, 1.9vw, 28px);
   font-weight: 800;
   letter-spacing: 0;
   line-height: 1.15;
@@ -3279,9 +3279,16 @@ body.lineup-force-mobile .lineup-player-game {
   align-items: start;
   display: grid;
   gap: 28px clamp(26px, 4vw, 54px);
-  grid-template-columns: minmax(240px, 330px) minmax(300px, 416px);
+  grid-template-columns: 330px 416px;
   justify-content: center;
+  max-width: 810px;
   width: 100%;
+}
+
+.event-power-panel {
+  justify-self: end;
+  overflow: hidden;
+  width: 330px;
 }
 
 .event-card-panel h2 {
@@ -3309,7 +3316,16 @@ body.lineup-force-mobile .lineup-player-game {
   background: #000000;
   border: 6px solid #000000;
   border-collapse: collapse;
-  width: 100%;
+  table-layout: fixed;
+  width: 330px;
+}
+
+.event-power-name-col {
+  width: 138px;
+}
+
+.event-power-cap-col {
+  width: 27px;
 }
 
 .event-power-table th,
@@ -3325,14 +3341,15 @@ body.lineup-force-mobile .lineup-player-game {
   font-family: "Oswald", Arial, sans-serif;
   font-size: clamp(13px, 1.2vw, 16px);
   font-weight: 700;
-  text-align: right;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
   text-transform: uppercase;
-  width: 38%;
+  white-space: nowrap;
 }
 
 .event-power-table td {
   text-align: center;
-  width: 12%;
 }
 
 .event-power-table img {
@@ -3415,7 +3432,7 @@ body.lineup-force-mobile .lineup-player-game {
 
 .event-card-caps-grid {
   display: grid;
-  grid-template-columns: repeat(8, 43px);
+  grid-template-columns: repeat(8, 41px);
   justify-content: end;
 }
 
@@ -3430,16 +3447,16 @@ body.lineup-force-mobile .lineup-player-game {
   font-size: 20px;
   font-weight: 800;
   justify-content: center;
-  height: 43px;
+  height: 41px;
   padding: 0;
-  width: 43px;
+  width: 41px;
 }
 
 .event-card-cap-logo img {
   display: block;
-  height: 39px;
+  height: 37px;
   object-fit: contain;
-  width: 39px;
+  width: 37px;
 }
 
 .event-card-gallery-shell {

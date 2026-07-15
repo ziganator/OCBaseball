@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/styles.css?v=20260714r">
+    <link rel="stylesheet" href="/styles.css?v=20260714s">
   </head>
   <body>
     <header class="site-header menu-header">
@@ -55,6 +55,12 @@
           <section class="event-card-panel event-power-panel" aria-labelledby="power-holders-title">
             <h2 id="power-holders-title">Power Holders</h2>
             <table class="event-power-table">
+              <colgroup>
+                <col class="event-power-name-col">
+                <col class="event-power-cap-col">
+                <col class="event-power-name-col">
+                <col class="event-power-cap-col">
+              </colgroup>
               <tbody id="eventPowerTable"></tbody>
             </table>
           </section>
@@ -79,10 +85,6 @@
       </section>
 
       <section class="event-card-gallery-shell">
-        <div class="archive-title event-card-title">
-          <span class="section-kicker">Owners Club Baseball</span>
-          <h1>Event Cards</h1>
-        </div>
         <div id="eventCardGrid" class="event-card-grid" aria-label="Event card gallery"></div>
       </section>
     </main>
@@ -119,28 +121,28 @@
       ];
       const eventCardCapGrid = [
         [
-          { slug: "arizona-diablos", cap: 18 },
-          { slug: "portland-hopheads", cap: 17 },
-          { slug: "houston-hackers", cap: 15 },
-          { slug: "chicago-rogues", cap: 19 }
+          "arizona-diablos",
+          "portland-hopheads",
+          "houston-hackers",
+          "chicago-rogues"
         ],
         [
-          { slug: "atlanta-anacondas", cap: 17 },
-          { slug: "hartford-dark-blues", cap: 18 },
-          { slug: "california-leopards", cap: 16 },
-          { slug: "seattle-slayers", cap: 14 }
+          "atlanta-anacondas",
+          "hartford-dark-blues",
+          "california-leopards",
+          "seattle-slayers"
         ],
         [
-          { slug: "pittsburgh-bombers", cap: 18 },
-          { slug: "albuquerque-hermanos", cap: 20 },
-          { slug: "philadelphia-peregrines", cap: 17 },
-          { slug: "san-francisco-spiders", cap: 17 }
+          "pittsburgh-bombers",
+          "albuquerque-hermanos",
+          "philadelphia-peregrines",
+          "san-francisco-spiders"
         ],
         [
-          { slug: "baltimore-cobras", cap: 20 },
-          { slug: "cleveland-highlanders", cap: 17 },
-          { slug: "indiana-raiders", cap: 16 },
-          { slug: "toronto-vixens", cap: 16 }
+          "baltimore-cobras",
+          "cleveland-highlanders",
+          "indiana-raiders",
+          "toronto-vixens"
         ]
       ];
       let eventTeams = seedTeams.map((team) => displayTeam(team));
@@ -349,11 +351,11 @@
         eventPowerTable.innerHTML = holderRows.join("");
 
         eventCardCapsTable.innerHTML = eventCardCapGrid.map((row) => `
-            ${row.map((item) => {
-              const team = eventTeams.find((candidate) => candidate.slug === item.slug);
+            ${row.map((slug) => {
+              const team = eventTeams.find((candidate) => candidate.slug === slug);
               return `
                 <div class="event-card-cap-logo">${capCell(team)}</div>
-                <div class="event-card-cap-number">${escapeHtml(item.cap)}</div>
+                <div class="event-card-cap-number">${escapeHtml(team?.eventCardCap || "")}</div>
               `;
             }).join("")}
         `).join("");
