@@ -143,26 +143,70 @@ function bestOfWeek(data) {
   const matchups = data?.matchups || [];
   const players = data?.players || [];
   const leagueByMatchup = new Map(matchups.map((matchup) => [matchup.matchup_key, matchup.league_code]));
+  const teamMetrics = weeklyTeamMetrics(data);
 
   return ["keystone", "diamond"].map((league) => ({
     key: league,
-    topTeam: topTeamOfWeek(matchups, league),
-    topHitter: topPlayersOfWeek(players, leagueByMatchup, league, (row) => !["SP", "RP"].includes(String(row.roster_slot || "").toUpperCase())),
-    topStarter: topPlayersOfWeek(players, leagueByMatchup, league, (row) => String(row.roster_slot || "").toUpperCase() === "SP"),
-    topReliever: topPlayersOfWeek(players, leagueByMatchup, league, (row) => String(row.roster_slot || "").toUpperCase() === "RP")
+    topTeam: topTeamOfWeek(matchups, teamMetrics, league),
+    topHitter: topPlayersOfWeek(players, teamMetrics, leagueByMatchup, league, (row) => !["SP", "RP"].includes(String(row.roster_slot || "").toUpperCase())),
+    topStarter: topPlayersOfWeek(players, teamMetrics, leagueByMatchup, league, (row) => String(row.roster_slot || "").toUpperCase() === "SP"),
+    topReliever: topPlayersOfWeek(players, teamMetrics, leagueByMatchup, league, (row) => String(row.roster_slot || "").toUpperCase() === "RP")
   })).filter((league) => league.topTeam || league.topHitter.length || league.topStarter.length || league.topReliever.length);
 }
 
-function topTeamOfWeek(matchups, league) {
-  const entries = [];
-  for (const matchup of matchups.filter((game) => game.league_code === league)) {
-    entries.push({ team: matchup.away_team_name, points: Number(matchup.away_score || 0) });
-    entries.push({ team: matchup.home_team_name, points: Number(matchup.home_score || 0) });
+function weeklyTeamMetrics(data) {
+  const metrics = new Map();
+  for (const matchup of data?.matchups || []) {
+    const awayScore = Number(matchup.away_score || 0);
+    const homeScore = Number(matchup.home_score || 0);
+    metrics.set(teamMetricKey(matchup.matchup_key, matchup.away_team_name), {
+      matchup: matchup.matchup_key,
+      team: matchup.away_team_name,
+      total: awayScore,
+      pitching: 0,
+      won: awayScore > homeScore
+    });
+    metrics.set(teamMetricKey(matchup.matchup_key, matchup.home_team_name), {
+      matchup: matchup.matchup_key,
+      team: matchup.home_team_name,
+      total: homeScore,
+      pitching: 0,
+      won: homeScore > awayScore
+    });
   }
-  return entries.sort((a, b) => b.points - a.points || a.team.localeCompare(b.team))[0] || null;
+
+  for (const row of data?.teams || []) {
+    const key = teamMetricKey(row.matchup_key, row.team_name);
+    const metric = metrics.get(key) || {
+      matchup: row.matchup_key,
+      team: row.team_name,
+      total: 0,
+      pitching: 0,
+      won: false
+    };
+    metric.pitching += Number(row.pitching_points || 0);
+    metrics.set(key, metric);
+  }
+
+  return metrics;
 }
 
-function topPlayersOfWeek(players, leagueByMatchup, league, predicate) {
+function teamMetricKey(matchup, team) {
+  return `${matchup}|${normalizeTeam(team)}`;
+}
+
+function topTeamOfWeek(matchups, teamMetrics, league) {
+  const entries = [];
+  for (const matchup of matchups.filter((game) => game.league_code === league)) {
+    const awayMetric = teamMetrics.get(teamMetricKey(matchup.matchup_key, matchup.away_team_name));
+    const homeMetric = teamMetrics.get(teamMetricKey(matchup.matchup_key, matchup.home_team_name));
+    entries.push({ team: matchup.away_team_name, points: Number(matchup.away_score || 0), pitching: awayMetric?.pitching || 0 });
+    entries.push({ team: matchup.home_team_name, points: Number(matchup.home_score || 0), pitching: homeMetric?.pitching || 0 });
+  }
+  return entries.sort((a, b) => b.points - a.points || b.pitching - a.pitching || a.team.localeCompare(b.team))[0] || null;
+}
+
+function topPlayersOfWeek(players, teamMetrics, leagueByMatchup, league, predicate) {
   const totals = new Map();
   for (const row of players) {
     if (leagueByMatchup.get(row.matchup_key) !== league || !predicate(row)) continue;
@@ -171,7 +215,16 @@ function topPlayersOfWeek(players, leagueByMatchup, league, predicate) {
     const team = row.team_name || "";
     const slot = row.roster_slot || "";
     const key = `${name}|${team}|${slot}`;
-    const current = totals.get(key) || { name, team, slot, points: 0 };
+    const metric = teamMetrics.get(teamMetricKey(row.matchup_key, team));
+    const current = totals.get(key) || {
+      name,
+      team,
+      slot,
+      points: 0,
+      teamTotal: metric?.total || 0,
+      teamPitching: metric?.pitching || 0,
+      teamWon: Boolean(metric?.won)
+    };
     current.points += Number(row.calculated_points || 0);
     totals.set(key, current);
   }
@@ -179,7 +232,21 @@ function topPlayersOfWeek(players, leagueByMatchup, league, predicate) {
     .sort((a, b) => b.points - a.points || a.name.localeCompare(b.name));
   const topScore = sorted[0]?.points;
   if (!Number.isFinite(topScore)) return [];
-  return sorted.filter((entry) => entry.points === topScore);
+  return resolvePlayerAwardTies(sorted.filter((entry) => entry.points === topScore));
+}
+
+function resolvePlayerAwardTies(entries) {
+  let tied = entries;
+  const winningTeamEntries = tied.filter((entry) => entry.teamWon);
+  if (winningTeamEntries.length) tied = winningTeamEntries;
+
+  const topPitching = Math.max(...tied.map((entry) => Number(entry.teamPitching || 0)));
+  tied = tied.filter((entry) => Number(entry.teamPitching || 0) === topPitching);
+
+  const topTotal = Math.max(...tied.map((entry) => Number(entry.teamTotal || 0)));
+  tied = tied.filter((entry) => Number(entry.teamTotal || 0) === topTotal);
+
+  return tied.sort((a, b) => a.name.localeCompare(b.name));
 }
 
 function bestTeamPanel(league) {
