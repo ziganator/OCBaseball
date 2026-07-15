@@ -3237,7 +3237,7 @@ body.lineup-force-mobile .lineup-player-game {
   color: #000000;
   display: grid;
   gap: 22px;
-  font-size: clamp(14px, 1vw, 18px);
+  font-size: clamp(13px, 0.95vw, 16px);
   font-weight: 800;
   line-height: 1.55;
   text-align: left;
@@ -3246,7 +3246,7 @@ body.lineup-force-mobile .lineup-player-game {
 .event-card-rules-copy h1 {
   color: #d50000;
   font-family: "Open Sans", Arial, sans-serif;
-  font-size: clamp(20px, 1.9vw, 28px);
+  font-size: clamp(18px, 1.7vw, 26px);
   font-weight: 800;
   letter-spacing: 0;
   line-height: 1.15;
@@ -3316,6 +3316,7 @@ body.lineup-force-mobile .lineup-player-game {
   background: #000000;
   border: 6px solid #000000;
   border-collapse: collapse;
+  min-width: 0;
   table-layout: fixed;
   width: 330px;
 }
