@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/styles.css?v=20260715e">
+    <link rel="stylesheet" href="/styles.css?v=20260715g">
   </head>
   <body>
     <header class="site-header menu-header">
@@ -55,15 +55,7 @@
           <div class="event-card-tables-row">
             <section class="event-card-panel event-power-panel" aria-labelledby="power-holders-title">
               <h2 id="power-holders-title">Power Holders</h2>
-              <table class="event-power-table">
-                <colgroup>
-                  <col class="event-power-name-col">
-                  <col class="event-power-cap-col">
-                  <col class="event-power-name-col">
-                  <col class="event-power-cap-col">
-                </colgroup>
-                <tbody id="eventPowerTable"></tbody>
-              </table>
+              <div id="eventPowerTable" class="event-power-grid"></div>
             </section>
 
             <section class="event-card-caps-panel" aria-labelledby="current-card-caps-title">
@@ -81,7 +73,7 @@
             </div>
           </div>
 
-          <section class="event-card-panel event-card-type-panel" aria-labelledby="card-types-title">
+          <section class="event-card-type-panel" aria-labelledby="card-types-title">
             <h2 id="card-types-title">Card Types</h2>
             <img class="event-card-types-image" src="/assets/EventCards/card-types.png" alt="Common, uncommon, rare, epic, and legendary card type counts">
           </section>
@@ -353,12 +345,10 @@
           const leftTeam = eligibleTeams.find((team) => team.power === leftPower);
           const rightTeam = eligibleTeams.find((team) => team.power === rightPower);
           holderRows.push(`
-            <tr>
-              <th>${escapeHtml(leftPower)}</th>
-              <td>${capCell(leftTeam)}</td>
-              <th>${rightPower ? escapeHtml(rightPower) : ""}</th>
-              <td>${capCell(rightTeam)}</td>
-            </tr>
+            <div class="event-power-name">${escapeHtml(leftPower)}</div>
+            <div class="event-power-cap">${capCell(leftTeam)}</div>
+            <div class="event-power-name">${rightPower ? escapeHtml(rightPower) : ""}</div>
+            <div class="event-power-cap">${capCell(rightTeam)}</div>
           `);
         }
         eventPowerTable.innerHTML = holderRows.join("");

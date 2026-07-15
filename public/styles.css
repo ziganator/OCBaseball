@@ -3282,7 +3282,8 @@ body.lineup-force-mobile .lineup-player-game {
   align-items: start;
   display: grid;
   gap: 28px;
-  justify-content: center;
+  grid-template-columns: minmax(0, 1fr);
+  justify-content: stretch;
   max-width: none;
   width: 100%;
 }
@@ -3292,8 +3293,9 @@ body.lineup-force-mobile .lineup-player-game {
   align-items: start;
   display: grid;
   gap: clamp(18px, 2vw, 26px);
-  grid-template-columns: 448px 500px;
+  grid-template-columns: minmax(420px, 0.88fr) minmax(540px, 1.12fr);
   justify-content: center;
+  max-width: 1480px;
   width: 100%;
 }
 
@@ -3318,6 +3320,7 @@ body.lineup-force-mobile .lineup-player-game {
   padding: 6px 10px 8px;
   text-align: center;
   text-transform: uppercase;
+  width: 100%;
 }
 
 .event-card-type-panel h2 {
@@ -3325,50 +3328,45 @@ body.lineup-force-mobile .lineup-player-game {
   position: absolute;
 }
 
-.event-power-table {
-  background: #000000;
+.event-power-grid {
   border: 3px solid #000000;
-  border-collapse: collapse;
   box-sizing: border-box;
-  min-width: 0;
-  table-layout: fixed;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 76px minmax(0, 1fr) 76px;
   width: 100%;
 }
 
-.event-power-name-col {
-  width: 164px;
-}
-
-.event-power-cap-col {
-  width: 60px;
-}
-
-.event-power-table th,
-.event-power-table td {
+.event-power-name,
+.event-power-cap {
+  align-items: center;
   background: #dedede;
   border: 2px solid #000000;
-  height: 46px;
-  padding: 2px 8px;
+  box-sizing: border-box;
+  display: flex;
+  height: 58px;
 }
 
-.event-power-table th {
+.event-power-name {
   color: #111111;
   font-family: "Oswald", Arial, sans-serif;
   font-size: clamp(13px, 1.2vw, 16px);
   font-weight: 700;
+  justify-content: flex-start;
   overflow: hidden;
+  padding: 2px 8px;
   text-align: left;
   text-overflow: ellipsis;
   text-transform: uppercase;
   white-space: nowrap;
 }
 
-.event-power-table td {
+.event-power-cap {
+  justify-content: center;
   padding: 0;
   text-align: center;
 }
 
-.event-power-table img {
+.event-power-cap img {
   display: block;
   height: 100%;
   margin: 0 auto;
@@ -3386,6 +3384,8 @@ body.lineup-force-mobile .lineup-player-game {
 
 .event-card-type-panel {
   justify-self: center;
+  max-width: min(520px, 100%);
+  width: 100%;
 }
 
 .event-card-action-slot {
@@ -3438,13 +3438,16 @@ body.lineup-force-mobile .lineup-player-game {
   background: #ffffff;
   color: #111111;
   justify-self: center;
+  min-width: 0;
   padding: 0;
+  width: 100%;
 }
 
 .event-card-caps-panel h2 {
   background: #d7a500;
   border: 3px solid #000000;
   border-bottom: 0;
+  box-sizing: border-box;
   color: #000000;
   font-family: "Oswald", Arial, sans-serif;
   font-size: clamp(20px, 2vw, 28px);
@@ -3454,14 +3457,14 @@ body.lineup-force-mobile .lineup-player-game {
   padding: 8px 12px 10px;
   text-align: center;
   text-transform: uppercase;
+  width: 100%;
 }
 
 .event-card-caps-grid {
   border: 3px solid #000000;
   box-sizing: border-box;
   display: grid;
-  grid-template-columns: repeat(4, 67px 50px);
-  justify-content: center;
+  grid-template-columns: repeat(4, minmax(0, 1.18fr) minmax(0, 0.82fr));
   width: 100%;
 }
 
@@ -3476,7 +3479,7 @@ body.lineup-force-mobile .lineup-player-game {
   font-size: 22px;
   font-weight: 800;
   justify-content: center;
-  height: 52px;
+  height: 62px;
   padding: 0;
   width: auto;
 }
@@ -3680,22 +3683,22 @@ body.lineup-force-mobile .lineup-player-game {
   }
 
   .event-power-panel,
-  .event-power-table {
+  .event-power-grid {
     max-width: 100%;
-    width: min(448px, 100%);
+    width: 100%;
   }
 
   .event-card-caps-panel,
   .event-card-caps-grid {
     max-width: 100%;
-    width: min(500px, 100%);
+    width: 100%;
   }
 
   .event-card-caps-grid {
-    grid-template-columns: repeat(4, minmax(42px, 67px) minmax(32px, 50px));
+    grid-template-columns: repeat(4, minmax(0, 1.18fr) minmax(0, 0.82fr));
   }
 
-  .event-power-table th {
+  .event-power-name {
     font-size: 16px;
   }
 
