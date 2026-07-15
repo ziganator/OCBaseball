@@ -3022,20 +3022,36 @@ body.lineup-force-mobile .lineup-player-game {
 }
 
 .awards-shell {
-  max-width: 980px;
+  max-width: 1420px;
 }
 
 .awards-display {
+  display: grid;
+  gap: 34px;
   margin: 34px auto 0;
   text-align: center;
 }
 
-.awards-display img {
+.award-tier {
   border: 1px solid #d0d0d0;
+  padding: clamp(12px, 2vw, 22px);
+}
+
+.award-tier h2 {
+  color: #b50000;
+  font-family: "Oswald", Arial, sans-serif;
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1;
+  margin: 0 0 16px;
+  text-transform: uppercase;
+}
+
+.awards-display img {
   display: block;
   height: auto;
   margin: 0 auto;
-  max-width: min(100%, 760px);
+  max-width: min(100%, 1180px);
+  width: 100%;
 }
 
 @media (max-width: 860px) {
