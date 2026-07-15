@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/styles.css?v=20260715i">
+    <link rel="stylesheet" href="/styles.css?v=20260715j">
   </head>
   <body>
     <header class="site-header menu-header">
@@ -335,6 +335,12 @@
         return eventTeams.filter((team) => team.league === "Keystone");
       }
 
+      function teamPowers(team) {
+        return Array.isArray(team?.powers)
+          ? team.powers
+          : [team?.power].filter(Boolean);
+      }
+
       function renderEventAssignments() {
         const eligibleTeams = cardEligibleTeams();
         const midpoint = Math.ceil(eventPowers.length / 2);
@@ -342,8 +348,8 @@
         for (let index = 0; index < midpoint; index += 1) {
           const leftPower = eventPowers[index];
           const rightPower = eventPowers[index + midpoint];
-          const leftTeam = eligibleTeams.find((team) => team.power === leftPower);
-          const rightTeam = eligibleTeams.find((team) => team.power === rightPower);
+          const leftTeam = eligibleTeams.find((team) => teamPowers(team).includes(leftPower));
+          const rightTeam = eligibleTeams.find((team) => teamPowers(team).includes(rightPower));
           holderRows.push(`
             <div class="event-power-name">${escapeHtml(leftPower)}</div>
             <div class="event-power-cap">${capCell(leftTeam)}</div>

@@ -134,9 +134,11 @@ function normalizeDraftState(draft) {
     if (String(team.eventCardCap || "").startsWith("Cap ")) {
       team.eventCardCap = String(team.eventCardCap).replace("Cap ", "");
     }
-    if (team.power && !next.powers.includes(team.power)) {
-      team.power = "";
-    }
+    const selectedPowers = Array.isArray(team.powers)
+      ? team.powers
+      : [team.power].filter(Boolean);
+    team.powers = [...new Set(selectedPowers)].filter((power) => next.powers.includes(power));
+    team.power = team.powers[0] || "";
     if (team.identityHistory && team.slug !== "new-york-donkeys") {
       delete team.identityHistory;
     }
@@ -170,6 +172,12 @@ function activeTeam() {
   return state.teams.find((team) => team.slug === activeSlug) || state.teams[0];
 }
 
+function teamPowers(team) {
+  return Array.isArray(team?.powers)
+    ? team.powers
+    : [team?.power].filter(Boolean);
+}
+
 function associateFavoriteWithActiveTeam(key = form.elements.favoriteTeam?.value || "") {
   const team = activeTeam();
   if (!team) return;
@@ -198,7 +206,9 @@ function syncCurrentTeamFromForm() {
   team.conference = data.get("conference");
   team.division = data.get("division").trim();
   associateFavoriteWithActiveTeam(data.get("favoriteTeam") || "");
-  team.power = data.get("power") || "";
+  const selectedPowers = data.getAll("powers").filter((power) => state.powers.includes(power));
+  team.powers = [...new Set(selectedPowers)];
+  team.power = team.powers[0] || "";
   team.eventCardCap = data.get("eventCardCap") || "";
   team.capImage = data.get("capImage").trim();
   team.listBanner = team.capImage || team.listBanner;
@@ -244,10 +254,9 @@ function renderSelectors() {
     ))
   ].join("");
 
-  powerSelect.innerHTML = [
-    `<option value="">No Power</option>`,
-    ...state.powers.map((power) => `<option value="${escapeHtml(power)}">${escapeHtml(power)}</option>`)
-  ].join("");
+  powerSelect.innerHTML = state.powers
+    .map((power) => `<option value="${escapeHtml(power)}">${escapeHtml(power)}</option>`)
+    .join("");
 
   eventCardCapSelect.innerHTML = [
     `<option value="">No Event Card Cap</option>`,
@@ -262,7 +271,7 @@ function renderAssignmentTables() {
   if (!powerHoldersTable || !eventCardCapsTable) return;
 
   powerHoldersTable.innerHTML = state.powers.map((power) => {
-    const team = state.teams.find((item) => item.power === power);
+    const team = state.teams.find((item) => teamPowers(item).includes(power));
     const renderedTeam = team ? displayTeam(team) : null;
     return `
       <tr>
@@ -304,7 +313,10 @@ function renderForm() {
   form.elements.conference.value = team.conference || "Red";
   form.elements.division.value = team.division || "";
   form.elements.favoriteTeam.value = team.favoriteTeam || "";
-  form.elements.power.value = team.power || "";
+  const selectedPowers = new Set(teamPowers(team));
+  [...powerSelect.options].forEach((option) => {
+    option.selected = selectedPowers.has(option.value);
+  });
   form.elements.eventCardCap.value = team.eventCardCap || "";
   form.elements.capImage.value = team.capImage || "";
   form.elements.logo.value = team.logo || "";
@@ -337,6 +349,7 @@ function addTeam() {
     logo: "",
     favoriteTeam: "",
     power: "",
+    powers: [],
     eventCardCap: "",
     flagsImage: "",
     featureImage: "",
