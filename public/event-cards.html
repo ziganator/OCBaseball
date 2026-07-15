@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/styles.css?v=20260715d">
+    <link rel="stylesheet" href="/styles.css?v=20260715e">
   </head>
   <body>
     <header class="site-header menu-header">
@@ -440,14 +440,26 @@
       loadPublishedTeamData();
 
       if ("IntersectionObserver" in window) {
+        let controlsVisible = false;
+        let pageHasScrolled = window.scrollY > 10;
+        const revealControls = () => {
+          if (!controlsVisible || !pageHasScrolled) return;
+          eventCardControls.classList.add("is-visible");
+          actionObserver.disconnect();
+          window.removeEventListener("scroll", handleFirstScroll);
+        };
+        const handleFirstScroll = () => {
+          pageHasScrolled = true;
+          revealControls();
+        };
         const actionObserver = new IntersectionObserver((entries) => {
           entries.forEach((entry) => {
-            if (!entry.isIntersecting) return;
-            eventCardControls.classList.add("is-visible");
-            actionObserver.disconnect();
+            controlsVisible = entry.isIntersecting;
+            revealControls();
           });
         }, { threshold: 0.35 });
         actionObserver.observe(eventCardControls);
+        window.addEventListener("scroll", handleFirstScroll, { passive: true });
       } else {
         eventCardControls.classList.add("is-visible");
       }

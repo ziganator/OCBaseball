@@ -3178,15 +3178,17 @@ body.lineup-force-mobile .lineup-player-game {
   align-items: center;
   border-bottom: 3px solid #b50000;
   border-top: 3px solid #b50000;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 12px;
   justify-content: center;
-  margin: 30px auto 0;
-  max-width: calc(100% - clamp(32px, 4vw, 64px));
+  margin: 30px 0 0;
+  max-width: none;
   min-height: 180px;
   overflow: visible;
   padding: 28px clamp(12px, 3vw, 32px);
+  width: 100%;
 }
 
 .event-card-title-kicker {
@@ -3228,9 +3230,10 @@ body.lineup-force-mobile .lineup-player-game {
   gap: 42px;
   grid-template-columns: 1fr;
   margin: 0 auto;
-  max-width: 1080px;
-  overflow: hidden;
-  padding: 28px clamp(18px, 5vw, 72px) 32px;
+  max-width: none;
+  overflow: visible;
+  padding: 28px clamp(10px, 1.5vw, 24px) 32px;
+  width: 100%;
 }
 
 .event-card-rules-copy {
@@ -3280,7 +3283,7 @@ body.lineup-force-mobile .lineup-player-game {
   display: grid;
   gap: 28px;
   justify-content: center;
-  max-width: 1100px;
+  max-width: none;
   width: 100%;
 }
 
@@ -3288,8 +3291,8 @@ body.lineup-force-mobile .lineup-player-game {
 .event-card-actions-row {
   align-items: start;
   display: grid;
-  gap: clamp(28px, 4vw, 46px);
-  grid-template-columns: 456px 560px;
+  gap: clamp(18px, 2vw, 26px);
+  grid-template-columns: 448px 500px;
   justify-content: center;
   width: 100%;
 }
@@ -3302,7 +3305,7 @@ body.lineup-force-mobile .lineup-player-game {
 
 .event-card-panel h2 {
   background: #d7a500;
-  border: 2px solid #000000;
+  border: 3px solid #000000;
   border-bottom: 0;
   box-sizing: border-box;
   color: #000000;
@@ -3324,7 +3327,7 @@ body.lineup-force-mobile .lineup-player-game {
 
 .event-power-table {
   background: #000000;
-  border: 6px solid #000000;
+  border: 3px solid #000000;
   border-collapse: collapse;
   box-sizing: border-box;
   min-width: 0;
@@ -3333,7 +3336,7 @@ body.lineup-force-mobile .lineup-player-game {
 }
 
 .event-power-name-col {
-  width: 168px;
+  width: 164px;
 }
 
 .event-power-cap-col {
@@ -3344,7 +3347,7 @@ body.lineup-force-mobile .lineup-player-game {
 .event-power-table td {
   background: #dedede;
   border: 2px solid #000000;
-  height: 44px;
+  height: 46px;
   padding: 2px 8px;
 }
 
@@ -3454,10 +3457,10 @@ body.lineup-force-mobile .lineup-player-game {
 }
 
 .event-card-caps-grid {
-  border: 6px solid #000000;
+  border: 3px solid #000000;
   box-sizing: border-box;
   display: grid;
-  grid-template-columns: repeat(4, 76px 54px);
+  grid-template-columns: repeat(4, 67px 50px);
   justify-content: center;
   width: 100%;
 }
@@ -3473,7 +3476,7 @@ body.lineup-force-mobile .lineup-player-game {
   font-size: 22px;
   font-weight: 800;
   justify-content: center;
-  height: 54px;
+  height: 52px;
   padding: 0;
   width: auto;
 }
@@ -3489,7 +3492,8 @@ body.lineup-force-mobile .lineup-player-game {
   background: #b50000;
   height: 3px;
   margin: 8px auto 0;
-  max-width: min(1260px, calc(100% - 48px));
+  max-width: none;
+  width: calc(100% - 24px);
 }
 
 .event-card-gallery-shell {
@@ -3678,17 +3682,17 @@ body.lineup-force-mobile .lineup-player-game {
   .event-power-panel,
   .event-power-table {
     max-width: 100%;
-    width: min(456px, 100%);
+    width: min(448px, 100%);
   }
 
   .event-card-caps-panel,
   .event-card-caps-grid {
     max-width: 100%;
-    width: min(532px, 100%);
+    width: min(500px, 100%);
   }
 
   .event-card-caps-grid {
-    grid-template-columns: repeat(4, minmax(46px, 76px) minmax(34px, 54px));
+    grid-template-columns: repeat(4, minmax(42px, 67px) minmax(32px, 50px));
   }
 
   .event-power-table th {
