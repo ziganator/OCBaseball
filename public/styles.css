@@ -1052,6 +1052,7 @@ h1 {
   font-size: 15px;
   font-weight: 900;
   line-height: 1.1;
+  padding: 6px 10px;
   text-transform: uppercase;
 }
 
@@ -1063,11 +1064,13 @@ h1 {
 }
 
 .best-team.is-keystone strong {
-  color: #1f66c2;
+  background: #1f66c2;
+  color: #ffffff;
 }
 
 .best-team.is-diamond strong {
-  color: #a90808;
+  background: #a90808;
+  color: #ffffff;
 }
 
 .best-week-rule {
@@ -1270,6 +1273,15 @@ h1 {
   font-size: 19px;
 }
 
+.game-scoreboard-table th:first-child,
+.game-scoreboard-table td:first-child,
+.game-scoreboard-table th:last-child,
+.game-scoreboard-table td:last-child {
+  text-align: center;
+  vertical-align: middle;
+  width: 72px;
+}
+
 .game-scoreboard-table tbody tr:last-child th,
 .game-scoreboard-table tbody tr:last-child td,
 .game-spreadsheet-score tbody tr:last-child th,
@@ -1376,6 +1388,15 @@ h1 {
   color: #111111;
   font-family: "Oswald", sans-serif;
   font-size: 18px;
+}
+
+.game-spreadsheet-score th:first-child,
+.game-spreadsheet-score td:first-child,
+.game-spreadsheet-score th:last-child,
+.game-spreadsheet-score td:last-child {
+  text-align: center;
+  vertical-align: middle;
+  width: 72px;
 }
 
 .game-spreadsheet-score.is-keystone thead th {
@@ -1520,12 +1541,30 @@ h1 {
   text-transform: uppercase;
 }
 
+.game-team-panel .lineup-table-wrap {
+  position: relative;
+}
+
+.game-team-panel .lineup-table-wrap::before {
+  background-image: var(--team-watermark);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: min(420px, 56%);
+  content: "";
+  inset: 22px;
+  opacity: 0.08;
+  pointer-events: none;
+  position: absolute;
+}
+
 .game-roster-table {
   border-bottom: 1px solid #222222;
   border-collapse: collapse;
   font-size: 12px;
   min-width: 760px;
+  position: relative;
   width: 100%;
+  z-index: 1;
 }
 
 .game-roster-table th,

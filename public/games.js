@@ -31,6 +31,10 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function escapeCssUrl(value) {
+  return String(value ?? "").replaceAll("\\", "\\\\").replaceAll("'", "\\'");
+}
+
 function formatPoints(value) {
   const number = Number(value);
   if (!Number.isFinite(number)) return "";
@@ -553,8 +557,9 @@ function summaryRow(team, side) {
 }
 
 function teamPanel(team, side = "") {
+  const logo = teamImage(team.team, "logo");
   return `
-    <section class="game-team-panel">
+    <section class="game-team-panel"${logo ? ` style="--team-watermark: url('${escapeCssUrl(logo)}')"` : ""}>
       <header>
         <h3><span>${escapeHtml(side)}</span>${escapeHtml(team.team)}</h3>
         <div><span>Stored ${formatPoints(team.summary.score)}</span></div>
