@@ -3295,6 +3295,7 @@ body.lineup-force-mobile .lineup-player-game {
   gap: clamp(18px, 2vw, 26px);
   grid-template-columns: minmax(360px, 0.88fr) minmax(470px, 1.12fr);
   justify-content: center;
+  justify-self: center;
   max-width: 1180px;
   width: 100%;
 }
@@ -3440,7 +3441,7 @@ body.lineup-force-mobile .lineup-player-game {
   justify-self: center;
   min-width: 0;
   padding: 0;
-  width: 100%;
+  width: max-content;
 }
 
 .event-card-caps-panel h2 {
@@ -3464,8 +3465,8 @@ body.lineup-force-mobile .lineup-player-game {
   border: 3px solid #000000;
   box-sizing: border-box;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1.18fr) minmax(0, 0.82fr));
-  width: 100%;
+  grid-template-columns: repeat(4, 78px 52px);
+  width: max-content;
 }
 
 .event-card-cap-logo,
@@ -3479,7 +3480,7 @@ body.lineup-force-mobile .lineup-player-game {
   font-size: 22px;
   font-weight: 800;
   justify-content: center;
-  height: 54px;
+  height: 56px;
   padding: 0;
   width: auto;
 }
