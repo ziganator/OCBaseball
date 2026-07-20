@@ -53,6 +53,8 @@ let rosterRows = [];
 let lineupByTeamSlug = new Map();
 let statsByPlayerId = new Map();
 let peopleByPlayerId = new Map();
+let gameByPlayerId = new Map();
+let statusByPlayerId = new Map();
 let newsArticles = null;
 let activePlayerLookup = null;
 let ownTeamIds = new Set();
@@ -102,6 +104,18 @@ function normalizeName(value) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
+}
+
+function normalizeMlbTeamAbbr(value) {
+  const text = String(value || "").toUpperCase();
+  const aliases = {
+    ARI: "AZ",
+    CHW: "CWS",
+    OAK: "ATH",
+    WAS: "WSH",
+    WSN: "WSH"
+  };
+  return aliases[text] || text;
 }
 
 function addDays(dateString, days) {
@@ -234,6 +248,7 @@ async function loadRosters() {
 }
 
 async function loadLineups() {
+  const teamNames = [...new Set(rosterRows.map((row) => row.team_name).filter(Boolean))];
   const { data, error } = await supabase
     .from("team_daily_lineups")
     .select("team_slug,lineup,lineup_date")
@@ -241,6 +256,54 @@ async function loadLineups() {
 
   if (error) throw error;
   lineupByTeamSlug = new Map((data || []).map((row) => [row.team_slug, row.lineup || {}]));
+  if (!teamNames.length) return;
+
+  const { data: scoreRows, error: scoreError } = await supabase
+    .from("game_player_daily_score_results")
+    .select("id,team_name,player_name,roster_slot,stat_date")
+    .eq("season_number", 32)
+    .eq("stat_date", state.date)
+    .in("team_name", teamNames)
+    .order("team_name", { ascending: true })
+    .order("id", { ascending: true });
+
+  if (!scoreError) mergeLineupsFromScoreRows(scoreRows || []);
+}
+
+function mergeLineupsFromScoreRows(scoreRows) {
+  const slotCountsByTeam = new Map();
+  for (const row of scoreRows) {
+    if (!row.team_name || !row.player_name || !row.roster_slot) continue;
+    const teamSlug = slugify(row.team_name);
+    const lineup = { ...(lineupByTeamSlug.get(teamSlug) || {}) };
+    const counts = slotCountsByTeam.get(teamSlug) || { OF: 0, SP: 0, RP: 0 };
+    const slot = scoreSlotToLineupSlot(row.roster_slot, counts);
+    if (!slot || lineup[slot]) {
+      slotCountsByTeam.set(teamSlug, counts);
+      continue;
+    }
+    lineup[slot] = slugify(row.player_name);
+    lineupByTeamSlug.set(teamSlug, lineup);
+    slotCountsByTeam.set(teamSlug, counts);
+  }
+}
+
+function scoreSlotToLineupSlot(value, counts) {
+  const slot = String(value || "").toUpperCase();
+  if (slot === "DH") return "UTIL";
+  if (slot === "OF") {
+    counts.OF += 1;
+    return `OF${Math.min(counts.OF, 3)}`;
+  }
+  if (slot === "SP") {
+    counts.SP += 1;
+    return `SP${Math.min(counts.SP, 4)}`;
+  }
+  if (slot === "RP") {
+    counts.RP += 1;
+    return `RP${Math.min(counts.RP, 2)}`;
+  }
+  return slotOrder[slot] ? slot : "";
 }
 
 async function useLatestLineupDateForCurrentLeague() {
@@ -256,7 +319,23 @@ async function useLatestLineupDateForCurrentLeague() {
     .maybeSingle();
 
   if (error) throw error;
-  if (data?.lineup_date) state.date = data.lineup_date;
+  if (data?.lineup_date) {
+    state.date = data.lineup_date;
+    return;
+  }
+
+  const teamNames = [...new Set(rosterRows.map((row) => row.team_name).filter(Boolean))];
+  const { data: scoreData, error: scoreError } = await supabase
+    .from("game_player_daily_score_results")
+    .select("stat_date")
+    .eq("season_number", 32)
+    .in("team_name", teamNames)
+    .order("stat_date", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (scoreError) throw scoreError;
+  if (scoreData?.stat_date) state.date = scoreData.stat_date;
 }
 
 async function loadActivePlayerLookup() {
@@ -298,6 +377,8 @@ function chunks(values, size) {
 async function loadStats() {
   statsByPlayerId = new Map();
   peopleByPlayerId = new Map();
+  gameByPlayerId = new Map();
+  statusByPlayerId = new Map();
   const idCache = await resolveMlbIds();
   const rowsByMlbId = new Map();
   for (const row of rosterRows) {
@@ -317,6 +398,140 @@ async function loadStats() {
       }
     }
   }
+
+  await loadRosterStatuses(idCache);
+  if (state.range === "day") await loadScheduleContext(idCache);
+}
+
+async function loadRosterStatuses(idCache) {
+  try {
+    const teamsData = await fetchJson(`${API_ROOT}/teams?sportId=1&season=${SEASON}`);
+    const teamByAbbr = new Map((teamsData.teams || []).map((team) => [teamAbbr(team), team.id]));
+    const rosterTeamIds = [
+      ...new Set(rosterRows
+        .map((row) => teamByAbbr.get(normalizeMlbTeamAbbr(row.mlb_team_abbreviation)))
+        .filter(Boolean))
+    ];
+    const rosters = await Promise.all(rosterTeamIds.map(async (teamId) => {
+      try {
+        const roster = await fetchJson(`${API_ROOT}/teams/${teamId}/roster?rosterType=40Man&hydrate=person`);
+        return roster.roster || [];
+      } catch {
+        return [];
+      }
+    }));
+    const statusByMlbId = new Map();
+    for (const rosterEntry of rosters.flat()) {
+      statusByMlbId.set(rosterEntry.person?.id, rosterEntry.status || null);
+    }
+    for (const row of rosterRows) {
+      statusByPlayerId.set(row.player_id, normalizePlayerStatus(statusByMlbId.get(Number(idCache[row.player_id]))));
+    }
+  } catch {
+    statusByPlayerId = new Map();
+  }
+}
+
+async function loadScheduleContext(idCache) {
+  try {
+    const data = await fetchJson(`${API_ROOT}/schedule?sportId=1&date=${state.date}&hydrate=probablePitcher,team,linescore`);
+    const games = data.dates?.[0]?.games || [];
+    const rosterTeams = new Set(rosterRows.map((row) => normalizeMlbTeamAbbr(row.mlb_team_abbreviation)).filter(Boolean));
+    const relevantGames = games.filter((game) => (
+      rosterTeams.has(teamAbbr(game.teams.away.team)) || rosterTeams.has(teamAbbr(game.teams.home.team))
+    ));
+    const boxscores = await Promise.all(relevantGames.map(async (game) => {
+      try {
+        return { game, boxscore: await fetchJson(`${API_ROOT}/game/${game.gamePk}/boxscore`) };
+      } catch {
+        return { game, boxscore: null };
+      }
+    }));
+
+    for (const row of rosterRows) {
+      const rowTeam = normalizeMlbTeamAbbr(row.mlb_team_abbreviation);
+      const gameBundle = boxscores.find(({ game }) => {
+        const away = teamAbbr(game.teams.away.team);
+        const home = teamAbbr(game.teams.home.team);
+        return away === rowTeam || home === rowTeam;
+      });
+      gameByPlayerId.set(row.player_id, gameBundle
+        ? playerGameContext(row, gameBundle.game, gameBundle.boxscore, Number(idCache[row.player_id]))
+        : null);
+    }
+  } catch {
+    gameByPlayerId = new Map();
+  }
+}
+
+function normalizePlayerStatus(status) {
+  if (!status) return "NA";
+  const code = String(status.code || "").toUpperCase();
+  const description = String(status.description || "");
+  const lowerDescription = description.toLowerCase();
+  if (code === "A" || lowerDescription === "active") return "";
+  if (code === "DTD" || lowerDescription.includes("day-to-day")) return "DTD";
+  if (lowerDescription.includes("injured") || /^D\d+/.test(code)) {
+    const days = code.match(/\d+/)?.[0];
+    return days ? `IL-${days}` : "IL";
+  }
+  if (["RM", "FA", "OUT"].includes(code) || lowerDescription.includes("reassigned")) return "NA";
+  return code || description;
+}
+
+function teamAbbr(team) {
+  return normalizeMlbTeamAbbr(team?.abbreviation || team?.fileCode || team?.name);
+}
+
+function playerGameContext(row, game, boxscore, mlbId) {
+  const away = teamAbbr(game.teams.away.team);
+  const home = teamAbbr(game.teams.home.team);
+  const rowTeam = normalizeMlbTeamAbbr(row.mlb_team_abbreviation);
+  const isHome = home === rowTeam;
+  const side = isHome ? "home" : "away";
+  const otherSide = isHome ? "away" : "home";
+  const opponent = isHome ? away : home;
+  const playerBox = boxscore?.teams?.[side]?.players?.[`ID${mlbId}`];
+  const playerStats = playerBox?.stats?.[playerType(row) === "pitcher" ? "pitching" : "batting"] || {};
+  const gameStarted = game.status?.abstractGameState !== "Preview";
+  const gameFinal = game.status?.abstractGameState === "Final";
+  const scoreMine = game.teams[side]?.score;
+  const scoreOpp = game.teams[otherSide]?.score;
+  const hasScore = Number.isFinite(scoreMine) && Number.isFinite(scoreOpp);
+  const result = hasScore && gameFinal ? `${scoreMine > scoreOpp ? "W" : "L"} ${scoreMine}-${scoreOpp}` : "";
+  const liveScore = hasScore && gameStarted && !gameFinal ? `${scoreMine}-${scoreOpp} ${inningLabel(game.linescore)}`.trim() : "";
+  const gameTime = new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" }).format(new Date(game.gameDate));
+  const battingOrder = playerBox?.battingOrder ? Math.floor(Number.parseInt(playerBox.battingOrder, 10) / 100) : null;
+  const probablePitcherId = game.teams[side]?.probablePitcher?.id;
+  const scheduledStarter = playerType(row) === "pitcher"
+    && positionsFor(row).includes("SP")
+    && probablePitcherId === mlbId;
+  const lineupReleased = Boolean(boxscore?.teams?.[side]?.batters?.length || playerBox?.battingOrder);
+  const lineupOut = playerType(row) === "hitter" && lineupReleased && !battingOrder;
+
+  return {
+    battingOrder,
+    decisions: pitcherDecisions(playerStats),
+    gameInProgress: gameStarted && !gameFinal,
+    lineupOut,
+    scheduledStarter,
+    line: gameStarted
+      ? `${result || liveScore || game.status?.detailedState || "In progress"} ${isHome ? "vs" : "@"} ${opponent}`
+      : `${gameTime} ${isHome ? "vs" : "@"} ${opponent}`
+  };
+}
+
+function inningLabel(linescore) {
+  if (!linescore?.currentInning) return "";
+  const half = linescore.isTopInning ? "Top" : "Bottom";
+  return `${half} ${linescore.currentInning}`;
+}
+
+function pitcherDecisions(stats) {
+  const decisions = [];
+  if (number(stats.wins)) decisions.push("W");
+  if (number(stats.saves)) decisions.push("SV");
+  return decisions;
 }
 
 function statGroup(person, group) {
@@ -410,6 +625,42 @@ function statCells(row) {
   return [...hitterValues, ...pitcherValues].map((value) => `<td class="lineup-stat-col">${escapeHtml(formatStatValue(value))}</td>`).join("");
 }
 
+function statSummary(row) {
+  const stats = statsByPlayerId.get(row.player_id) || {};
+  if (!Object.keys(stats).length) return "";
+  if (playerType(row) === "pitcher") {
+    return compactStats([
+      ["IP", formatInnings(stats.inningsPitchedPoints)],
+      ["W", stats.wins, state.range === "day"],
+      ["L", stats.losses, state.range === "day"],
+      ["SV", stats.saves, state.range === "day"],
+      ["HLD", stats.holds, state.range === "day"],
+      ["K", stats.strikeOuts]
+    ]);
+  }
+  return compactStats([
+    ["H/AB", `${number(stats.hits)}/${number(stats.atBats)}`, true],
+    ["R", stats.runs],
+    ["1B", stats.singles],
+    ["2B", stats.doubles],
+    ["3B", stats.triples],
+    ["HR", stats.homeRuns],
+    ["RBI", stats.rbi],
+    ["SB", stats.stolenBases],
+    ["CS", stats.caughtStealing],
+    ["BB", stats.baseOnBalls],
+    ["HBP", stats.hitByPitch],
+    ["GIDP", stats.groundIntoDoublePlay]
+  ]);
+}
+
+function compactStats(items) {
+  return items
+    .filter(([, value, alwaysShow]) => alwaysShow || Number(value) !== 0)
+    .map(([label, value, labelOnly]) => labelOnly && Number(value) === 1 ? label : `${label} ${value}`)
+    .join(" | ");
+}
+
 function formatStatValue(value) {
   if (value === "0/0") return "";
   return Number(value) === 0 ? "" : value;
@@ -443,13 +694,28 @@ function renderFilters() {
   if (teams.includes(previousTeam)) teamEl.value = previousTeam;
 }
 
-function activeSlotFor(row) {
-  const lineup = lineupByTeamSlug.get(slugify(row.team_name)) || {};
-  const rowSlug = slugify(row.player_name);
+function lineupForTeam(teamName) {
+  const exact = lineupByTeamSlug.get(slugify(teamName));
+  if (exact) return exact;
+  const normalizedTeam = normalizeName(teamName);
+  for (const [teamSlug, lineup] of lineupByTeamSlug.entries()) {
+    if (normalizeName(teamSlug) === normalizedTeam) return lineup;
+  }
+  return {};
+}
+
+function lineupValueMatchesRow(value, row) {
+  const assigned = String(value || "");
   const rowId = String(row.player_id);
+  return assigned === rowId
+    || slugify(assigned) === slugify(row.player_name)
+    || normalizeName(assigned) === normalizeName(row.player_name);
+}
+
+function activeSlotFor(row) {
+  const lineup = lineupForTeam(row.team_name);
   for (const [slot, value] of Object.entries(lineup)) {
-    const assigned = String(value || "");
-    if (assigned === rowId || assigned === rowSlug) return slot;
+    if (lineupValueMatchesRow(value, row)) return slot;
   }
   return "";
 }
@@ -561,8 +827,14 @@ function rosterRow(row, slot, teamId) {
   const isOwnTeam = ownTeamIds.has(teamId);
   const stats = statsByPlayerId.get(row.player_id) || {};
   const points = scoreStats(row, stats);
+  const game = gameByPlayerId.get(row.player_id);
+  const isBench = slot === "BN";
+  const activeLive = !isBench && Boolean(game?.gameInProgress);
+  const gameLine = state.range === "day"
+    ? game ? gameLineHtml(row, game) : `<span class="lineup-game-text">No game</span>`
+    : "";
   return `
-    <tr class="lineup-player-row ${slot === "BN" ? "is-bench" : "is-active"}">
+    <tr class="lineup-player-row ${isBench ? "is-bench" : "is-active"} ${activeLive ? "is-live" : ""}">
       <td class="lineup-pos-cell">${escapeHtml(slotLabel(slot))}</td>
       <td class="lineup-player-cell">
         <div class="roster-player-action-row">
@@ -570,9 +842,11 @@ function rosterRow(row, slot, teamId) {
           <button class="lineup-player-button roster-player-button" type="button" data-action="player" data-player-id="${row.player_id}">
             <span class="lineup-player-main">
               <span>
-                <strong class="lineup-player-name">${escapeHtml(row.player_name)} <span class="lineup-player-meta">${escapeHtml(row.mlb_team_abbreviation || "")} - ${escapeHtml(formatPositions(row))}</span></strong>
+                <strong class="lineup-player-name">${escapeHtml(row.player_name)} ${playerMetaHtml(row)}</strong>
               </span>
+              <span class="lineup-player-game">${gameLine}</span>
             </span>
+            <span class="lineup-player-statline">${escapeHtml(statSummary(row))}</span>
           </button>
         </div>
       </td>
@@ -581,6 +855,25 @@ function rosterRow(row, slot, teamId) {
       <td class="roster-contract-cell">${escapeHtml(row.contract_years || "X")}</td>
     </tr>
   `;
+}
+
+function playerStatusBadge(row) {
+  const status = statusByPlayerId.get(row.player_id);
+  return status ? `<span class="lineup-status-badge">${escapeHtml(status)}</span>` : "";
+}
+
+function playerMetaHtml(row) {
+  return `<span class="lineup-player-meta">${escapeHtml(normalizeMlbTeamAbbr(row.mlb_team_abbreviation))} - ${escapeHtml(formatPositions(row))}</span>${playerStatusBadge(row)}`;
+}
+
+function gameLineHtml(row, game) {
+  const starterBadge = game.scheduledStarter ? `<span class="lineup-starter-badge" aria-label="Scheduled starter">✓</span>` : "";
+  const leadBadges = playerType(row) === "pitcher"
+    ? `${starterBadge}${game.decisions.map((decision) => `<span class="lineup-decision-badge is-${decision.toLowerCase()}">${escapeHtml(decision)}</span>`).join("")}`
+    : Number.isFinite(game.battingOrder)
+      ? `<span class="lineup-order-badge">${game.battingOrder}</span>`
+      : game.lineupOut ? `<span class="lineup-out-badge" aria-label="Not in lineup">X</span>` : "";
+  return `${leadBadges}<span class="lineup-game-text">${escapeHtml(game.line)}</span>`;
 }
 
 async function openPlayerDialog(playerId) {
