@@ -153,19 +153,48 @@ function loadState() {
   const saved = loadJson(STORAGE_KEY, {});
   const date = saved.date || todayString();
   const lineups = saved.lineups || {};
+  const localMatch = localLineupForDate(lineups, date);
   return {
     date,
     range: saved.range || "day",
     lineups,
-    lineup: sanitizeLineup(lineups[date] || saved.lineup || defaultLineup)
+    lineup: sanitizeLineup(localMatch.lineup || saved.lineup || defaultLineup)
   };
+}
+
+function slugify(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function localLineupForDate(lineups, date) {
+  let bestDate = "";
+  let lineup = null;
+  for (const [lineupDate, savedLineup] of Object.entries(lineups || {})) {
+    if (lineupDate <= date && lineupDate > bestDate) {
+      bestDate = lineupDate;
+      lineup = savedLineup;
+    }
+  }
+  return { date: bestDate, lineup };
+}
+
+function playerIdForLineupValue(value) {
+  const text = String(value || "");
+  if (!text) return "";
+  return allPlayers().find((player) => (
+    player.id === text || slugify(player.name) === slugify(text)
+  ))?.id || "";
 }
 
 function sanitizeLineup(lineup) {
   const next = { ...defaultLineup, ...lineup };
-  const validIds = new Set(allPlayers().map((player) => player.id));
   for (const slot of [...hitterSlots, ...pitcherSlots]) {
-    if (!validIds.has(next[slot.code])) next[slot.code] = defaultLineup[slot.code] || "";
+    next[slot.code] = playerIdForLineupValue(next[slot.code]) || defaultLineup[slot.code] || "";
   }
   if (!next["2B"]) next["2B"] = defaultLineup["2B"];
   return next;
@@ -200,7 +229,8 @@ async function initLineupStorage() {
 }
 
 async function loadLineupForDate(date) {
-  const localLineup = state.lineups?.[date] || defaultLineup;
+  const localMatch = localLineupForDate(state.lineups || {}, date);
+  const localLineup = state.lineups?.[date] || localMatch.lineup || defaultLineup;
   let lineup = localLineup;
   loadingLineupDate = date;
 
@@ -208,9 +238,11 @@ async function loadLineupForDate(date) {
     try {
       const { data, error } = await supabase
         .from("team_daily_lineups")
-        .select("lineup")
+        .select("lineup,lineup_date")
         .eq("team_slug", TEAM_SLUG)
-        .eq("lineup_date", date)
+        .lte("lineup_date", date)
+        .order("lineup_date", { ascending: false })
+        .limit(1)
         .maybeSingle();
 
       if (error) throw error;
@@ -1042,7 +1074,6 @@ nextDayEl?.addEventListener("click", () => updateLineupDate(addDays(state.date, 
 async function updateLineupDate(value) {
   state.date = value || todayString();
   dateEl.value = state.date;
-  saveLocalState();
   await loadLineupForDate(state.date);
   renderTables();
   loadMlbData();

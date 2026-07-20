@@ -15,6 +15,23 @@ CREATE TABLE IF NOT EXISTS team_daily_lineups (
 CREATE INDEX IF NOT EXISTS ix_team_daily_lineups_lookup
   ON team_daily_lineups (team_slug, lineup_date DESC);
 
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM pg_publication
+    WHERE pubname = 'supabase_realtime'
+  ) AND NOT EXISTS (
+    SELECT 1
+    FROM pg_publication_tables
+    WHERE pubname = 'supabase_realtime'
+      AND schemaname = 'public'
+      AND tablename = 'team_daily_lineups'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE team_daily_lineups;
+  END IF;
+END $$;
+
 CREATE OR REPLACE FUNCTION public.owns_team_slug(target_team_slug TEXT)
 RETURNS BOOLEAN
 LANGUAGE SQL

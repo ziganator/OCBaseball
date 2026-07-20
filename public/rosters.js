@@ -46,11 +46,11 @@ const playerDialogTitle = document.querySelector("#player-dialog-title");
 const playerDialogBody = document.querySelector("#player-dialog-body");
 
 const query = new URLSearchParams(window.location.search);
-let shouldUseLatestLineupDate = !query.has("date");
 let session = null;
 let supabase = null;
 let rosterRows = [];
 let lineupByTeamSlug = new Map();
+let lineupDateByTeamSlug = new Map();
 let statsByPlayerId = new Map();
 let peopleByPlayerId = new Map();
 let gameByPlayerId = new Map();
@@ -60,6 +60,8 @@ let activePlayerLookup = null;
 let ownTeamIds = new Set();
 let accessibleLeagues = [];
 let isAdmin = false;
+let lineupSubscription = null;
+let lineupRefreshTimer = 0;
 let state = {
   league: normalizeLeague(query.get("league")),
   date: query.get("date") || todayString(),
@@ -249,13 +251,25 @@ async function loadRosters() {
 
 async function loadLineups() {
   const teamNames = [...new Set(rosterRows.map((row) => row.team_name).filter(Boolean))];
-  const { data, error } = await supabase
-    .from("team_daily_lineups")
-    .select("team_slug,lineup,lineup_date")
-    .eq("lineup_date", state.date);
+  const teamSlugs = [...new Set(teamNames.map(slugify).filter(Boolean))];
+  lineupByTeamSlug = new Map();
+  lineupDateByTeamSlug = new Map();
+  if (teamSlugs.length) {
+    const { data, error } = await supabase
+      .from("team_daily_lineups")
+      .select("team_slug,lineup,lineup_date")
+      .in("team_slug", teamSlugs)
+      .lte("lineup_date", state.date)
+      .order("team_slug", { ascending: true })
+      .order("lineup_date", { ascending: false });
 
-  if (error) throw error;
-  lineupByTeamSlug = new Map((data || []).map((row) => [row.team_slug, row.lineup || {}]));
+    if (error) throw error;
+    for (const row of data || []) {
+      if (lineupByTeamSlug.has(row.team_slug)) continue;
+      lineupByTeamSlug.set(row.team_slug, row.lineup || {});
+      lineupDateByTeamSlug.set(row.team_slug, row.lineup_date);
+    }
+  }
   if (!teamNames.length) return;
 
   const { data: scoreRows, error: scoreError } = await supabase
@@ -278,7 +292,8 @@ function mergeLineupsFromScoreRows(scoreRows) {
     const lineup = { ...(lineupByTeamSlug.get(teamSlug) || {}) };
     const counts = slotCountsByTeam.get(teamSlug) || { OF: 0, SP: 0, RP: 0 };
     const slot = scoreSlotToLineupSlot(row.roster_slot, counts);
-    if (!slot || lineup[slot]) {
+    const canReplaceExisting = lineupDateByTeamSlug.get(teamSlug) !== state.date;
+    if (!slot || (lineup[slot] && !canReplaceExisting)) {
       slotCountsByTeam.set(teamSlug, counts);
       continue;
     }
@@ -304,38 +319,6 @@ function scoreSlotToLineupSlot(value, counts) {
     return `RP${Math.min(counts.RP, 2)}`;
   }
   return slotOrder[slot] ? slot : "";
-}
-
-async function useLatestLineupDateForCurrentLeague() {
-  const teamSlugs = [...new Set(rosterRows.map((row) => slugify(row.team_name)).filter(Boolean))];
-  if (!teamSlugs.length) return;
-
-  const { data, error } = await supabase
-    .from("team_daily_lineups")
-    .select("lineup_date")
-    .in("team_slug", teamSlugs)
-    .order("lineup_date", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (error) throw error;
-  if (data?.lineup_date) {
-    state.date = data.lineup_date;
-    return;
-  }
-
-  const teamNames = [...new Set(rosterRows.map((row) => row.team_name).filter(Boolean))];
-  const { data: scoreData, error: scoreError } = await supabase
-    .from("game_player_daily_score_results")
-    .select("stat_date")
-    .eq("season_number", 32)
-    .in("team_name", teamNames)
-    .order("stat_date", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (scoreError) throw scoreError;
-  if (scoreData?.stat_date) state.date = scoreData.stat_date;
 }
 
 async function loadActivePlayerLookup() {
@@ -730,6 +713,39 @@ function groupBy(values, keyFn) {
   return map;
 }
 
+function currentTeamSlugs() {
+  return new Set(rosterRows.map((row) => slugify(row.team_name)).filter(Boolean));
+}
+
+function scheduleLineupRefresh() {
+  window.clearTimeout(lineupRefreshTimer);
+  lineupRefreshTimer = window.setTimeout(async () => {
+    try {
+      await loadLineups();
+      render();
+    } catch {
+      // Keep the existing roster view if a realtime refresh misses.
+    }
+  }, 200);
+}
+
+function subscribeToLineupChanges() {
+  if (!supabase?.channel || lineupSubscription) return;
+  lineupSubscription = supabase
+    .channel("ownersclub-roster-lineups")
+    .on("postgres_changes", {
+      event: "*",
+      schema: "public",
+      table: "team_daily_lineups"
+    }, (payload) => {
+      const row = payload.new || payload.old || {};
+      if (!row.team_slug || !currentTeamSlugs().has(row.team_slug)) return;
+      if (row.lineup_date && row.lineup_date > state.date) return;
+      scheduleLineupRefresh();
+    })
+    .subscribe();
+}
+
 function render() {
   titleEl.textContent = `${state.league} Rosters`;
   subtitleEl.textContent = isAdmin
@@ -1040,10 +1056,6 @@ async function reloadRosterView() {
   gridEl.innerHTML = "";
   statusEl.textContent = "Loading rosters...";
   await loadRosters();
-  if (shouldUseLatestLineupDate) {
-    await useLatestLineupDateForCurrentLeague();
-    shouldUseLatestLineupDate = false;
-  }
   dateEl.value = state.date;
   await loadLineups();
   renderFilters();
@@ -1119,6 +1131,7 @@ async function boot() {
     return;
   }
   await reloadRosterView();
+  subscribeToLineupChanges();
 }
 
 boot().catch((error) => {
