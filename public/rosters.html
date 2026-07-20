@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/styles.css?v=20260720a">
+    <link rel="stylesheet" href="/styles.css?v=20260720c">
   </head>
   <body>
     <header class="site-header menu-header">
@@ -30,22 +30,21 @@
     <main class="players-shell rosters-shell">
       <section class="players-hero">
         <span class="section-kicker">Season 32</span>
-        <h1>Rosters</h1>
-        <p>View current Owners Club roster claims across the league.</p>
+        <h1 id="rosters-title">Rosters</h1>
+        <p id="rosters-subtitle">View current Owners Club rosters and lineup usage.</p>
       </section>
 
-      <section class="lineup-card players-controls">
-        <h2>Roster Browser</h2>
+      <section class="lineup-card roster-league-card">
+        <h2>League Access</h2>
+        <div id="rosters-league-tabs" class="roster-league-tabs"></div>
+      </section>
+
+      <section class="lineup-card players-controls roster-controls">
+        <h2>Roster View</h2>
         <div class="players-filter-grid rosters-filter-grid">
           <label>
             Search
             <input id="rosters-search" type="search" placeholder="Player or team">
-          </label>
-          <label>
-            League
-            <select id="rosters-league">
-              <option value="all">All Leagues</option>
-            </select>
           </label>
           <label>
             Team
@@ -53,7 +52,26 @@
               <option value="all">All Teams</option>
             </select>
           </label>
+          <label>
+            Date
+            <span class="lineup-date-stepper">
+              <button id="rosters-prev-day" class="lineup-arrow-button" type="button" aria-label="Previous day">&larr;</button>
+              <input id="rosters-date" type="date">
+              <button id="rosters-next-day" class="lineup-arrow-button" type="button" aria-label="Next day">&rarr;</button>
+            </span>
+          </label>
+          <label>
+            Stats
+            <select id="rosters-range">
+              <option value="day">Today</option>
+              <option value="week">Last 7 Days</option>
+              <option value="twoWeeks">Last 14 Days</option>
+              <option value="month">Last 30 Days</option>
+              <option value="season">Full Season</option>
+            </select>
+          </label>
         </div>
+        <p id="rosters-window-label" class="admin-note"></p>
         <p id="rosters-status" class="admin-note" role="status">Loading rosters...</p>
       </section>
 
@@ -67,6 +85,14 @@
       <span>Owners Club Baseball ALL RIGHTS RESERVED &reg;</span>
     </footer>
 
-    <script src="/rosters.js?v=20260720a" type="module"></script>
+    <dialog id="player-dialog" class="admin-dialog lineup-dialog">
+      <div class="lineup-dialog-head">
+        <h2 id="player-dialog-title">Player</h2>
+        <button class="admin-secondary" type="button" data-dialog-close>Close</button>
+      </div>
+      <div id="player-dialog-body" class="lineup-dialog-body"></div>
+    </dialog>
+
+    <script src="/rosters.js?v=20260720c" type="module"></script>
   </body>
 </html>

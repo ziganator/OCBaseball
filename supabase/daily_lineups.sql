@@ -35,12 +35,33 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.owns_team_slug(TEXT) TO authenticated;
 
+CREATE OR REPLACE FUNCTION public.can_view_team_slug_lineup(target_team_slug TEXT)
+RETURNS BOOLEAN
+LANGUAGE SQL
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT
+    public.is_admin_user(auth.uid())
+    OR EXISTS (
+      SELECT 1
+      FROM teams t
+      JOIN season_team_assignments sta ON sta.team_id = t.id
+      WHERE lower(regexp_replace(t.name, '[^a-zA-Z0-9]+', '-', 'g')) = lower(target_team_slug)
+        AND public.can_view_league_rosters(sta.season_id, sta.league_code)
+    );
+$$;
+
+GRANT EXECUTE ON FUNCTION public.can_view_team_slug_lineup(TEXT) TO authenticated;
+
 ALTER TABLE team_daily_lineups ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Public can read daily lineups" ON team_daily_lineups;
-CREATE POLICY "Public can read daily lineups"
-ON team_daily_lineups FOR SELECT TO anon, authenticated
-USING (TRUE);
+DROP POLICY IF EXISTS "League owners can read daily lineups" ON team_daily_lineups;
+CREATE POLICY "League owners can read daily lineups"
+ON team_daily_lineups FOR SELECT TO authenticated
+USING (public.can_view_team_slug_lineup(team_slug));
 
 DROP POLICY IF EXISTS "Authenticated users can save daily lineups" ON team_daily_lineups;
 DROP POLICY IF EXISTS "Owners can save own daily lineups" ON team_daily_lineups;
@@ -70,5 +91,6 @@ WITH CHECK (
   )
 );
 
-GRANT SELECT ON team_daily_lineups TO anon, authenticated;
+REVOKE SELECT ON team_daily_lineups FROM anon;
+GRANT SELECT ON team_daily_lineups TO authenticated;
 GRANT INSERT, UPDATE ON team_daily_lineups TO authenticated;

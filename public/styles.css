@@ -2208,14 +2208,51 @@ h1 {
 }
 
 .rosters-filter-grid {
-  grid-template-columns: minmax(260px, 1fr) minmax(170px, 220px) minmax(220px, 320px);
+  grid-template-columns: minmax(260px, 1fr) minmax(170px, 220px) minmax(220px, 320px) minmax(160px, 220px);
 }
 
 .rosters-grid {
   display: grid;
   gap: 16px;
-  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+  grid-template-columns: 1fr;
   margin-top: 16px;
+}
+
+.roster-league-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.roster-league-tab {
+  align-items: center;
+  border: 1px solid var(--red);
+  color: var(--red);
+  display: inline-flex;
+  font-weight: 900;
+  justify-content: center;
+  min-height: 38px;
+  min-width: 132px;
+  padding: 8px 14px;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.roster-league-tab.is-active {
+  background: var(--red);
+  color: #ffffff;
+}
+
+.roster-league-tab.is-disabled {
+  border-color: #dddddd;
+  color: #999999;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.roster-lineup-card {
+  background: #ffffff;
+  border: 1px solid var(--line);
 }
 
 .roster-card {
@@ -2300,6 +2337,78 @@ h1 {
   color: #666666;
   font-weight: 800;
   text-transform: uppercase;
+}
+
+.roster-lineup-section {
+  padding: 12px;
+}
+
+.roster-lineup-section + .roster-lineup-section {
+  border-top: 1px solid var(--line);
+}
+
+.roster-lineup-section h3 {
+  color: #666666;
+  font-family: "Open Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 900;
+  margin: 0 0 8px;
+  text-transform: uppercase;
+}
+
+.roster-lineup-table {
+  min-width: 1280px;
+}
+
+.roster-lineup-table .lineup-player-row {
+  cursor: default;
+}
+
+.roster-player-action-row {
+  align-items: center;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 28px minmax(0, 1fr);
+}
+
+.roster-trade-button,
+.roster-trade-spacer {
+  align-items: center;
+  display: inline-flex;
+  height: 24px;
+  justify-content: center;
+  width: 24px;
+}
+
+.roster-trade-button {
+  background: #ffffff;
+  border: 1px solid var(--red);
+  color: var(--red);
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.roster-trade-button:hover {
+  background: var(--red);
+  color: #ffffff;
+}
+
+.roster-player-button .lineup-player-main {
+  grid-template-columns: 1fr;
+}
+
+.roster-contract-cell {
+  color: #333333;
+  font-weight: 900;
+  text-align: center;
+}
+
+.roster-no-lineup {
+  color: #777777;
+  font-weight: 800;
+  text-align: left;
 }
 
 .players-filter-grid label {
