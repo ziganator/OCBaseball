@@ -169,7 +169,7 @@ def generate_sql(input_path, output_path, season, league, acquired_on):
 
     team_values = values_block(
         team_rows,
-        lambda row: [sql_string(row["abbreviation"]), sql_string(row["name"])],
+        lambda row: [sql_string(row["abbreviation"]), sql_string(row["name"]), "TRUE"],
     )
     player_values = values_block(
         player_rows,
