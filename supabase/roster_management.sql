@@ -414,13 +414,13 @@ ON roster_periods FOR SELECT TO anon, authenticated USING (TRUE);
 DROP POLICY IF EXISTS "Owners can read team owner rows" ON team_owner_users;
 CREATE POLICY "Owners can read team owner rows"
 ON team_owner_users FOR SELECT TO authenticated
-USING (user_id = auth.uid() OR is_admin_user());
+USING (user_id = auth.uid() OR public.is_admin_user(auth.uid()));
 
 DROP POLICY IF EXISTS "Admins can manage team owner rows" ON team_owner_users;
 CREATE POLICY "Admins can manage team owner rows"
 ON team_owner_users FOR ALL TO authenticated
-USING (is_admin_user())
-WITH CHECK (is_admin_user());
+USING (public.is_admin_user(auth.uid()))
+WITH CHECK (public.is_admin_user(auth.uid()));
 
 DROP POLICY IF EXISTS "Public can read active rosters" ON roster_memberships;
 DROP POLICY IF EXISTS "Authenticated league owners can read active rosters" ON roster_memberships;
@@ -434,13 +434,13 @@ USING (
 DROP POLICY IF EXISTS "Owners can claim players" ON roster_memberships;
 CREATE POLICY "Owners can claim players"
 ON roster_memberships FOR INSERT TO authenticated
-WITH CHECK (owns_team(team_id, season_id) OR is_commissioner_user());
+WITH CHECK (owns_team(team_id, season_id) OR public.is_commissioner_user(auth.uid()));
 
 DROP POLICY IF EXISTS "Owners can update their roster" ON roster_memberships;
 CREATE POLICY "Owners can update their roster"
 ON roster_memberships FOR UPDATE TO authenticated
-USING (owns_team(team_id, season_id) OR is_commissioner_user())
-WITH CHECK (owns_team(team_id, season_id) OR is_commissioner_user());
+USING (owns_team(team_id, season_id) OR public.is_commissioner_user(auth.uid()))
+WITH CHECK (owns_team(team_id, season_id) OR public.is_commissioner_user(auth.uid()));
 
 DROP POLICY IF EXISTS "Public can read lineups" ON team_lineup_entries;
 CREATE POLICY "Public can read lineups"
@@ -452,7 +452,7 @@ CREATE POLICY "Owners can set lineups"
 ON team_lineup_entries FOR INSERT TO authenticated
 WITH CHECK (
   owns_team(team_id, (SELECT rp.season_id FROM roster_periods rp WHERE rp.id = period_id))
-  OR is_commissioner_user()
+  OR public.is_commissioner_user(auth.uid())
 );
 
 DROP POLICY IF EXISTS "Owners can update lineups" ON team_lineup_entries;
@@ -460,11 +460,11 @@ CREATE POLICY "Owners can update lineups"
 ON team_lineup_entries FOR UPDATE TO authenticated
 USING (
   owns_team(team_id, (SELECT rp.season_id FROM roster_periods rp WHERE rp.id = period_id))
-  OR is_commissioner_user()
+  OR public.is_commissioner_user(auth.uid())
 )
 WITH CHECK (
   owns_team(team_id, (SELECT rp.season_id FROM roster_periods rp WHERE rp.id = period_id))
-  OR is_commissioner_user()
+  OR public.is_commissioner_user(auth.uid())
 );
 
 DROP POLICY IF EXISTS "Owners can delete lineup entries" ON team_lineup_entries;
@@ -472,42 +472,42 @@ CREATE POLICY "Owners can delete lineup entries"
 ON team_lineup_entries FOR DELETE TO authenticated
 USING (
   owns_team(team_id, (SELECT rp.season_id FROM roster_periods rp WHERE rp.id = period_id))
-  OR is_commissioner_user()
+  OR public.is_commissioner_user(auth.uid())
 );
 
 DROP POLICY IF EXISTS "Owners can read transactions" ON roster_transactions;
 CREATE POLICY "Owners can read transactions"
 ON roster_transactions FOR SELECT TO authenticated
-USING (owns_team(team_id, season_id) OR is_commissioner_user());
+USING (owns_team(team_id, season_id) OR public.is_commissioner_user(auth.uid()));
 
 DROP POLICY IF EXISTS "Owners can write transactions" ON roster_transactions;
 CREATE POLICY "Owners can write transactions"
 ON roster_transactions FOR INSERT TO authenticated
-WITH CHECK (owns_team(team_id, season_id) OR is_commissioner_user());
+WITH CHECK (owns_team(team_id, season_id) OR public.is_commissioner_user(auth.uid()));
 
 DROP POLICY IF EXISTS "Admins can manage scoring rules" ON scoring_rules;
 CREATE POLICY "Admins can manage scoring rules"
 ON scoring_rules FOR ALL TO authenticated
-USING (is_admin_user())
-WITH CHECK (is_admin_user());
+USING (public.is_admin_user(auth.uid()))
+WITH CHECK (public.is_admin_user(auth.uid()));
 
 DROP POLICY IF EXISTS "Admins can manage MLB teams" ON mlb_teams;
 CREATE POLICY "Admins can manage MLB teams"
 ON mlb_teams FOR ALL TO authenticated
-USING (is_admin_user())
-WITH CHECK (is_admin_user());
+USING (public.is_admin_user(auth.uid()))
+WITH CHECK (public.is_admin_user(auth.uid()));
 
 DROP POLICY IF EXISTS "Admins can manage MLB players" ON mlb_players;
 CREATE POLICY "Admins can manage MLB players"
 ON mlb_players FOR ALL TO authenticated
-USING (is_admin_user())
-WITH CHECK (is_admin_user());
+USING (public.is_admin_user(auth.uid()))
+WITH CHECK (public.is_admin_user(auth.uid()));
 
 DROP POLICY IF EXISTS "Admins can manage imported MLB stats" ON mlb_player_daily_stats;
 CREATE POLICY "Admins can manage imported MLB stats"
 ON mlb_player_daily_stats FOR ALL TO authenticated
-USING (is_admin_user())
-WITH CHECK (is_admin_user());
+USING (public.is_admin_user(auth.uid()))
+WITH CHECK (public.is_admin_user(auth.uid()));
 
 DROP POLICY IF EXISTS "Public can read fantasy player daily scores" ON fantasy_player_daily_scores;
 CREATE POLICY "Public can read fantasy player daily scores"
@@ -517,8 +517,8 @@ USING (TRUE);
 DROP POLICY IF EXISTS "Admins can manage fantasy player daily scores" ON fantasy_player_daily_scores;
 CREATE POLICY "Admins can manage fantasy player daily scores"
 ON fantasy_player_daily_scores FOR ALL TO authenticated
-USING (is_admin_user())
-WITH CHECK (is_admin_user());
+USING (public.is_admin_user(auth.uid()))
+WITH CHECK (public.is_admin_user(auth.uid()));
 
 GRANT SELECT ON public_available_players TO anon, authenticated;
 REVOKE SELECT ON public_team_rosters FROM anon;
