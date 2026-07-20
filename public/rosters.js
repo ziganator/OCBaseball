@@ -46,6 +46,7 @@ const playerDialogTitle = document.querySelector("#player-dialog-title");
 const playerDialogBody = document.querySelector("#player-dialog-body");
 
 const query = new URLSearchParams(window.location.search);
+let shouldUseLatestLineupDate = !query.has("date");
 let session = null;
 let supabase = null;
 let rosterRows = [];
@@ -240,6 +241,22 @@ async function loadLineups() {
 
   if (error) throw error;
   lineupByTeamSlug = new Map((data || []).map((row) => [row.team_slug, row.lineup || {}]));
+}
+
+async function useLatestLineupDateForCurrentLeague() {
+  const teamSlugs = [...new Set(rosterRows.map((row) => slugify(row.team_name)).filter(Boolean))];
+  if (!teamSlugs.length) return;
+
+  const { data, error } = await supabase
+    .from("team_daily_lineups")
+    .select("lineup_date")
+    .in("team_slug", teamSlugs)
+    .order("lineup_date", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) throw error;
+  if (data?.lineup_date) state.date = data.lineup_date;
 }
 
 async function loadActivePlayerLookup() {
@@ -726,11 +743,16 @@ function newsCard(article) {
 
 async function reloadRosterView() {
   updateUrl();
-  dateEl.value = state.date;
   rangeEl.value = state.range;
   gridEl.innerHTML = "";
   statusEl.textContent = "Loading rosters...";
-  await Promise.all([loadRosters(), loadLineups()]);
+  await loadRosters();
+  if (shouldUseLatestLineupDate) {
+    await useLatestLineupDateForCurrentLeague();
+    shouldUseLatestLineupDate = false;
+  }
+  dateEl.value = state.date;
+  await loadLineups();
   renderFilters();
   render();
   try {
