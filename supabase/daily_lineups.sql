@@ -71,7 +71,7 @@ WITH CHECK (
   updated_by = auth.uid()
   AND (
     public.owns_team_slug(team_slug)
-    OR public.is_admin_user(auth.uid())
+    OR public.is_commissioner_user(auth.uid())
   )
 );
 
@@ -81,13 +81,13 @@ CREATE POLICY "Owners can update own daily lineups"
 ON team_daily_lineups FOR UPDATE TO authenticated
 USING (
   public.owns_team_slug(team_slug)
-  OR public.is_admin_user(auth.uid())
+  OR public.is_commissioner_user(auth.uid())
 )
 WITH CHECK (
   updated_by = auth.uid()
   AND (
     public.owns_team_slug(team_slug)
-    OR public.is_admin_user(auth.uid())
+    OR public.is_commissioner_user(auth.uid())
   )
 );
 

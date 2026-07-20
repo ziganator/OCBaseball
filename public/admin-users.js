@@ -14,9 +14,11 @@ const editTeamIdEl = document.querySelector("#edit-team-id");
 const editRoleEl = document.querySelector("#edit-role");
 const editActiveEl = document.querySelector("#edit-active");
 const editAdminEl = document.querySelector("#edit-admin");
+const editCommissionerEl = document.querySelector("#edit-commissioner");
 
 let supabase = null;
 let currentUserId = "";
+let currentUserIsCommissioner = false;
 let users = [];
 let teams = [];
 let assignments = [];
@@ -55,7 +57,7 @@ function displayNameFor(user, assignment = null) {
 
 function renderUsers() {
   if (!users.length) {
-    tableBody.innerHTML = `<tr><td colspan="7">No users yet.</td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan="8">No users yet.</td></tr>`;
     return;
   }
 
@@ -70,6 +72,7 @@ function renderUsers() {
         <td>${escapeHtml(assignment?.role === "co_owner" ? "Co-owner" : assignment ? "Owner" : "")}</td>
         <td>${assignment ? (assignment.active ? "Yes" : "No") : ""}</td>
         <td>${user.is_admin ? "Yes" : "No"}</td>
+        <td>${user.is_commissioner ? "Yes" : "No"}</td>
         <td><button class="admin-secondary table-action" type="button" data-edit-user>Edit</button></td>
       </tr>
     `;
@@ -91,6 +94,7 @@ async function loadData() {
   users = usersResult.data || [];
   teams = teamsResult.data || [];
   assignments = assignmentsResult.data || [];
+  currentUserIsCommissioner = Boolean(users.find((user) => user.user_id === currentUserId)?.is_commissioner);
   renderUsers();
   const userCount = `${users.length} user${users.length === 1 ? "" : "s"}`;
   if (!teams.length) {
@@ -112,6 +116,8 @@ function openUserDialog(userId) {
   editRoleEl.value = assignment?.role || "owner";
   editActiveEl.checked = assignment?.active !== false;
   editAdminEl.checked = Boolean(user.is_admin);
+  editCommissionerEl.checked = Boolean(user.is_commissioner);
+  editCommissionerEl.disabled = users.some((item) => item.is_commissioner) && !currentUserIsCommissioner;
   userDialog.showModal();
   editDisplayNameEl.focus();
 }
@@ -122,7 +128,8 @@ async function saveUserFromDialog() {
   const teamId = editTeamIdEl.value;
   const role = editRoleEl.value;
   const active = editActiveEl.checked;
-  const makeAdmin = editAdminEl.checked;
+  const makeCommissioner = editCommissionerEl.checked;
+  const makeAdmin = editAdminEl.checked || makeCommissioner;
 
   if (!displayName) {
     throw new Error("Name is required before saving.");
@@ -141,7 +148,8 @@ async function saveUserFromDialog() {
     p_team_id: teamId ? Number(teamId) : null,
     p_role: role,
     p_active: active,
-    p_is_admin: makeAdmin
+    p_is_admin: makeAdmin,
+    p_is_commissioner: makeCommissioner
   });
   if (error) throw error;
 
@@ -175,6 +183,12 @@ tableBody.addEventListener("click", (event) => {
   openUserDialog(row.dataset.userId);
 });
 closeUserDialogButton.addEventListener("click", () => userDialog.close());
+editCommissionerEl.addEventListener("change", () => {
+  if (editCommissionerEl.checked) editAdminEl.checked = true;
+});
+editAdminEl.addEventListener("change", () => {
+  if (!editAdminEl.checked) editCommissionerEl.checked = false;
+});
 userEditForm.addEventListener("submit", (event) => {
   event.preventDefault();
   saveUserFromDialog().catch((error) => setStatus(`Save failed: ${error.message}`, "error"));

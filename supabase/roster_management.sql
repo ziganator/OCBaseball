@@ -276,6 +276,14 @@ AS $$
   );
 $$;
 
+CREATE OR REPLACE FUNCTION is_commissioner_user()
+RETURNS BOOLEAN
+LANGUAGE SQL
+STABLE
+AS $$
+  SELECT public.is_commissioner_user(auth.uid());
+$$;
+
 CREATE OR REPLACE FUNCTION owns_team(target_team_id BIGINT, target_season_id BIGINT DEFAULT NULL)
 RETURNS BOOLEAN
 LANGUAGE SQL
@@ -426,13 +434,13 @@ USING (
 DROP POLICY IF EXISTS "Owners can claim players" ON roster_memberships;
 CREATE POLICY "Owners can claim players"
 ON roster_memberships FOR INSERT TO authenticated
-WITH CHECK (owns_team(team_id, season_id) OR is_admin_user());
+WITH CHECK (owns_team(team_id, season_id) OR is_commissioner_user());
 
 DROP POLICY IF EXISTS "Owners can update their roster" ON roster_memberships;
 CREATE POLICY "Owners can update their roster"
 ON roster_memberships FOR UPDATE TO authenticated
-USING (owns_team(team_id, season_id) OR is_admin_user())
-WITH CHECK (owns_team(team_id, season_id) OR is_admin_user());
+USING (owns_team(team_id, season_id) OR is_commissioner_user())
+WITH CHECK (owns_team(team_id, season_id) OR is_commissioner_user());
 
 DROP POLICY IF EXISTS "Public can read lineups" ON team_lineup_entries;
 CREATE POLICY "Public can read lineups"
@@ -444,7 +452,7 @@ CREATE POLICY "Owners can set lineups"
 ON team_lineup_entries FOR INSERT TO authenticated
 WITH CHECK (
   owns_team(team_id, (SELECT rp.season_id FROM roster_periods rp WHERE rp.id = period_id))
-  OR is_admin_user()
+  OR is_commissioner_user()
 );
 
 DROP POLICY IF EXISTS "Owners can update lineups" ON team_lineup_entries;
@@ -452,11 +460,11 @@ CREATE POLICY "Owners can update lineups"
 ON team_lineup_entries FOR UPDATE TO authenticated
 USING (
   owns_team(team_id, (SELECT rp.season_id FROM roster_periods rp WHERE rp.id = period_id))
-  OR is_admin_user()
+  OR is_commissioner_user()
 )
 WITH CHECK (
   owns_team(team_id, (SELECT rp.season_id FROM roster_periods rp WHERE rp.id = period_id))
-  OR is_admin_user()
+  OR is_commissioner_user()
 );
 
 DROP POLICY IF EXISTS "Owners can delete lineup entries" ON team_lineup_entries;
@@ -464,18 +472,18 @@ CREATE POLICY "Owners can delete lineup entries"
 ON team_lineup_entries FOR DELETE TO authenticated
 USING (
   owns_team(team_id, (SELECT rp.season_id FROM roster_periods rp WHERE rp.id = period_id))
-  OR is_admin_user()
+  OR is_commissioner_user()
 );
 
 DROP POLICY IF EXISTS "Owners can read transactions" ON roster_transactions;
 CREATE POLICY "Owners can read transactions"
 ON roster_transactions FOR SELECT TO authenticated
-USING (owns_team(team_id, season_id) OR is_admin_user());
+USING (owns_team(team_id, season_id) OR is_commissioner_user());
 
 DROP POLICY IF EXISTS "Owners can write transactions" ON roster_transactions;
 CREATE POLICY "Owners can write transactions"
 ON roster_transactions FOR INSERT TO authenticated
-WITH CHECK (owns_team(team_id, season_id) OR is_admin_user());
+WITH CHECK (owns_team(team_id, season_id) OR is_commissioner_user());
 
 DROP POLICY IF EXISTS "Admins can manage scoring rules" ON scoring_rules;
 CREATE POLICY "Admins can manage scoring rules"

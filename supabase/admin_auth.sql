@@ -4,8 +4,12 @@
 CREATE TABLE IF NOT EXISTS admin_users (
   user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   display_name TEXT,
+  is_commissioner BOOLEAN NOT NULL DEFAULT FALSE,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE admin_users
+  ADD COLUMN IF NOT EXISTS is_commissioner BOOLEAN NOT NULL DEFAULT FALSE;
 
 CREATE TABLE IF NOT EXISTS user_profiles (
   user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -42,6 +46,23 @@ AS $$
 $$;
 
 GRANT EXECUTE ON FUNCTION public.is_admin_user(UUID) TO authenticated;
+
+CREATE OR REPLACE FUNCTION public.is_commissioner_user(check_user_id UUID DEFAULT auth.uid())
+RETURNS BOOLEAN
+LANGUAGE SQL
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.admin_users au
+    WHERE au.user_id = check_user_id
+      AND au.is_commissioner = TRUE
+  );
+$$;
+
+GRANT EXECUTE ON FUNCTION public.is_commissioner_user(UUID) TO authenticated;
 
 DROP POLICY IF EXISTS "Users can create own profile" ON user_profiles;
 CREATE POLICY "Users can create own profile"
@@ -122,7 +143,8 @@ SELECT
   up.display_name,
   up.username,
   up.created_at,
-  public.is_admin_user(up.user_id) AS is_admin
+  public.is_admin_user(up.user_id) AS is_admin,
+  public.is_commissioner_user(up.user_id) AS is_commissioner
 FROM user_profiles up;
 
 GRANT SELECT ON public_user_admin TO authenticated;

@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/styles.css?v=20260711d">
+    <link rel="stylesheet" href="/styles.css?v=20260720d">
   </head>
   <body>
     <header class="site-header menu-header">
@@ -59,6 +59,7 @@
                     <th>Owner Status</th>
                     <th>Active</th>
                     <th>Admin</th>
+                    <th>Commissioner</th>
                     <th></th>
                   </tr>
                 </thead>
@@ -110,7 +111,11 @@
           </label>
           <label class="admin-check">
             <input id="edit-admin" type="checkbox">
-            <span>Commissioner admin</span>
+            <span>Admin</span>
+          </label>
+          <label class="admin-check">
+            <input id="edit-commissioner" type="checkbox">
+            <span>Commissioner</span>
           </label>
         </div>
         <div class="admin-dialog-actions">
@@ -119,6 +124,6 @@
       </form>
     </dialog>
 
-    <script src="/admin-users.js?v=20260708c" type="module"></script>
+    <script src="/admin-users.js?v=20260720d" type="module"></script>
   </body>
 </html>

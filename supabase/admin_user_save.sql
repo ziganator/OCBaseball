@@ -1,13 +1,16 @@
 -- Admin user/team save helper.
 -- Run after admin_auth.sql and roster_management.sql.
 
+DROP FUNCTION IF EXISTS public.save_admin_user(UUID, TEXT, BIGINT, TEXT, BOOLEAN, BOOLEAN);
+
 CREATE OR REPLACE FUNCTION public.save_admin_user(
   p_user_id UUID,
   p_display_name TEXT,
   p_team_id BIGINT DEFAULT NULL,
   p_role TEXT DEFAULT 'owner',
   p_active BOOLEAN DEFAULT TRUE,
-  p_is_admin BOOLEAN DEFAULT FALSE
+  p_is_admin BOOLEAN DEFAULT FALSE,
+  p_is_commissioner BOOLEAN DEFAULT FALSE
 )
 RETURNS VOID
 LANGUAGE plpgsql
@@ -16,13 +19,17 @@ SET search_path = public, auth
 AS $$
 DECLARE
   cleaned_name TEXT := NULLIF(BTRIM(p_display_name), '');
+  requested_commissioner BOOLEAN := COALESCE(p_is_commissioner, FALSE);
+  save_as_admin BOOLEAN := COALESCE(p_is_admin, FALSE) OR COALESCE(p_is_commissioner, FALSE);
+  existing_commissioner BOOLEAN := FALSE;
+  commissioner_exists BOOLEAN := FALSE;
   profile_email TEXT;
 BEGIN
   IF NOT public.is_admin_user(auth.uid()) THEN
     RAISE EXCEPTION 'Only admins can save users.';
   END IF;
 
-  IF p_user_id = auth.uid() AND NOT p_is_admin THEN
+  IF p_user_id = auth.uid() AND NOT save_as_admin THEN
     RAISE EXCEPTION 'You cannot remove your own admin access.';
   END IF;
 
@@ -32,6 +39,26 @@ BEGIN
 
   IF p_role NOT IN ('owner', 'co_owner') THEN
     RAISE EXCEPTION 'Invalid owner status.';
+  END IF;
+
+  SELECT COALESCE((
+    SELECT au.is_commissioner
+    FROM public.admin_users au
+    WHERE au.user_id = p_user_id
+  ), FALSE)
+  INTO existing_commissioner;
+
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.admin_users au
+    WHERE au.is_commissioner = TRUE
+  )
+  INTO commissioner_exists;
+
+  IF requested_commissioner IS DISTINCT FROM existing_commissioner
+    AND commissioner_exists
+    AND NOT public.is_commissioner_user(auth.uid()) THEN
+    RAISE EXCEPTION 'Only commissioners can change commissioner status.';
   END IF;
 
   SELECT COALESCE(up.email, au.email)
@@ -64,11 +91,12 @@ BEGIN
     username = EXCLUDED.username,
     updated_at = NOW();
 
-  IF p_is_admin THEN
-    INSERT INTO public.admin_users (user_id, display_name)
-    VALUES (p_user_id, cleaned_name)
+  IF save_as_admin THEN
+    INSERT INTO public.admin_users (user_id, display_name, is_commissioner)
+    VALUES (p_user_id, cleaned_name, requested_commissioner)
     ON CONFLICT (user_id) DO UPDATE SET
-      display_name = EXCLUDED.display_name;
+      display_name = EXCLUDED.display_name,
+      is_commissioner = EXCLUDED.is_commissioner;
   ELSE
     DELETE FROM public.admin_users
     WHERE user_id = p_user_id;
@@ -106,7 +134,7 @@ BEGIN
 END;
 $$;
 
-GRANT EXECUTE ON FUNCTION public.save_admin_user(UUID, TEXT, BIGINT, TEXT, BOOLEAN, BOOLEAN)
+GRANT EXECUTE ON FUNCTION public.save_admin_user(UUID, TEXT, BIGINT, TEXT, BOOLEAN, BOOLEAN, BOOLEAN)
 TO authenticated;
 
 UPDATE public.user_profiles up
@@ -140,7 +168,8 @@ SELECT
   COALESCE(NULLIF(BTRIM(up.display_name), ''), latest_owner_name.owner_name) AS display_name,
   up.username,
   up.created_at,
-  public.is_admin_user(up.user_id) AS is_admin
+  public.is_admin_user(up.user_id) AS is_admin,
+  public.is_commissioner_user(up.user_id) AS is_commissioner
 FROM user_profiles up
 LEFT JOIN latest_owner_name ON latest_owner_name.user_id = up.user_id;
 
