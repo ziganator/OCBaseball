@@ -3,11 +3,11 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Test Pages - Owners Club Baseball</title>
+    <title>My Team - Owners Club Baseball</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/styles.css?v=20260711d">
+    <link rel="stylesheet" href="/styles.css?v=20260720d">
   </head>
   <body>
     <header class="site-header menu-header">
@@ -20,37 +20,22 @@
           <a href="/games.html">Games</a>
           <a href="/teams.html">Teams</a>
           <a href="/rosters.html">Rosters</a>
-          <a href="/my-team.html">My Team</a>
+          <a href="/my-team.html" aria-current="page">My Team</a>
+          <a href="/event-cards.html">Event Cards</a>
+          <a href="/archives.html">Archives</a>
           <a href="/admin.html">Admin</a>
         </nav>
       </div>
     </header>
 
-    <main>
-      <section class="admin-shell">
-        <div class="admin-heading">
-          <div>
-            <h1>Test Pages</h1>
-            <p class="section-kicker">Working prototypes and data checks</p>
-          </div>
-          <a class="admin-secondary" href="/admin.html">Admin Home</a>
-        </div>
-
-        <div class="admin-card-grid">
-          <a class="admin-home-card" href="/test-game1.html">
-            <span>Game 1 Score Test</span>
-            <strong>Compare Week 1 sheet scores against MLB game-log scoring with substitutions.</strong>
-          </a>
-          <a class="admin-home-card" href="/highlanders-lineup.html">
-            <span>Highlanders Lineup</span>
-            <strong>Lineup sandbox for active slots, bench points, and player movement rules.</strong>
-          </a>
-          <a class="admin-home-card" href="/mlb-players.html">
-            <span>MLB Player Pool</span>
-            <strong>Current MLB player list with stats and Owners Club claim indicators.</strong>
-          </a>
-        </div>
+    <main class="players-shell">
+      <section class="players-hero">
+        <span class="section-kicker">Owner Tools</span>
+        <h1>My Team</h1>
+        <p id="my-team-status">Finding your team assignment...</p>
       </section>
+
+      <section id="my-team-card" class="lineup-card"></section>
     </main>
 
     <footer class="site-footer">
@@ -59,5 +44,7 @@
       </a>
       <span>Owners Club Baseball ALL RIGHTS RESERVED &reg;</span>
     </footer>
+
+    <script src="/my-team.js?v=20260720a" type="module"></script>
   </body>
 </html>

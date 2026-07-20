@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import argparse
 import json
+import re
+import unicodedata
 from collections import defaultdict
 from datetime import date, timedelta
 from pathlib import Path
@@ -41,6 +43,11 @@ def clean_team(value):
 def clean_position(value):
     text = str(value or "").strip().upper()
     return "1B" if text == "1B" else text
+
+
+def slugify(value):
+    normalized = unicodedata.normalize("NFKD", str(value or "")).encode("ascii", "ignore").decode("ascii")
+    return re.sub(r"[^a-z0-9]+", "-", normalized.lower()).strip("-")
 
 
 def points(value):
@@ -111,6 +118,8 @@ def parse_team_block(values_ws, styles_ws, rows, team_name, home_away, matchup_k
     team_daily = defaultdict(int)
     offense_daily = defaultdict(int)
     pitching_daily = defaultdict(int)
+    position_counts = defaultdict(int)
+    daily_lineups = {stat_day.isoformat(): {} for stat_day in dates}
 
     for offset, row in enumerate(rows):
         position = clean_position(values_ws.cell(row, 2).value)
@@ -119,6 +128,19 @@ def parse_team_block(values_ws, styles_ws, rows, team_name, home_away, matchup_k
             continue
 
         group = "hitter" if offset < HITTER_ROW_LIMIT else "pitcher"
+        if position == "OF":
+            position_counts[position] += 1
+            lineup_slot = f"OF{position_counts[position]}"
+        elif position == "SP":
+            position_counts[position] += 1
+            lineup_slot = f"SP{position_counts[position]}"
+        elif position == "RP":
+            position_counts[position] += 1
+            lineup_slot = f"RP{position_counts[position]}"
+        elif position == "DH":
+            lineup_slot = "UTIL"
+        else:
+            lineup_slot = position
         styled_cells = [styles_ws.cell(row, col) for col in DAY_COLS]
 
         for day_index, col in enumerate(DAY_COLS):
@@ -126,6 +148,8 @@ def parse_team_block(values_ws, styles_ws, rows, team_name, home_away, matchup_k
             score = points(values_ws.cell(row, col).value)
             stat_date = dates[day_index].isoformat()
             credited_player = player_for_day(row_player, styled_cells, day_index)
+            if credited_player:
+                daily_lineups[stat_date][lineup_slot] = slugify(credited_player)
             team_daily[stat_date] += score
             if group == "hitter":
                 offense_daily[stat_date] += score
@@ -148,6 +172,19 @@ def parse_team_block(values_ws, styles_ws, rows, team_name, home_away, matchup_k
                 },
             })
 
+    lineup_rows = []
+    for stat_date, lineup in daily_lineups.items():
+        lineup_rows.append({
+            "team_slug": slugify(team_name),
+            "lineup_date": stat_date,
+            "lineup": lineup,
+            "payload": {
+                "source": source,
+                "matchupKey": matchup_key,
+                "homeAway": home_away,
+            },
+        })
+
     team_rows = []
     for day_index, stat_day in enumerate(dates):
         stat_date = stat_day.isoformat()
@@ -166,7 +203,7 @@ def parse_team_block(values_ws, styles_ws, rows, team_name, home_away, matchup_k
             },
         })
 
-    return team_rows, player_rows
+    return team_rows, player_rows, lineup_rows
 
 
 def generate_sql(input_path, output_path, season, game, week, start_date):
@@ -183,6 +220,7 @@ def generate_sql(input_path, output_path, season, game, week, start_date):
     matchups = []
     team_rows = []
     player_rows = []
+    lineup_rows = []
 
     for index, sheet_name in enumerate(sheet_matchups):
         values_ws = values_wb[sheet_name]
@@ -191,16 +229,18 @@ def generate_sql(input_path, output_path, season, game, week, start_date):
         matchup["matchup_key"] = sheet_name
         matchups.append(matchup)
 
-        away_team_rows, away_player_rows = parse_team_block(
+        away_team_rows, away_player_rows, away_lineup_rows = parse_team_block(
             values_ws, styles_ws, FIRST_TEAM_ROWS, matchup["away_team_name"], "A", sheet_name, dates, source
         )
-        home_team_rows, home_player_rows = parse_team_block(
+        home_team_rows, home_player_rows, home_lineup_rows = parse_team_block(
             values_ws, styles_ws, SECOND_TEAM_ROWS, matchup["home_team_name"], "H", sheet_name, dates, source
         )
         team_rows.extend(away_team_rows)
         team_rows.extend(home_team_rows)
         player_rows.extend(away_player_rows)
         player_rows.extend(home_player_rows)
+        lineup_rows.extend(away_lineup_rows)
+        lineup_rows.extend(home_lineup_rows)
 
     seen = set()
     duplicates = []
@@ -281,10 +321,25 @@ def generate_sql(input_path, output_path, season, game, week, start_date):
             ")"
         )
     lines.append(",\n".join(player_values) + ";")
+
+    lines.extend([
+        "",
+        "-- Daily lineup snapshots used by roster and lineup pages.",
+        "-- Run supabase/daily_lineups.sql before this import if the table does not exist yet.",
+        "INSERT INTO team_daily_lineups (team_slug, lineup_date, lineup, updated_at) VALUES",
+    ])
+    lineup_values = []
+    for row in lineup_rows:
+        lineup_values.append(
+            "("
+            f"{sql_string(row['team_slug'])}, {sql_string(row['lineup_date'])}, {json_sql(row['lineup'])}, NOW()"
+            ")"
+        )
+    lines.append(",\n".join(lineup_values) + "\nON CONFLICT (team_slug, lineup_date) DO UPDATE SET\n  lineup = EXCLUDED.lineup,\n  updated_at = NOW();")
     lines.extend(["", "COMMIT;", ""])
 
     Path(output_path).write_text("\n".join(lines), encoding="utf-8")
-    return len(matchups), len(team_rows), len(player_rows)
+    return len(matchups), len(team_rows), len(player_rows), len(lineup_rows)
 
 
 def main():
@@ -300,7 +355,7 @@ def main():
     week_one_start = date.fromisoformat(args.week_one_start)
     start_date = week_one_start + timedelta(days=(args.week - 1) * 7)
     counts = generate_sql(args.input, args.output, args.season, args.game, args.week, start_date)
-    print(f"Wrote {args.output}: {counts[0]} matchups, {counts[1]} team-day rows, {counts[2]} player-day rows")
+    print(f"Wrote {args.output}: {counts[0]} matchups, {counts[1]} team-day rows, {counts[2]} player-day rows, {counts[3]} lineup rows")
 
 
 if __name__ == "__main__":
