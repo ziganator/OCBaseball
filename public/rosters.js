@@ -509,8 +509,8 @@ function lineupTable(label, items, teamId) {
           <thead>
             <tr>
               <th>Pos</th>
-              <th>Fan Pts</th>
               <th>Player</th>
+              <th>Fan Pts</th>
               <th class="lineup-stat-col">H/AB</th>
               <th class="lineup-stat-col">R</th>
               <th class="lineup-stat-col">1B</th>
@@ -547,7 +547,6 @@ function rosterRow(row, slot, teamId) {
   return `
     <tr class="lineup-player-row ${slot === "BN" ? "is-bench" : "is-active"}">
       <td class="lineup-pos-cell">${escapeHtml(slotLabel(slot))}</td>
-      <td class="lineup-fantasy-points">${formatPoints(points)}</td>
       <td class="lineup-player-cell">
         <div class="roster-player-action-row">
           ${isOwnTeam ? `<span class="roster-trade-spacer"></span>` : `<button class="roster-trade-button" type="button" data-action="trade" data-player-id="${row.player_id}" aria-label="Start trade offer for ${escapeHtml(row.player_name)}">+</button>`}
@@ -560,6 +559,7 @@ function rosterRow(row, slot, teamId) {
           </button>
         </div>
       </td>
+      <td class="lineup-fantasy-points">${formatPoints(points)}</td>
       ${statCells(row)}
       <td class="roster-contract-cell">${escapeHtml(row.contract_years || "X")}</td>
     </tr>
