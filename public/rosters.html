@@ -3,11 +3,11 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Games - Owners Club Baseball</title>
+    <title>Rosters - Owners Club Baseball</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/styles.css?v=20260714h">
+    <link rel="stylesheet" href="/styles.css?v=20260720a">
   </head>
   <body>
     <header class="site-header menu-header">
@@ -17,9 +17,9 @@
         </a>
         <nav class="nav" aria-label="Main navigation">
           <a href="/">Season</a>
-          <a href="/games.html" aria-current="page">Games</a>
+          <a href="/games.html">Games</a>
           <a href="/teams.html">Teams</a>
-          <a href="/rosters.html">Rosters</a>
+          <a href="/rosters.html" aria-current="page">Rosters</a>
           <a href="/event-cards.html">Event Cards</a>
           <a href="/archives.html">Archives</a>
           <a href="/admin.html">Admin</a>
@@ -27,23 +27,37 @@
       </div>
     </header>
 
-    <main class="games-shell">
+    <main class="players-shell rosters-shell">
       <section class="players-hero">
         <span class="section-kicker">Season 32</span>
-        <h1>Games</h1>
+        <h1>Rosters</h1>
+        <p>View current Owners Club roster claims across the league.</p>
       </section>
 
-      <section class="games-toolbar">
-        <label>
-          Week
-          <select id="games-week-select"></select>
-        </label>
-        <p id="games-status" class="admin-note" role="status"></p>
+      <section class="lineup-card players-controls">
+        <h2>Roster Browser</h2>
+        <div class="players-filter-grid rosters-filter-grid">
+          <label>
+            Search
+            <input id="rosters-search" type="search" placeholder="Player or team">
+          </label>
+          <label>
+            League
+            <select id="rosters-league">
+              <option value="all">All Leagues</option>
+            </select>
+          </label>
+          <label>
+            Team
+            <select id="rosters-team">
+              <option value="all">All Teams</option>
+            </select>
+          </label>
+        </div>
+        <p id="rosters-status" class="admin-note" role="status">Loading rosters...</p>
       </section>
 
-      <section id="best-of-week" class="best-of-week" aria-live="polite"></section>
-      <section id="games-scoreboard" class="games-scoreboard" aria-live="polite"></section>
-      <section id="games-detail" class="games-detail" aria-live="polite"></section>
+      <section id="rosters-grid" class="rosters-grid" aria-live="polite"></section>
     </main>
 
     <footer class="site-footer">
@@ -53,6 +67,6 @@
       <span>Owners Club Baseball ALL RIGHTS RESERVED &reg;</span>
     </footer>
 
-    <script src="/games.js?v=20260714g" type="module"></script>
+    <script src="/rosters.js?v=20260720a" type="module"></script>
   </body>
 </html>

@@ -2203,6 +2203,105 @@ h1 {
   grid-template-columns: minmax(260px, 1fr) minmax(150px, 220px) minmax(150px, 220px);
 }
 
+.rosters-shell {
+  max-width: 1540px;
+}
+
+.rosters-filter-grid {
+  grid-template-columns: minmax(260px, 1fr) minmax(170px, 220px) minmax(220px, 320px);
+}
+
+.rosters-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+  margin-top: 16px;
+}
+
+.roster-card {
+  background: #ffffff;
+  border: 1px solid var(--line);
+}
+
+.roster-card-header {
+  align-items: center;
+  background: #f4f4f4;
+  border-bottom: 3px solid #1f1f1f;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 12px;
+}
+
+.roster-card-header span {
+  color: #666666;
+  display: block;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.roster-card-header a {
+  color: var(--red);
+  display: inline-block;
+  font-family: "Oswald", sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  margin-top: 4px;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.roster-card-header a:hover {
+  text-decoration: underline;
+}
+
+.roster-card-header strong {
+  align-items: center;
+  background: #1f1f1f;
+  color: #ffffff;
+  display: inline-flex;
+  font-family: "Oswald", sans-serif;
+  font-size: 20px;
+  justify-content: center;
+  min-height: 36px;
+  min-width: 42px;
+  padding: 4px 8px;
+}
+
+.roster-table {
+  min-width: 0;
+}
+
+.roster-table th,
+.roster-table td {
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.roster-table th:nth-child(2),
+.roster-table td:nth-child(2) {
+  text-align: center;
+  width: 60px;
+}
+
+.roster-table th:nth-child(3),
+.roster-table td:nth-child(3) {
+  width: 100px;
+}
+
+.roster-table td:first-child {
+  font-weight: 800;
+}
+
+.roster-empty {
+  color: #666666;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
 .players-filter-grid label {
   color: #555555;
   display: grid;
