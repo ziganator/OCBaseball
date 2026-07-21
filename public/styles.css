@@ -690,6 +690,51 @@ h1 {
   white-space: pre-wrap;
 }
 
+.yahoo-status-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.yahoo-status-item {
+  border: 1px solid var(--line);
+  display: grid;
+  gap: 5px;
+  min-height: 82px;
+  padding: 13px;
+}
+
+.yahoo-status-item span {
+  color: var(--red);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.yahoo-status-item strong {
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.yahoo-status-wide {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.yahoo-league-list .admin-table td span {
+  margin-top: 6px;
+}
+
+.yahoo-league-list a {
+  color: var(--red);
+  font-weight: 800;
+}
+
+.yahoo-config-list {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  line-height: 1.7;
+}
+
 .stats-summary {
   display: grid;
   gap: 16px;

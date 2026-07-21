@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Yahoo Admin - Owners Club Baseball</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css?v=20260720a">
+  </head>
+  <body>
+    <header class="site-header menu-header">
+      <div class="header-inner">
+        <a class="header-logo" href="/" aria-label="Owners Club Baseball home">
+          <img src="/assets/OC%20Icon.png" alt="">
+        </a>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="/">Season</a>
+          <a href="/games.html">Games</a>
+          <a href="/teams.html">Teams</a>
+          <a href="/rosters.html">Rosters</a>
+          <a href="/my-team.html">My Team</a>
+          <a href="/event-cards.html">Event Cards</a>
+          <a href="/archives.html">Archives</a>
+          <a href="/admin.html" aria-current="page">Admin</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="admin-shell">
+        <div class="admin-heading">
+          <div>
+            <h1>Yahoo Admin</h1>
+            <p class="section-kicker">Fantasy Sports connection</p>
+          </div>
+          <button id="logout-button" class="admin-secondary" type="button">Log Out</button>
+        </div>
+
+        <div id="yahoo-status" class="admin-status" role="status"></div>
+
+        <div class="admin-layout">
+          <aside class="admin-sidebar">
+            <a class="admin-secondary admin-link-button" href="/admin.html">Admin Home</a>
+            <button id="connect-yahoo-button" class="admin-primary" type="button">Connect Yahoo</button>
+            <button id="load-leagues-button" class="admin-secondary" type="button">Load Yahoo Leagues</button>
+            <button id="refresh-yahoo-button" class="admin-secondary" type="button">Refresh Status</button>
+            <p class="admin-note">This first pass only connects Yahoo and discovers MLB fantasy leagues.</p>
+          </aside>
+
+          <div class="admin-form">
+            <section class="admin-panel">
+              <h2>Connection</h2>
+              <div id="yahoo-connection-summary" class="yahoo-status-grid"></div>
+            </section>
+
+            <section class="admin-panel">
+              <h2>Yahoo MLB Leagues</h2>
+              <div id="yahoo-leagues" class="yahoo-league-list">
+                <p class="admin-note">Connect Yahoo, then load leagues.</p>
+              </div>
+            </section>
+
+            <section class="admin-panel">
+              <h2>Cloudflare Variables</h2>
+              <div class="admin-code yahoo-config-list">YAHOO_CLIENT_ID
+YAHOO_CLIENT_SECRET
+YAHOO_REDIRECT_URI
+YAHOO_SCOPES
+YAHOO_OAUTH_STATE_SECRET
+YAHOO_TOKEN_ENCRYPTION_KEY
+SUPABASE_SERVICE_ROLE_KEY</div>
+            </section>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <a class="footer-logo" href="/" aria-label="Owners Club Baseball home">
+        <img src="/assets/OC%20Icon.png" alt="">
+      </a>
+      <span>Owners Club Baseball ALL RIGHTS RESERVED &reg;</span>
+    </footer>
+
+    <script src="/admin-yahoo.js?v=20260720a" type="module"></script>
+  </body>
+</html>
