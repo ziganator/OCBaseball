@@ -26,6 +26,28 @@ export function missingConfig(config, names) {
   return names.filter((name) => !config[name]);
 }
 
+export function defaultYahooRedirectUri(request) {
+  return `${new URL(request.url).origin}/api/yahoo/callback`;
+}
+
+export function yahooConfigForRequest(config, request) {
+  return {
+    ...config,
+    yahooRedirectUri: config.yahooRedirectUri || defaultYahooRedirectUri(request)
+  };
+}
+
+export function redirectUriHostMismatch(config, request) {
+  if (!config.yahooRedirectUri) return null;
+  const current = new URL(request.url);
+  const configured = new URL(config.yahooRedirectUri);
+  if (configured.origin === current.origin) return null;
+  return {
+    configured: config.yahooRedirectUri,
+    expected: defaultYahooRedirectUri(request)
+  };
+}
+
 export function jsonResponse(body, status = 200) {
   return Response.json(body, { status });
 }

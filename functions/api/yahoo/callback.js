@@ -6,7 +6,8 @@ import {
   missingConfig,
   requireAdminUser,
   saveConnection,
-  verifyState
+  verifyState,
+  yahooConfigForRequest
 } from "./_utils.js";
 
 function redirectHtml(target, message) {
@@ -26,13 +27,12 @@ function redirectHtml(target, message) {
 }
 
 export async function onRequestGet(context) {
-  const config = envConfig(context.env);
+  const config = yahooConfigForRequest(envConfig(context.env), context.request);
   const missing = missingConfig(config, [
     "supabaseUrl",
     "supabaseServiceRoleKey",
     "yahooClientId",
     "yahooClientSecret",
-    "yahooRedirectUri",
     "yahooStateSecret",
     "yahooTokenEncryptionKey"
   ]);

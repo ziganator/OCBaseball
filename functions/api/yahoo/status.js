@@ -1,14 +1,18 @@
 import {
   envConfig,
+  defaultYahooRedirectUri,
   getAuthenticatedUser,
   jsonResponse,
   loadConnection,
   missingConfig,
+  redirectUriHostMismatch,
   requireAdminUser
 } from "./_utils.js";
 
 export async function onRequestGet(context) {
   const config = envConfig(context.env);
+  const currentCallbackUri = defaultYahooRedirectUri(context.request);
+  const mismatch = redirectUriHostMismatch(config, context.request);
 
   try {
     const user = await getAuthenticatedUser(config, context.request);
@@ -18,7 +22,6 @@ export async function onRequestGet(context) {
       "supabaseServiceRoleKey",
       "yahooClientId",
       "yahooClientSecret",
-      "yahooRedirectUri",
       "yahooStateSecret",
       "yahooTokenEncryptionKey"
     ]);
@@ -28,6 +31,9 @@ export async function onRequestGet(context) {
         configured: false,
         connected: false,
         missing,
+        redirectUri: config.yahooRedirectUri || currentCallbackUri,
+        currentCallbackUri,
+        redirectUriMatchesCurrentHost: !mismatch,
         user: {
           id: user.id,
           email: user.email || ""
@@ -42,6 +48,9 @@ export async function onRequestGet(context) {
       connected: Boolean(connection),
       yahooGuid: connection?.yahoo_guid || "",
       scopes: connection?.scopes || "",
+      redirectUri: config.yahooRedirectUri || currentCallbackUri,
+      currentCallbackUri,
+      redirectUriMatchesCurrentHost: !mismatch,
       expiresAt: connection?.expires_at || null,
       profile: connection?.profile || null,
       updatedAt: connection?.updated_at || null,

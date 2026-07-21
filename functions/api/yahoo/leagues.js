@@ -5,6 +5,7 @@ import {
   missingConfig,
   requireAdminUser,
   validYahooConnection,
+  yahooConfigForRequest,
   yahooFantasyRequest
 } from "./_utils.js";
 
@@ -89,14 +90,13 @@ function normalizeLeagues(raw) {
 }
 
 export async function onRequestGet(context) {
-  const config = envConfig(context.env);
+  const config = yahooConfigForRequest(envConfig(context.env), context.request);
   const missing = missingConfig(config, [
     "supabaseUrl",
     "supabaseAnonKey",
     "supabaseServiceRoleKey",
     "yahooClientId",
     "yahooClientSecret",
-    "yahooRedirectUri",
     "yahooStateSecret",
     "yahooTokenEncryptionKey"
   ]);

@@ -39,6 +39,7 @@ function renderSummary(data = {}) {
   const items = [
     ["Status", statusText],
     ["Logged In As", data.user?.email || "Unknown"],
+    ["Callback URI", data.redirectUri || data.currentCallbackUri || "Not set"],
     ["Yahoo GUID", data.yahooGuid || "Not connected"],
     ["Scopes", data.scopes || "Not connected"],
     ["Token Expires", formatDate(data.expiresAt)],
@@ -52,6 +53,7 @@ function renderSummary(data = {}) {
         <strong>${escapeHtml(value)}</strong>
       </div>
     `).join("")}
+    ${data.redirectUriMatchesCurrentHost === false ? `<p class="admin-note yahoo-status-wide">Yahoo is pointed at a different site. Use this callback URI instead: ${escapeHtml(data.currentCallbackUri)}</p>` : ""}
     ${missing ? `<p class="admin-note yahoo-status-wide">Missing: ${escapeHtml(missing)}</p>` : ""}
   `;
 }
@@ -123,6 +125,13 @@ async function loadStatus() {
   if (!data.configured) {
     setStatus("Yahoo setup is missing one or more Cloudflare variables.", "error");
     connectButton.disabled = true;
+    loadLeaguesButton.disabled = true;
+    return data;
+  }
+
+  if (data.redirectUriMatchesCurrentHost === false) {
+    setStatus("Yahoo redirect URI is pointed at a different site.", "error");
+    connectButton.disabled = false;
     loadLeaguesButton.disabled = true;
     return data;
   }
