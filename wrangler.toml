@@ -2,6 +2,7 @@ name = "ownersclub-baseball"
 compatibility_date = "2026-07-01"
 main = "src/worker.js"
 pages_build_output_dir = "public"
+keep_vars = true
 
 [assets]
 directory = "./public"
