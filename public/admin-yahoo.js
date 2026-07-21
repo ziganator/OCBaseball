@@ -142,6 +142,14 @@ async function loadStatus() {
   return data;
 }
 
+function yahooReturnErrorFromParams() {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get("yahoo_error") || params.get("error") || "";
+  const description = params.get("yahoo_error_description") || "";
+  if (!code) return "";
+  return description ? `${code}: ${description}` : code;
+}
+
 async function connectYahoo() {
   setStatus("Starting Yahoo authorization...");
   const data = await authFetch("/api/yahoo/start", { method: "POST" });
@@ -161,15 +169,19 @@ try {
   const session = await requireSession();
   if (session) {
     const params = new URLSearchParams(window.location.search);
+    const yahooReturnError = yahooReturnErrorFromParams();
     if (params.get("connected") === "1") {
       setStatus("Yahoo connected. Checking status...");
       window.history.replaceState({}, "", window.location.pathname);
-    } else if (params.get("error")) {
-      setStatus(`Yahoo connection failed: ${params.get("error")}`, "error");
+    } else if (yahooReturnError) {
+      setStatus(`Yahoo connection failed: ${yahooReturnError}`, "error");
       window.history.replaceState({}, "", window.location.pathname);
     }
 
     await loadStatus();
+    if (yahooReturnError) {
+      setStatus(`Yahoo connection failed: ${yahooReturnError}`, "error");
+    }
   }
 } catch (error) {
   setStatus(error.message, "error");

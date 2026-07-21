@@ -44,9 +44,13 @@ export async function onRequestGet(context) {
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");
   const yahooError = url.searchParams.get("error");
+  const yahooErrorDescription = url.searchParams.get("error_description") || url.searchParams.get("error_uri") || "";
 
   if (yahooError) {
-    return htmlResponse(redirectHtml(`/admin-yahoo.html?error=${encodeURIComponent(yahooError)}`, "Yahoo denied the connection."), 400);
+    const target = new URL("/admin-yahoo.html", url.origin);
+    target.searchParams.set("yahoo_error", yahooError);
+    if (yahooErrorDescription) target.searchParams.set("yahoo_error_description", yahooErrorDescription);
+    return htmlResponse(redirectHtml(target.pathname + target.search, "Yahoo returned an authorization error."), 400);
   }
 
   if (!code || !state) {
