@@ -117,6 +117,10 @@ async function loadWeek() {
 }
 
 function renderBestOfWeek() {
+  if (currentData?.run?.metadata?.weekComplete === false) {
+    bestOfWeekEl.innerHTML = "";
+    return;
+  }
   const best = bestOfWeek(currentData);
   if (!best.length) {
     bestOfWeekEl.innerHTML = "";
