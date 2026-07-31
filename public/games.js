@@ -381,8 +381,11 @@ function scoreboardTable(league, games) {
 }
 
 function scoreboardRow(game) {
-  const awayWon = Number(game.away_score) > Number(game.home_score);
-  const homeWon = Number(game.home_score) > Number(game.away_score);
+  const awayLead = Number(game.away_lead || 0);
+  const homeLead = Number(game.home_lead || 0);
+  const hasProjectedLeader = awayLead !== homeLead;
+  const awayWon = hasProjectedLeader ? awayLead > homeLead : Number(game.away_score) > Number(game.home_score);
+  const homeWon = hasProjectedLeader ? homeLead > awayLead : Number(game.home_score) > Number(game.away_score);
   return `
     <tr class="is-${escapeHtml(game.league_code)} ${selectedMatchup === game.matchup_key ? "is-selected" : ""}" data-matchup="${escapeHtml(game.matchup_key)}" tabindex="0">
       <td>${formatPoints(game.away_psr)}</td>

@@ -4887,3 +4887,7 @@ tbody tr:last-child td {
   .schedule-card { padding: 6px; }
   .schedule-game-links { inset: 6px; width: 980px; }
 }
+
+.event-deal-panel { margin-bottom: 24px; }
+.event-deal-panel .admin-actions { margin-top: 18px; }
+.event-deal-panel .admin-note { margin-bottom: 0; }
