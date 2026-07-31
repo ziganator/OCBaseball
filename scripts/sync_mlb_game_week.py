@@ -174,7 +174,8 @@ def fetch_mlb_days(start, end):
     with ThreadPoolExecutor(max_workers=4) as executor:
         game_data = {game_pk: (box, feed) for game_pk, box, feed in executor.map(fetch_game, final_game_pks)}
     for day in schedule.get("dates", []):
-        final_games = [game for game in day.get("games", []) if game.get("status", {}).get("abstractGameState") == "Final"]
+        scheduled_games = day.get("games", [])
+        final_games = [game for game in scheduled_games if game.get("status", {}).get("abstractGameState") == "Final"]
         players = defaultdict(lambda: {"name": "", "batting": {}, "pitching": {}, "grandSlams": 0})
         for game in final_games:
             game_pk = game["gamePk"]
@@ -195,7 +196,12 @@ def fetch_mlb_days(start, end):
                         stats = row.get("stats", {}).get(group, {})
                         if stats and int(stats.get("gamesPlayed", stats.get("gamesPitched", 0)) or 0):
                             merge_stats(entry[group], stats)
-        results[day["date"]] = {"games": len(final_games), "players": dict(players)}
+        results[day["date"]] = {
+            "games": len(final_games),
+            "scheduledGames": len(scheduled_games),
+            "allFinal": bool(scheduled_games) and len(final_games) == len(scheduled_games),
+            "players": dict(players),
+        }
     return results
 
 
@@ -234,7 +240,8 @@ def main():
     mlb = fetch_mlb_days(dates[0], dates[-1])
     completed_dates = [day for day in dates if mlb.get(day, {}).get("games", 0)]
     display_dates = completed_dates or [dates[0]]
-    week_complete = dates[-1] in completed_dates
+    final_day = mlb.get(dates[-1], {})
+    week_complete = bool(final_day.get("allFinal"))
 
     player_lookup = {}
     for stat_date, day in mlb.items():
