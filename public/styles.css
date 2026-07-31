@@ -4911,6 +4911,37 @@ tbody tr:last-child td {
 .event-deal-panel { margin-bottom: 24px; }
 .event-deal-panel .admin-actions { margin-top: 18px; }
 .event-deal-panel .admin-note { margin-bottom: 0; }
+.event-deal-panel label {
+  color: #555555;
+  display: grid;
+  font-size: 12px;
+  font-weight: 800;
+  gap: 7px;
+  text-transform: uppercase;
+}
+.event-deal-panel select {
+  appearance: none;
+  background-color: #ffffff;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #555555 50%),
+    linear-gradient(135deg, #555555 50%, transparent 50%);
+  background-position: calc(100% - 18px) 20px, calc(100% - 12px) 20px;
+  background-repeat: no-repeat;
+  background-size: 6px 6px, 6px 6px;
+  border: 1px solid #c5c5c5;
+  border-radius: 2px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 15px;
+  min-height: 46px;
+  padding: 10px 38px 10px 12px;
+  width: 100%;
+}
+.event-deal-panel select:focus {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(180, 0, 0, 0.12);
+  outline: none;
+}
 .league-admin-card { margin-bottom: 24px; }
 .league-admin-card > .admin-primary { margin-top: 18px; }
 .league-admin-heading { align-items: center; display: flex; gap: 12px; }
