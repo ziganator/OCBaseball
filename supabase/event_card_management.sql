@@ -1,5 +1,5 @@
 -- Commissioner-managed Event Card deck, hands, and audit history.
--- Run after supabase/schema.sql and supabase/admin_auth.sql.
+-- Run after supabase/schema.sql, supabase/admin_auth.sql, and supabase/league_management.sql.
 
 BEGIN;
 
@@ -123,6 +123,7 @@ DECLARE selected_type_id BIGINT; new_holding_id BIGINT;
 BEGIN
   IF NOT public.is_commissioner_user(auth.uid()) THEN RAISE EXCEPTION 'Commissioner access required.'; END IF;
   IF NOT EXISTS (SELECT 1 FROM public.teams WHERE id = p_team_id AND active) THEN RAISE EXCEPTION 'Select an active team.'; END IF;
+  IF NOT public.team_event_cards_enabled(p_team_id) THEN RAISE EXCEPTION 'Event Cards are disabled for this team''s league.'; END IF;
   PERFORM pg_advisory_xact_lock(hashtext('owners-club-event-card-deck'));
 
   IF p_card_type_id IS NULL THEN

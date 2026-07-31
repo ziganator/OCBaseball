@@ -4911,3 +4911,13 @@ tbody tr:last-child td {
 .event-deal-panel { margin-bottom: 24px; }
 .event-deal-panel .admin-actions { margin-top: 18px; }
 .event-deal-panel .admin-note { margin-bottom: 0; }
+.league-admin-card { margin-bottom: 24px; }
+.league-admin-card > .admin-primary { margin-top: 18px; }
+.league-admin-heading { align-items: center; display: flex; gap: 12px; }
+.league-admin-heading img { height: 42px; object-fit: contain; width: 64px; }
+.league-structure-grid { display: grid; gap: 18px; grid-template-columns: repeat(2,minmax(0,1fr)); margin-top: 22px; }
+.league-structure-grid > section { border: 1px solid var(--line); padding: 14px; }
+.league-structure-grid label { color: #555; display: grid; font-size: 12px; font-weight: 800; gap: 7px; text-transform: uppercase; }
+.league-structure-grid input,.league-division-row input { border: 1px solid #cfcfcf; font: inherit; min-height: 38px; padding: 7px 9px; width: 100%; }
+.league-division-row { display: grid; gap: 8px; grid-template-columns: 1fr auto; margin-top: 12px; }
+@media(max-width:760px){.league-structure-grid{grid-template-columns:1fr;}}
