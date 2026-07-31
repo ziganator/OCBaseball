@@ -4947,6 +4947,43 @@ tbody tr:last-child td {
 .card-rarity.is-rare { color: #a23434; }
 .card-rarity.is-epic { color: #b07800; }
 .card-rarity.is-legendary { color: #6f275f; }
+.event-create-panel { margin-bottom: 24px; }
+.event-create-panel .admin-actions { margin-top: 18px; }
+.event-create-panel label {
+  color: #555555;
+  display: grid;
+  font-size: 12px;
+  font-weight: 800;
+  gap: 7px;
+  text-transform: uppercase;
+}
+.event-create-panel input,
+.event-create-panel select {
+  border: 1px solid #c5c5c5;
+  color: var(--ink);
+  font: inherit;
+  min-height: 42px;
+  padding: 8px 10px;
+  width: 100%;
+}
+.card-total-input {
+  box-sizing: border-box;
+  max-width: 5.25rem;
+  width: 5.25rem;
+}
+.deck-card-thumbnail {
+  display: block;
+  height: 54px;
+  object-fit: cover;
+  width: 42px;
+}
+.deck-card-placeholder {
+  color: #777777;
+  display: inline-block;
+  font-size: 10px;
+  line-height: 1.1;
+  width: 42px;
+}
 .league-admin-card { margin-bottom: 24px; }
 .league-admin-card > .admin-primary { margin-top: 18px; }
 .league-admin-heading { align-items: center; display: flex; gap: 12px; }

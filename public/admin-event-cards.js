@@ -10,6 +10,7 @@ const dealButton = document.querySelector("#deal-button");
 const syncButton = document.querySelector("#sync-catalog-button");
 const refreshButton = document.querySelector("#refresh-card-button");
 const logoutButton = document.querySelector("#logout-button");
+const createCardForm = document.querySelector("#create-card-form");
 let supabase;
 let teams = [];
 let inventory = [];
@@ -37,7 +38,7 @@ function slugify(value) { return String(value).toLowerCase().replace(/[^a-z0-9]+
 
 function render() {
   teamSelect.innerHTML = teams.map((team) => `<option value="${team.id}">${escapeHtml(team.name)}</option>`).join("");
-  deckBody.innerHTML = inventory.length ? inventory.map((card) => `<tr data-card-type-id="${card.card_type_id}"><td>${escapeHtml(card.name)}</td><td><span class="card-rarity is-${card.rarity}">${escapeHtml(card.rarity)}</span></td><td><input type="number" min="${card.held_copies}" value="${card.total_copies}" data-total></td><td>${card.held_copies}</td><td><strong>${card.available_copies}</strong></td><td><button class="admin-secondary table-action" type="button" data-save-total>Save</button></td></tr>`).join("") : `<tr><td colspan="6">No card types yet. Sync the gallery catalog to begin.</td></tr>`;
+  deckBody.innerHTML = inventory.length ? inventory.map((card) => `<tr data-card-type-id="${card.card_type_id}"><td>${card.image_url ? `<a href="${escapeHtml(card.image_url)}" target="_blank" rel="noopener"><img class="deck-card-thumbnail" src="${escapeHtml(card.image_url)}" alt="${escapeHtml(card.name)}"></a>` : `<span class="deck-card-placeholder">No image</span>`}</td><td>${escapeHtml(card.name)}</td><td><span class="card-rarity is-${card.rarity}">${escapeHtml(card.rarity)}</span></td><td><input class="card-total-input" type="number" min="${card.held_copies}" max="999" value="${card.total_copies}" data-total></td><td>${card.held_copies}</td><td><strong>${card.available_copies}</strong></td><td><button class="admin-secondary table-action" type="button" data-save-total>Save</button></td></tr>`).join("") : `<tr><td colspan="7">No card types yet. Sync the gallery catalog to begin.</td></tr>`;
   handsBody.innerHTML = hands.length ? hands.map((holding) => `<tr data-holding-id="${holding.holding_id}"><td>${escapeHtml(holding.team_name)}</td><td>${escapeHtml(holding.card_name)}</td><td>${new Date(holding.assigned_at).toLocaleString()}</td><td><button class="admin-secondary table-action" type="button" data-release="played">Played</button> <button class="admin-secondary table-action" type="button" data-release="returned">Return</button></td></tr>`).join("") : `<tr><td colspan="4">No cards are currently held by teams.</td></tr>`;
   activityBody.innerHTML = activity.length ? activity.map((row) => `<tr><td>${new Date(row.occurred_at).toLocaleString()}</td><td>${escapeHtml(row.teams?.name || "")}</td><td>${escapeHtml(row.event_card_types?.name || "")}</td><td>${escapeHtml(row.action.replaceAll("_", " "))}</td></tr>`).join("") : `<tr><td colspan="4">No card activity yet.</td></tr>`;
 }
@@ -88,6 +89,22 @@ async function dealCard() {
   const dealt = data?.[0]; setStatus(`${dealt?.card_name || "Card"} assigned to ${dealt?.team_name || "team"}.`); await loadData();
 }
 
+async function createCard() {
+  const name = document.querySelector("#new-card-name").value.trim();
+  const rarity = document.querySelector("#new-card-rarity").value;
+  const totalCopies = Number(document.querySelector("#new-card-total").value);
+  const imageUrl = document.querySelector("#new-card-image").value.trim();
+  if (!name) throw new Error("Enter a card name.");
+  if (!Number.isInteger(totalCopies) || totalCopies < 0 || totalCopies > 999) throw new Error("Total copies must be between 0 and 999.");
+  setStatus(`Creating ${name}...`);
+  const { error } = await supabase.from("event_card_types").insert({ slug: slugify(name), name, rarity, total_copies: totalCopies, image_url: imageUrl || null, active: true });
+  if (error) throw error;
+  createCardForm.reset();
+  document.querySelector("#new-card-total").value = "0";
+  setStatus(`${name} was added to the deck.`);
+  await loadData();
+}
+
 async function saveTotal(row) {
   const total = Number(row.querySelector("[data-total]").value);
   const { error } = await supabase.rpc("commissioner_set_event_card_total", { p_card_type_id: Number(row.dataset.cardTypeId), p_total_copies: total });
@@ -109,5 +126,6 @@ logoutButton.addEventListener("click", signOut);
 refreshButton.addEventListener("click", () => loadData().catch((error) => setStatus(error.message, "error")));
 syncButton.addEventListener("click", () => syncCatalog().catch((error) => setStatus(error.message, "error")));
 dealButton.addEventListener("click", () => dealCard().catch((error) => setStatus(error.message, "error")));
+createCardForm.addEventListener("submit", (event) => { event.preventDefault(); createCard().catch((error) => setStatus(error.message, "error")); });
 deckBody.addEventListener("click", (event) => { const button = event.target.closest("[data-save-total]"); if (button) saveTotal(button.closest("tr")).catch((error) => setStatus(error.message, "error")); });
 handsBody.addEventListener("click", (event) => { const button = event.target.closest("[data-release]"); if (button) releaseCard(button.closest("tr"), button.dataset.release).catch((error) => setStatus(error.message, "error")); });
