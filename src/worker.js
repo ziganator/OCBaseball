@@ -2,6 +2,7 @@ import { onRequestGet as config } from "../functions/api/config.js";
 import { onRequestGet as gameResults } from "../functions/api/game-results.js";
 import { onRequestGet as standings } from "../functions/api/standings.js";
 import { onRequestGet as teamSiteData } from "../functions/api/team-site-data.js";
+import { onRequestGet as teamSchedule } from "../functions/api/team-schedule.js";
 import { onRequestGet as yahooCallback } from "../functions/api/yahoo/callback.js";
 import { onRequestGet as yahooLeagues } from "../functions/api/yahoo/leagues.js";
 import { onRequestPost as yahooStart } from "../functions/api/yahoo/start.js";
@@ -13,6 +14,7 @@ const routes = new Map([
   ["GET /api/game1-results", gameResults],
   ["GET /api/standings", standings],
   ["GET /api/team-site-data", teamSiteData],
+  ["GET /api/team-schedule", teamSchedule],
   ["GET /api/yahoo/callback", yahooCallback],
   ["GET /api/yahoo/leagues", yahooLeagues],
   ["GET /api/yahoo/status", yahooStatus],

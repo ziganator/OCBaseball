@@ -266,7 +266,17 @@ async function loadSeasonResults() {
   const weeks = await Promise.all(
     Array.from({ length: WEEK_COUNT }, (_, index) => fetchWeek(index + 1).catch(() => null))
   );
-  return weeks.filter((week) => week?.matchups?.length);
+  return weeks.filter((week) => week?.matchups?.length && isCompletedWeek(week));
+}
+
+function isCompletedWeek(week) {
+  const run = week?.run;
+  return Boolean(
+    run?.completed_at ||
+    run?.status === "complete" ||
+    run?.status === "completed" ||
+    run?.metadata?.weekComplete === true
+  );
 }
 
 function buildStandings(weeks) {

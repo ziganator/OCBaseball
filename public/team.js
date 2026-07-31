@@ -14,6 +14,7 @@ let teams = seedTeams;
 let displayTeam = seedDisplayTeam;
 let sourceTeam = seedFindTeam(slug) || seedTeams[0];
 let team = displayTeam(sourceTeam);
+let scheduleResults = [];
 
 async function loadPublishedTeamData() {
   try {
@@ -33,6 +34,36 @@ async function loadPublishedTeamData() {
 
 function teamImage(src, alt) {
   return src ? `<img src="${src}" alt="${alt}">` : "";
+}
+
+function normalizeTeamName(value) {
+  return String(value || "").trim().toUpperCase().replace("SAN ANTONIO OCATILLOS", "SAN ANTONIO OCOTILLOS");
+}
+
+async function loadTeamSchedule() {
+  try {
+    const response = await fetch(`/api/team-schedule?season=32&team=${encodeURIComponent(normalizeTeamName(team.name))}`, { cache: "no-store" });
+    if (!response.ok) return;
+    const payload = await response.json();
+    scheduleResults = payload.data || [];
+  } catch {
+    scheduleResults = [];
+  }
+}
+
+function renderLiveSchedule() {
+  const byWeek = new Map(scheduleResults.map((row) => [Number(row.week_number), row]));
+  return `<div class="team-live-schedule" aria-label="Live Season 32 scores">${Array.from({ length: 18 }, (_, index) => {
+    const week = index + 1;
+    const row = byWeek.get(week);
+    const isAway = row && normalizeTeamName(row.away_team_name) === normalizeTeamName(team.name);
+    const teamScore = row ? Number(isAway ? row.away_score : row.home_score) : null;
+    const opponentScore = row ? Number(isAway ? row.home_score : row.away_score) : null;
+    const complete = Boolean(row && (row.run?.completed_at || row.run?.status === "completed" || row.run?.status === "complete" || row.run?.metadata?.weekComplete === true));
+    const won = teamScore > opponentScore || (teamScore === opponentScore && !isAway);
+    const result = complete ? (won ? "W" : "L") : "";
+    return `<a href="/games.html?week=${week}" class="team-live-schedule-row" aria-label="Open Game ${week}"><span class="team-live-result">${result}</span><span class="team-live-score">${row ? teamScore : ""}</span><span class="team-live-score">${row ? opponentScore : ""}</span></a>`;
+  }).join("")}</div>`;
 }
 
 function favoriteTeamFor(team) {
@@ -109,10 +140,10 @@ function renderTeamPage() {
 
     ${infoImage ? `
       <section class="hermanos-info-sheet">
-        ${teamImage(infoImage, `${team.name} team information`)}
+        <div class="hermanos-info-sheet-inner">${teamImage(infoImage, `${team.name} team information`)}${renderLiveSchedule()}</div>
       </section>
     ` : ""}
   `;
 }
 
-loadPublishedTeamData().finally(renderTeamPage);
+loadPublishedTeamData().then(loadTeamSchedule).finally(renderTeamPage);

@@ -4652,6 +4652,45 @@ tbody tr:last-child td {
   height: auto;
   max-width: min(100%, 1192px);
 }
+.hermanos-info-sheet-inner {
+  max-width: min(100%, 1192px);
+  position: relative;
+  width: 1192px;
+}
+.hermanos-info-sheet-inner > img { max-width: 100%; width: 100%; }
+.team-live-schedule {
+  left: 1.8456%;
+  position: absolute;
+  top: 5.7637%;
+  width: 27.349%;
+}
+.team-live-schedule-row {
+  color: #111111;
+  aspect-ratio: 326 / 21;
+  display: block;
+  font-family: Arial, sans-serif;
+  font-size: clamp(6px, 1.17vw, 14px);
+  font-weight: 700;
+  line-height: 1;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+}
+.team-live-result,
+.team-live-score {
+  align-items: center;
+  background: #ffffff;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+}
+.team-live-result { left: 12.27%; width: 12%; }
+.team-live-score:nth-of-type(2) { left: 66.87%; width: 16.56%; }
+.team-live-score:nth-of-type(3) { left: 83.44%; width: 16.56%; }
+.team-live-schedule-row:hover .team-live-result,
+.team-live-schedule-row:hover .team-live-score { background: #fff3b8; }
 
 .site-footer {
   align-items: center;
