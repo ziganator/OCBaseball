@@ -32,6 +32,7 @@ const logoutButton = document.querySelector("#logout-button");
 const newTeamButton = document.querySelector("#new-team-button");
 const saveLocalButton = document.querySelector("#save-local-button");
 const saveSupabaseButton = document.querySelector("#save-supabase-button");
+const deleteTeamButton = document.querySelector("#delete-team-button");
 const exportButton = document.querySelector("#export-button");
 const favoriteDialog = document.querySelector("#favorite-dialog");
 const openFavoriteDialogButton = document.querySelector("#open-favorite-dialog-button");
@@ -360,6 +361,33 @@ function addTeam() {
   renderForm();
 }
 
+async function deleteTeam() {
+  const selected = activeTeam();
+  if (!selected) return;
+  if (state.teams.length <= 1) {
+    setStatus("The final team cannot be deleted.", "error");
+    return;
+  }
+  const rendered = displayTeam(selected);
+  const confirmed = window.confirm(`Delete ${rendered.name} from the active site? Historical game, roster, and league records will be preserved.`);
+  if (!confirmed) return;
+
+  const previousTeams = state.teams;
+  state.teams = state.teams.filter((team) => team.slug !== selected.slug);
+  activeSlug = state.teams[0]?.slug || "";
+  localStorage.setItem(DRAFT_KEY, JSON.stringify(state));
+  renderForm();
+  const saved = await saveSupabaseDraft();
+  if (!saved) {
+    state.teams = previousTeams;
+    activeSlug = selected.slug;
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(state));
+    renderForm();
+    return;
+  }
+  setStatus(`${rendered.name} was deleted from the active site. Historical records were preserved.`);
+}
+
 function uniqueSlug(base) {
   let slug = base || "new-team";
   let index = 2;
@@ -412,7 +440,7 @@ function saveLocal() {
 async function saveSupabaseDraft() {
   if (!session) {
     setStatus("Log in with Supabase Auth before saving a database draft.", "error");
-    return;
+    return false;
   }
   syncCurrentTeamFromForm();
   associateFavoriteWithActiveTeam();
@@ -440,13 +468,15 @@ async function saveSupabaseDraft() {
 
     if (publishError) {
       setStatus(`Teams saved privately, but public team pages were not updated: ${publishError.message}`, "error");
-      return;
+      return false;
     }
 
     localStorage.setItem(DRAFT_KEY, JSON.stringify(state));
     setStatus("Teams saved to Supabase and published to team pages.");
+    return true;
   } catch (error) {
     setStatus(`Supabase team save failed: ${error.message}`, "error");
+    return false;
   }
 }
 
@@ -507,6 +537,7 @@ closeFavoriteDialogButton.addEventListener("click", () => {
 newTeamButton.addEventListener("click", addTeam);
 saveLocalButton.addEventListener("click", saveLocal);
 saveSupabaseButton.addEventListener("click", saveSupabaseDraft);
+deleteTeamButton.addEventListener("click", () => deleteTeam().catch((error) => setStatus(`Could not delete team: ${error.message}`, "error")));
 exportButton.addEventListener("click", exportTeamData);
 addFavoriteButton.addEventListener("click", addFavoriteTeam);
 logoutButton.addEventListener("click", signOut);
