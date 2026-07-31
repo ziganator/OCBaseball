@@ -340,7 +340,8 @@ def main():
         supabase(base, key, table, filters, method="DELETE")
     supabase(base, key, "game_score_runs", method="POST", body=[{
         "season_number": args.season, "game_number": args.game, "week_number": args.week,
-        "source": "mlb_stats_api", "status": "complete", "completed_at": f"{date.today().isoformat()}T00:00:00Z",
+        "source": "mlb_stats_api", "status": "complete" if week_complete else "pending",
+        "completed_at": f"{date.today().isoformat()}T00:00:00Z" if week_complete else None,
         "metadata": {"startDate": dates[0], "endDate": dates[-1], "throughDate": summary["through"], "weekComplete": week_complete, "lineupMode": "effective persisted snapshot"},
     }], prefer="return=minimal")
     for table, rows in (("game_matchup_score_results", matchups), ("game_team_daily_score_results", teams), ("game_player_daily_score_results", players)):

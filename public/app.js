@@ -271,6 +271,7 @@ async function loadSeasonResults() {
 
 function isCompletedWeek(week) {
   const run = week?.run;
+  if (run?.metadata?.weekComplete === false) return false;
   return Boolean(
     run?.completed_at ||
     run?.status === "complete" ||

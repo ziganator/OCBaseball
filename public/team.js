@@ -59,7 +59,7 @@ function renderLiveSchedule() {
     const isAway = row && normalizeTeamName(row.away_team_name) === normalizeTeamName(team.name);
     const teamScore = row ? Number(isAway ? row.away_score : row.home_score) : null;
     const opponentScore = row ? Number(isAway ? row.home_score : row.away_score) : null;
-    const complete = Boolean(row && (row.run?.completed_at || row.run?.status === "completed" || row.run?.status === "complete" || row.run?.metadata?.weekComplete === true));
+    const complete = Boolean(row && row.run?.metadata?.weekComplete !== false && (row.run?.completed_at || row.run?.status === "completed" || row.run?.status === "complete" || row.run?.metadata?.weekComplete === true));
     const won = teamScore > opponentScore || (teamScore === opponentScore && !isAway);
     const result = complete ? (won ? "W" : "L") : "";
     return `<a href="/games.html?week=${week}" class="team-live-schedule-row" aria-label="Open Game ${week}"><span class="team-live-result">${result}</span><span class="team-live-score">${row ? teamScore : ""}</span><span class="team-live-score">${row ? opponentScore : ""}</span></a>`;
