@@ -5005,6 +5005,11 @@ tbody tr:last-child td {
   border-color: var(--red);
   color: #ffffff;
 }
+.event-admin-page-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: -8px 0 12px;
+}
 .league-admin-card { margin-bottom: 24px; }
 .league-admin-card > .admin-primary { margin-top: 18px; }
 .league-admin-heading { align-items: center; display: flex; gap: 12px; }

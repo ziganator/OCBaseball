@@ -7,7 +7,6 @@ const deckBody = document.querySelector("#deck-table-body");
 const handsBody = document.querySelector("#hands-table-body");
 const activityBody = document.querySelector("#activity-table-body");
 const dealButton = document.querySelector("#deal-button");
-const syncButton = document.querySelector("#sync-catalog-button");
 const refreshButton = document.querySelector("#refresh-card-button");
 const logoutButton = document.querySelector("#logout-button");
 const createCardForm = document.querySelector("#create-card-form");
@@ -124,7 +123,6 @@ try {
 
 logoutButton?.addEventListener("click", signOut);
 refreshButton?.addEventListener("click", () => loadData().catch((error) => setStatus(error.message, "error")));
-syncButton?.addEventListener("click", () => syncCatalog().catch((error) => setStatus(error.message, "error")));
 dealButton?.addEventListener("click", () => dealCard().catch((error) => setStatus(error.message, "error")));
 createCardForm?.addEventListener("submit", (event) => { event.preventDefault(); createCard().catch((error) => setStatus(error.message, "error")); });
 deckBody?.addEventListener("click", (event) => { const button = event.target.closest("[data-save-total]"); if (button) saveTotal(button.closest("tr")).catch((error) => setStatus(error.message, "error")); });
