@@ -67,8 +67,16 @@ async function syncCatalog() {
     const name = cardName(imageUrl);
     return { ...(existingByUrl.has(imageUrl) ? { id: existingByUrl.get(imageUrl) } : {}), slug: slugify(name), name, image_url: imageUrl, rarity: CARD_TYPE_BY_SLUG.get(slugify(name)) || "common", active: true };
   });
-  const { error } = await supabase.from("event_card_types").upsert(rows, { onConflict: "id", ignoreDuplicates: false });
-  if (error) throw error;
+  const existingRows = rows.filter((row) => row.id);
+  const newRows = rows.filter((row) => !row.id);
+  if (existingRows.length) {
+    const { error } = await supabase.from("event_card_types").upsert(existingRows, { onConflict: "id", ignoreDuplicates: false });
+    if (error) throw error;
+  }
+  if (newRows.length) {
+    const { error } = await supabase.from("event_card_types").upsert(newRows, { onConflict: "slug", ignoreDuplicates: false });
+    if (error) throw error;
+  }
   setStatus(`Synced ${rows.length} card types. Set the physical copy totals before dealing.`); await loadData();
 }
 
