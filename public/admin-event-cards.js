@@ -16,18 +16,28 @@ let inventory = [];
 let hands = [];
 let activity = [];
 
+const CARD_TYPE_GROUPS = {
+  epic: "1 Up|Bankrupt|Behind the Wheel|Big Market|Catch|Collateral Damage|Collusion|Communism|Compensation|Delegate|Draft Maneuver|Free Agent|Immunity Idol|Instigator|Justice League|Lifetime Contract|Memory Loss|No Trade Clause|Play With Fire|Raiders|Spinach|Tagged|The Box|To the Table|Trading Cards|Trending|Tuaca|Unholy Contract|Wild Card".split("|"),
+  legendary: "Authoritarianism|Black Lotus|Bonus Baby|Chain Reaction|Chaos|Clone|Defender|Eminence Grise|Evil|Fate|History Eraser Button|Magician|Oprah|Powerslave|Revenue Sharing|Sherlock|The Eye|The Kingfish|Time Warp|Voltron|White Elephant|Wish".split("|"),
+  rare: "All In|Arbitration|Bag of Holding|Bum Fight|C Block|Capitalism|Clique|Coconuts|Cost Cutting|Crystal Chamber|Friends|Gift Exchange|Kaboom|Nailed|Opt Out|Out of Options|Potato|Purge|Restructure|Reversal|Rivals|Sanctions|Schwarber Sux|Shawn Green|Silencio|Socialism|Supplementals|The Decider|The Franchise|Turf War|Twister|Unbreakable Vow|Undermine|Upgrade|Variant|Vigorish|Winning Streak".split("|"),
+  uncommon: "440|Bait|Big Al|Called Shot|Core Unit|Count|Dead Cuban Money|Deflection|Doomsday Clock|Expedite|Extra Damage|Favoritism|Hombre|Klingon Proverb|Lock Box|Long Term Deal|Luxury Tax|Magic Number|Muck|O Fer|Odds Maker|Omniscience|Parlay|Randomize|Reverse Jinx|Reward|Robin Hood|Sabotage|Slump Buster|Smackdown|Sniper|Swipe|Time Out|Under the Radar|Vacant|Villain|Whistleblower|Zero".split("|"),
+  common: "1 Year Extension|2 Year Extension|And 1|Cannonball|Enforcer|Madman|No Soup|Numbers|Pickpocket|Radical Inclusion|Renegotiation|Reveal|Sacrifice|Sandy Claws|Shield|Signed|Stop|Surplus|Sus|Taxman|The Man|Thumbs Up|Transform|Unlimited".split("|")
+};
+const CARD_TYPE_BY_SLUG = new Map(Object.entries(CARD_TYPE_GROUPS).flatMap(([type, names]) => names.map((name) => [slugify(name), type])));
+
 function escapeHtml(value) { return String(value ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;"); }
 function setStatus(message, tone = "") { statusEl.textContent = message; statusEl.dataset.tone = tone; }
 function cardName(url) {
-  const file = decodeURIComponent(String(url).split("/").pop() || "").replace(/\.(jpg|jpeg|png|webp)$/i, "").replace(/-1$/, "");
+  let file = decodeURIComponent(String(url).split("/").pop() || "").replace(/\.(jpg|jpeg|png|webp)$/i, "");
+  if (file === "Cannonball-1") file = "Cannonball";
+  if (file === "SchwarberSux") file = "Schwarber-Sux";
   return file.replaceAll("-", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 function slugify(value) { return String(value).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
 
 function render() {
   teamSelect.innerHTML = teams.map((team) => `<option value="${team.id}">${escapeHtml(team.name)}</option>`).join("");
-  cardSelect.innerHTML = `<option value="">Random from available deck</option>` + inventory.filter((card) => card.active && card.available_copies > 0).map((card) => `<option value="${card.card_type_id}">${escapeHtml(card.name)} (${card.available_copies} available)</option>`).join("");
-  deckBody.innerHTML = inventory.length ? inventory.map((card) => `<tr data-card-type-id="${card.card_type_id}"><td>${escapeHtml(card.name)}</td><td><input type="number" min="${card.held_copies}" value="${card.total_copies}" data-total></td><td>${card.held_copies}</td><td><strong>${card.available_copies}</strong></td><td><button class="admin-secondary table-action" type="button" data-save-total>Save</button></td></tr>`).join("") : `<tr><td colspan="5">No card types yet. Sync the gallery catalog to begin.</td></tr>`;
+  deckBody.innerHTML = inventory.length ? inventory.map((card) => `<tr data-card-type-id="${card.card_type_id}"><td>${escapeHtml(card.name)}</td><td><span class="card-rarity is-${card.rarity}">${escapeHtml(card.rarity)}</span></td><td><input type="number" min="${card.held_copies}" value="${card.total_copies}" data-total></td><td>${card.held_copies}</td><td><strong>${card.available_copies}</strong></td><td><button class="admin-secondary table-action" type="button" data-save-total>Save</button></td></tr>`).join("") : `<tr><td colspan="6">No card types yet. Sync the gallery catalog to begin.</td></tr>`;
   handsBody.innerHTML = hands.length ? hands.map((holding) => `<tr data-holding-id="${holding.holding_id}"><td>${escapeHtml(holding.team_name)}</td><td>${escapeHtml(holding.card_name)}</td><td>${new Date(holding.assigned_at).toLocaleString()}</td><td><button class="admin-secondary table-action" type="button" data-release="played">Played</button> <button class="admin-secondary table-action" type="button" data-release="returned">Return</button></td></tr>`).join("") : `<tr><td colspan="4">No cards are currently held by teams.</td></tr>`;
   activityBody.innerHTML = activity.length ? activity.map((row) => `<tr><td>${new Date(row.occurred_at).toLocaleString()}</td><td>${escapeHtml(row.teams?.name || "")}</td><td>${escapeHtml(row.event_card_types?.name || "")}</td><td>${escapeHtml(row.action.replaceAll("_", " "))}</td></tr>`).join("") : `<tr><td colspan="4">No card activity yet.</td></tr>`;
 }
@@ -50,8 +60,14 @@ async function syncCatalog() {
   const html = await fetch("/event-cards.html", { cache: "no-store" }).then((response) => response.text());
   const urls = [...new Set(html.match(/https:\/\/oceventcards\.com\/wp-content\/uploads\/[^"']+\.(?:jpg|jpeg|png|webp)/gi) || [])];
   if (!urls.length) throw new Error("No gallery cards were found.");
-  const rows = urls.map((imageUrl) => ({ slug: slugify(cardName(imageUrl)), name: cardName(imageUrl), image_url: imageUrl, active: true }));
-  const { error } = await supabase.from("event_card_types").upsert(rows, { onConflict: "slug", ignoreDuplicates: false });
+  const existingResult = await supabase.from("event_card_types").select("id,image_url");
+  if (existingResult.error) throw existingResult.error;
+  const existingByUrl = new Map((existingResult.data || []).map((card) => [card.image_url, card.id]));
+  const rows = urls.map((imageUrl) => {
+    const name = cardName(imageUrl);
+    return { ...(existingByUrl.has(imageUrl) ? { id: existingByUrl.get(imageUrl) } : {}), slug: slugify(name), name, image_url: imageUrl, rarity: CARD_TYPE_BY_SLUG.get(slugify(name)) || "common", active: true };
+  });
+  const { error } = await supabase.from("event_card_types").upsert(rows, { onConflict: "id", ignoreDuplicates: false });
   if (error) throw error;
   setStatus(`Synced ${rows.length} card types. Set the physical copy totals before dealing.`); await loadData();
 }
@@ -59,7 +75,7 @@ async function syncCatalog() {
 async function dealCard() {
   if (!teamSelect.value) throw new Error("Select a team.");
   setStatus("Dealing card...");
-  const { data, error } = await supabase.rpc("commissioner_assign_event_card", { p_team_id: Number(teamSelect.value), p_card_type_id: cardSelect.value ? Number(cardSelect.value) : null });
+  const { data, error } = await supabase.rpc("commissioner_assign_event_card", { p_team_id: Number(teamSelect.value), p_rarity: cardSelect.value || null });
   if (error) throw error;
   const dealt = data?.[0]; setStatus(`${dealt?.card_name || "Card"} assigned to ${dealt?.team_name || "team"}.`); await loadData();
 }
@@ -78,7 +94,7 @@ try {
   const session = await requireSession(); supabase = await getSupabaseClient();
   const { data: isCommissioner, error } = await supabase.rpc("is_commissioner_user", { check_user_id: session.user.id });
   if (error) throw error; if (!isCommissioner) throw new Error("Commissioner access is required.");
-  await loadData();
+  await syncCatalog();
 } catch (error) { setStatus(error.message, "error"); }
 
 logoutButton.addEventListener("click", signOut);

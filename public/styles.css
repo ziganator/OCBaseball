@@ -4942,6 +4942,11 @@ tbody tr:last-child td {
   box-shadow: 0 0 0 3px rgba(180, 0, 0, 0.12);
   outline: none;
 }
+.card-rarity { font-size: 11px; font-weight: 800; text-transform: uppercase; }
+.card-rarity.is-uncommon { color: #202020; }
+.card-rarity.is-rare { color: #a23434; }
+.card-rarity.is-epic { color: #b07800; }
+.card-rarity.is-legendary { color: #6f275f; }
 .league-admin-card { margin-bottom: 24px; }
 .league-admin-card > .admin-primary { margin-top: 18px; }
 .league-admin-heading { align-items: center; display: flex; gap: 12px; }
