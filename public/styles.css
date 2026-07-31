@@ -4984,6 +4984,27 @@ tbody tr:last-child td {
   line-height: 1.1;
   width: 42px;
 }
+.event-admin-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.event-admin-nav a {
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+  padding: 10px 14px;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+.event-admin-nav a:hover,
+.event-admin-nav a[aria-current="page"] {
+  background: var(--red);
+  border-color: var(--red);
+  color: #ffffff;
+}
 .league-admin-card { margin-bottom: 24px; }
 .league-admin-card > .admin-primary { margin-top: 18px; }
 .league-admin-heading { align-items: center; display: flex; gap: 12px; }
