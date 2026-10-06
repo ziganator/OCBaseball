@@ -158,7 +158,7 @@ BEGIN
   INSERT INTO public.event_card_activity (holding_id, card_type_id, team_id, action, performed_by)
   VALUES (new_holding_id, selected_type_id, p_team_id, 'assigned_random', auth.uid());
 
-  RETURN QUERY SELECT h.id, ect.id, ect.name, t.id, t.name,
+  RETURN QUERY SELECT h.id::BIGINT, ect.id::BIGINT, ect.name::TEXT, t.id::BIGINT, t.name::TEXT,
     GREATEST(0, ect.total_copies - (SELECT COUNT(*)::INT FROM public.event_card_holdings x WHERE x.card_type_id = ect.id AND x.status = 'held'))::INT
   FROM public.event_card_holdings h JOIN public.event_card_types ect ON ect.id = h.card_type_id
   JOIN public.teams t ON t.id = h.team_id WHERE h.id = new_holding_id;

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>MLB Players | Owners Club Baseball</title>
-    <link rel="stylesheet" href="/styles.css?v=20260711d">
+    <link rel="stylesheet" href="/styles.css?v=20261005b">
   </head>
   <body>
     <header class="site-header menu-header">
@@ -18,7 +18,7 @@
           <a href="/teams.html">Teams</a>
           <a href="/rosters.html">Rosters</a>
           <a href="/my-team.html">My Team</a>
-          <a href="/highlanders-lineup.html">Highlanders Lineup</a>
+          <a href="/mlb-players.html" aria-current="page">Players</a>
         </nav>
       </div>
     </header>
@@ -51,6 +51,10 @@
               <select id="players-team">
                 <option value="all">All Teams</option>
               </select>
+            </label>
+            <label>
+              Owners Club
+              <select id="players-availability"><option value="all">All Players</option><option value="available">Available in My League</option><option value="claimed">Rostered</option></select>
             </label>
           </div>
           <p id="players-status" class="admin-note" role="status">Loading MLB players...</p>
@@ -98,6 +102,6 @@
       <span>Owners Club Baseball ALL RIGHTS RESERVED &reg;</span>
     </footer>
 
-    <script src="/mlb-players.js?v=20260709j" type="module"></script>
+    <script src="/mlb-players.js?v=20261005b" type="module"></script>
   </body>
 </html>

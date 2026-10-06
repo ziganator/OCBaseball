@@ -46,6 +46,8 @@ let state = loadDraft() || {
 state = normalizeDraftState(state);
 let activeSlug = state.teams[0]?.slug || "";
 let session = null;
+let leagueStructure = [];
+let availableSeasons = [];
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -100,6 +102,19 @@ async function loadDatabaseTeamData() {
   } catch (error) {
     setStatus(`Could not load saved team data: ${error.message}`, "error");
   }
+}
+
+async function loadLeagueStructure() {
+  if (!session) return;
+  const supabase = await getSupabaseClient();
+  const [structureResult, seasonResult] = await Promise.all([
+    supabase.from("public_season_league_structure").select("*").eq("major_league_active", true).eq("league_active", true).eq("conference_active", true).eq("division_active", true).order("season_number", { ascending: false }),
+    supabase.from("seasons").select("id,major_league_id,season_number,name,status").order("season_number", { ascending: false })
+  ]);
+  if (structureResult.error) throw structureResult.error;
+  if (seasonResult.error) throw seasonResult.error;
+  leagueStructure = structureResult.data || [];
+  availableSeasons = seasonResult.data || [];
 }
 
 function slugify(value) {
@@ -205,7 +220,16 @@ function syncCurrentTeamFromForm() {
   team.established = data.get("established").trim();
   team.league = data.get("league");
   team.conference = data.get("conference");
-  team.division = data.get("division").trim();
+  team.division = team.division || "";
+  team.seasonId = Number(data.get("seasonId")) || null;
+  team.divisionId = Number(data.get("divisionId")) || null;
+  const placement = leagueStructure.find((row) => Number(row.division_id) === team.divisionId);
+  if (placement) {
+    team.majorLeague = placement.major_league_name;
+    team.league = placement.league_name;
+    team.conference = placement.conference_name;
+    team.division = placement.division_name;
+  }
   associateFavoriteWithActiveTeam(data.get("favoriteTeam") || "");
   const selectedPowers = data.getAll("powers").filter((power) => state.powers.includes(power));
   team.powers = [...new Set(selectedPowers)];
@@ -310,9 +334,18 @@ function renderForm() {
   form.elements.nickname.value = nickname;
   form.elements.owner.value = team.owner || "";
   form.elements.established.value = team.established || "";
-  form.elements.league.value = team.league || "Keystone";
-  form.elements.conference.value = team.conference || "Red";
-  form.elements.division.value = team.division || "";
+  const defaultSeason = availableSeasons.find((row) => row.status === "active") || availableSeasons[0];
+  const selectedSeasonId = Number(team.seasonId) || defaultSeason?.id || null;
+  form.elements.seasonId.innerHTML = availableSeasons.map((row) => `<option value="${row.id}">Season ${row.season_number} — ${escapeHtml(row.name)}</option>`).join("");
+  form.elements.seasonId.value = selectedSeasonId || "";
+  const seasonDivisions = leagueStructure.filter((row) => Number(row.season_id) === Number(selectedSeasonId) && row.division_id);
+  const matched = seasonDivisions.find((row) => Number(row.division_id) === Number(team.divisionId)) || seasonDivisions.find((row) => row.league_name === team.league && row.conference_name === team.conference && row.division_name === team.division) || seasonDivisions[0];
+  form.elements.divisionId.innerHTML = seasonDivisions.map((row) => `<option value="${row.division_id}">${escapeHtml(row.league_name)} / ${escapeHtml(row.conference_name)} / ${escapeHtml(row.division_name)}</option>`).join("");
+  form.elements.divisionId.value = matched?.division_id || "";
+  team.seasonId = selectedSeasonId; team.divisionId = matched?.division_id || null;
+  form.elements.majorLeague.value = matched?.major_league_name || team.majorLeague || "";
+  form.elements.league.value = matched?.league_name || team.league || "";
+  form.elements.conference.value = matched?.conference_name || team.conference || "";
   form.elements.favoriteTeam.value = team.favoriteTeam || "";
   const selectedPowers = new Set(teamPowers(team));
   [...powerSelect.options].forEach((option) => {
@@ -471,6 +504,15 @@ async function saveSupabaseDraft() {
       return false;
     }
 
+    for (const team of state.teams) {
+      if (!team.seasonId || !team.divisionId) continue;
+      const { error: structureError } = await supabase.rpc("commissioner_upsert_team_structure", {
+        p_team_name: team.name, p_city: team.city || "", p_nickname: team.nickname || "",
+        p_active: true, p_season_id: Number(team.seasonId), p_division_id: Number(team.divisionId)
+      });
+      if (structureError) throw structureError;
+    }
+
     localStorage.setItem(DRAFT_KEY, JSON.stringify(state));
     setStatus("Teams saved to Supabase and published to team pages.");
     return true;
@@ -528,6 +570,18 @@ form.addEventListener("change", () => {
   syncCurrentTeamFromForm();
   renderAssignmentTables();
 });
+form.elements.seasonId.addEventListener("change", () => {
+  const team = activeTeam(); if (team) { team.seasonId = Number(form.elements.seasonId.value); team.divisionId = null; }
+  renderForm();
+});
+form.elements.divisionId.addEventListener("change", () => {
+  const placement = leagueStructure.find((row) => Number(row.division_id) === Number(form.elements.divisionId.value));
+  if (!placement) return;
+  form.elements.majorLeague.value = placement.major_league_name;
+  form.elements.league.value = placement.league_name;
+  form.elements.conference.value = placement.conference_name;
+  syncCurrentTeamFromForm();
+});
 openFavoriteDialogButton.addEventListener("click", () => {
   favoriteDialog.showModal();
 });
@@ -543,6 +597,7 @@ addFavoriteButton.addEventListener("click", addFavoriteTeam);
 logoutButton.addEventListener("click", signOut);
 
 await loadDatabaseTeamData();
+try { await loadLeagueStructure(); } catch (error) { setStatus(`Could not load League structure: ${error.message}. Run supabase/platform_management.sql.`, "error"); }
 renderForm();
 if (!statusEl.textContent) {
   setStatus(`Logged in as ${session?.user?.email || "admin"}.`);

@@ -5074,5 +5074,13 @@ tbody tr:last-child td {
 .league-structure-grid > section { border: 1px solid var(--line); padding: 14px; }
 .league-structure-grid label { color: #555; display: grid; font-size: 12px; font-weight: 800; gap: 7px; text-transform: uppercase; }
 .league-structure-grid input,.league-division-row input { border: 1px solid #cfcfcf; font: inherit; min-height: 38px; padding: 7px 9px; width: 100%; }
-.league-division-row { display: grid; gap: 8px; grid-template-columns: 1fr auto; margin-top: 12px; }
+.league-division-row { display: grid; gap: 8px; grid-template-columns: minmax(180px,1fr) auto auto; margin-top: 12px; }
+.admin-actions-inline { align-items: center; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.admin-panel-heading { align-items: start; display: flex; gap: 16px; justify-content: space-between; }
+.admin-panel-heading h2 { margin-top: 0; }
+.data-source-row { align-items: center; display: grid; gap: 8px; grid-template-columns: 1.1fr 1fr 1.2fr 145px 145px 80px auto auto; margin-top: 10px; }
+.data-source-row input,.data-source-row select { border: 1px solid #cfcfcf; font: inherit; min-height: 40px; padding: 7px 9px; width: 100%; }
+.structure-create-button { align-self: end; min-height: 42px; }
+.is-inactive { opacity: .58; }
 @media(max-width:760px){.league-structure-grid{grid-template-columns:1fr;}}
+@media(max-width:1000px){.data-source-row{grid-template-columns:1fr 1fr;}}

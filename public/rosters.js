@@ -2,10 +2,8 @@ import { getSupabaseClient, requireSession } from "./auth.js";
 
 const API_ROOT = "https://statsapi.mlb.com/api/v1";
 const ESPN_NEWS_ROOT = "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/news";
-const SEASON = "2026";
-const SEASON_START = "2026-03-26";
 const PLAYER_ID_KEY = "ownersclub.rosterMlbPlayerIds";
-const LEAGUES = ["Keystone", "Diamond"];
+let LEAGUES = [];
 const CHUNK_SIZE = 80;
 
 const hitterRules = [
@@ -62,6 +60,7 @@ let accessibleLeagues = [];
 let isAdmin = false;
 let lineupSubscription = null;
 let lineupRefreshTimer = 0;
+let activeSeasonNumber = 32;
 let state = {
   league: normalizeLeague(query.get("league")),
   date: query.get("date") || todayString(),
@@ -78,8 +77,11 @@ function todayString() {
 
 function normalizeLeague(value) {
   const text = String(value || "").toLowerCase();
-  return LEAGUES.find((league) => league.toLowerCase() === text) || "";
+  return LEAGUES.find((league) => league.toLowerCase() === text) || String(value || "");
 }
+
+function mlbSeason() { return state.date.slice(0, 4); }
+function mlbSeasonStart() { return `${mlbSeason()}-03-01`; }
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -128,7 +130,7 @@ function addDays(dateString, days) {
 
 function rangeStart() {
   const offsets = { day: 0, week: -6, twoWeeks: -13, month: -29 };
-  if (state.range === "season") return SEASON_START;
+  if (state.range === "season") return mlbSeasonStart();
   return addDays(state.date, offsets[state.range] || 0);
 }
 
@@ -195,7 +197,7 @@ async function loadViewerAccess() {
     supabase.from("public_user_admin").select("is_admin").eq("user_id", session.user.id).maybeSingle(),
     supabase
       .from("public_team_owner_assignments")
-      .select("team_id,team_name,league_code,active")
+      .select("team_id,team_name,league_code,season_number,active")
       .eq("user_id", session.user.id)
       .eq("active", true)
   ]);
@@ -204,10 +206,16 @@ async function loadViewerAccess() {
   if (assignmentsResult.error) throw assignmentsResult.error;
 
   isAdmin = Boolean(profileResult.data?.is_admin);
+  activeSeasonNumber = Number((assignmentsResult.data || [])[0]?.season_number) || activeSeasonNumber;
   ownTeamIds = new Set((assignmentsResult.data || []).map((row) => row.team_id));
-  accessibleLeagues = isAdmin
-    ? [...LEAGUES]
-    : [...new Set((assignmentsResult.data || []).map((row) => row.league_code).filter(Boolean))];
+  const ownerLeagues = [...new Set((assignmentsResult.data || []).map((row) => row.league_code).filter(Boolean))];
+  if (isAdmin) {
+    const { data: activeSeason } = await supabase.from("seasons").select("season_number").eq("status", "active").order("season_number", { ascending: false }).limit(1).maybeSingle();
+    activeSeasonNumber = Number(activeSeason?.season_number) || activeSeasonNumber;
+    const { data: configured } = await supabase.from("public_season_league_structure").select("league_name,league_sort").eq("league_active", true).order("league_sort");
+    LEAGUES = [...new Set((configured || []).map((row) => row.league_name).filter(Boolean))];
+  } else LEAGUES = ownerLeagues;
+  accessibleLeagues = [...LEAGUES];
 
   if (!state.league || !accessibleLeagues.includes(state.league)) {
     state.league = accessibleLeagues[0] || state.league || "Keystone";
@@ -240,7 +248,7 @@ async function loadRosters() {
   const { data, error } = await supabase
     .from("public_team_rosters")
     .select("season_number,league_code,team_id,team_name,player_id,mlb_player_id,player_name,primary_position,eligible_positions,mlb_team_abbreviation,contract_years,acquired_on,acquisition_type")
-    .eq("season_number", 32)
+    .eq("season_number", activeSeasonNumber)
     .eq("league_code", state.league)
     .order("team_name", { ascending: true })
     .order("player_name", { ascending: true });
@@ -275,7 +283,7 @@ async function loadLineups() {
   const { data: scoreRows, error: scoreError } = await supabase
     .from("game_player_daily_score_results")
     .select("id,team_name,player_name,roster_slot,stat_date")
-    .eq("season_number", 32)
+    .eq("season_number", activeSeasonNumber)
     .eq("stat_date", state.date)
     .in("team_name", teamNames)
     .order("team_name", { ascending: true })
@@ -323,7 +331,7 @@ function scoreSlotToLineupSlot(value, counts) {
 
 async function loadActivePlayerLookup() {
   if (activePlayerLookup) return activePlayerLookup;
-  const data = await fetchJson(`${API_ROOT}/sports/1/players?season=${SEASON}`);
+  const data = await fetchJson(`${API_ROOT}/sports/1/players?season=${mlbSeason()}`);
   activePlayerLookup = new Map();
   for (const person of data.people || []) {
     if (!person.fullName) continue;
@@ -388,7 +396,7 @@ async function loadStats() {
 
 async function loadRosterStatuses(idCache) {
   try {
-    const teamsData = await fetchJson(`${API_ROOT}/teams?sportId=1&season=${SEASON}`);
+    const teamsData = await fetchJson(`${API_ROOT}/teams?sportId=1&season=${mlbSeason()}`);
     const teamByAbbr = new Map((teamsData.teams || []).map((team) => [teamAbbr(team), team.id]));
     const rosterTeamIds = [
       ...new Set(rosterRows
@@ -927,7 +935,7 @@ async function renderPlayerGameLog(row) {
   }
   try {
     const group = playerType(row) === "pitcher" ? "pitching" : "hitting";
-    const data = await fetchJson(`${API_ROOT}/people/${mlbId}/stats?stats=gameLog&group=${group}&season=${SEASON}`);
+    const data = await fetchJson(`${API_ROOT}/people/${mlbId}/stats?stats=gameLog&group=${group}&season=${mlbSeason()}`);
     const splits = (data.stats?.[0]?.splits || [])
       .filter((split) => split.date >= lastTwoMonthsStart() && split.date <= state.date)
       .slice()

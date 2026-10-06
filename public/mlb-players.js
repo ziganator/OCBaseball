@@ -1,47 +1,19 @@
+import { getSupabaseClient, requireSession } from "./auth.js";
 const API_ROOT = "https://statsapi.mlb.com/api/v1";
-const SEASON = "2026";
+const SEASON = String(new Date().getFullYear());
 const CHUNK_SIZE = 80;
 
-const ownerClaims = new Map([
-  [691788, { team: "Cleveland Highlanders", league: "Keystone" }],
-  [683737, { team: "Cleveland Highlanders", league: "Keystone" }],
-  [665019, { team: "Cleveland Highlanders", league: "Keystone" }],
-  [656716, { team: "Cleveland Highlanders", league: "Keystone" }],
-  [681082, { team: "Cleveland Highlanders", league: "Keystone" }],
-  [657757, { team: "Cleveland Highlanders", league: "Keystone" }],
-  [808982, { team: "Cleveland Highlanders", league: "Keystone" }],
-  [663968, { team: "Cleveland Highlanders", league: "Keystone" }],
-  [691026, { team: "Cleveland Highlanders", league: "Keystone" }],
-  [676609, { team: "Cleveland Highlanders", league: "Keystone" }],
-  [553993, { team: "Cleveland Highlanders", league: "Keystone" }],
-  [666152, { team: "Cleveland Highlanders", league: "Keystone" }],
-  [663757, { team: "Cleveland Highlanders", league: "Keystone" }],
-  [686217, { team: "Cleveland Highlanders", league: "Keystone" }],
-  [669224, { team: "Cleveland Highlanders", league: "Keystone" }],
-  [592450, { team: "Cleveland Highlanders", league: "Keystone" }],
-  [672820, { team: "Cleveland Highlanders", league: "Keystone" }],
-  [671289, { team: "Cleveland Highlanders", league: "Keystone" }],
-  [666200, { team: "Cleveland Highlanders", league: "Keystone" }],
-  [657277, { team: "Cleveland Highlanders", league: "Keystone" }],
-  [669022, { team: "Cleveland Highlanders", league: "Keystone" }],
-  [593958, { team: "Cleveland Highlanders", league: "Keystone" }],
-  [640448, { team: "Cleveland Highlanders", league: "Keystone" }],
-  [622608, { team: "Cleveland Highlanders", league: "Keystone" }],
-  [663158, { team: "Cleveland Highlanders", league: "Keystone" }],
-  [669358, { team: "Cleveland Highlanders", league: "Keystone" }],
-  [571510, { team: "Cleveland Highlanders", league: "Keystone" }],
-  [641793, { team: "Cleveland Highlanders", league: "Keystone" }],
-  [608032, { team: "Cleveland Highlanders", league: "Keystone" }],
-  [815549, { team: "Cleveland Highlanders", league: "Keystone" }]
-]);
+const ownerClaims = new Map();
 
 const searchEl = document.querySelector("#players-search");
 const typeEl = document.querySelector("#players-type");
 const teamEl = document.querySelector("#players-team");
 const statusEl = document.querySelector("#players-status");
 const bodyEl = document.querySelector("#players-body");
+const availabilityEl = document.querySelector("#players-availability");
 
 let players = [];
+let supabase;
 
 async function fetchJson(url) {
   const response = await fetch(url);
@@ -139,16 +111,19 @@ function filteredPlayers() {
   const query = searchEl.value.trim().toLowerCase();
   const type = typeEl.value;
   const team = teamEl.value;
+  const availability = availabilityEl.value;
   return players.filter((player) => {
     if (query && !player.fullName.toLowerCase().includes(query)) return false;
     if (type !== "all" && playerType(player) !== type) return false;
     if (team !== "all" && teamAbbrev(player) !== team) return false;
+    if (availability === "available" && claimFor(player)) return false;
+    if (availability === "claimed" && !claimFor(player)) return false;
     return true;
   });
 }
 
 function render() {
-  const visible = filteredPlayers().slice(0, 500);
+  const visible = filteredPlayers();
   const claimedCount = visible.filter(claimFor).length;
   bodyEl.innerHTML = visible.map(tableRow).join("");
   statusEl.textContent = `Showing ${visible.length} of ${players.length} active MLB players. ${claimedCount} shown as claimed in Owners Club.`;
@@ -179,6 +154,11 @@ async function hydratePlayers(basePlayers) {
 
 async function loadPlayers() {
   try {
+    await requireSession();
+    supabase = await getSupabaseClient();
+    const { data: rosterClaims, error: claimsError } = await supabase.from("public_team_rosters").select("mlb_player_id,team_name,league_code");
+    if (claimsError) throw claimsError;
+    for (const claim of rosterClaims || []) if (claim.mlb_player_id) ownerClaims.set(Number(claim.mlb_player_id), { team: claim.team_name, league: claim.league_code });
     const data = await fetchJson(`${API_ROOT}/sports/1/players?season=${SEASON}`);
     const activePlayers = (data.people || []).filter((player) => player.active);
     statusEl.textContent = `Found ${activePlayers.length} active players. Loading current stats...`;
@@ -191,8 +171,9 @@ async function loadPlayers() {
   }
 }
 
-[searchEl, typeEl, teamEl].forEach((element) => element.addEventListener("input", render));
+[searchEl, typeEl, teamEl, availabilityEl].forEach((element) => element.addEventListener("input", render));
 teamEl.addEventListener("change", render);
 typeEl.addEventListener("change", render);
+availabilityEl.addEventListener("change", render);
 
 loadPlayers();

@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/styles.css?v=20260731j">
+    <link rel="stylesheet" href="/styles.css?v=20261005b">
   </head>
   <body>
     <header class="site-header menu-header">
@@ -69,19 +69,11 @@
                 <label>Team Name <input name="nickname" required></label>
                 <label>Owner <input name="owner"></label>
                 <label>Established <input name="established"></label>
-                <label>League
-                  <select name="league">
-                    <option>Keystone</option>
-                    <option>Diamond</option>
-                  </select>
-                </label>
-                <label>Conference
-                  <select name="conference">
-                    <option>Red</option>
-                    <option>Black</option>
-                  </select>
-                </label>
-                <label>Division <input name="division"></label>
+                <label>Major League <input name="majorLeague" readonly></label>
+                <label>Season <select name="seasonId" id="team-season-select"></select></label>
+                <label>League <input name="league" readonly></label>
+                <label>Conference <input name="conference" readonly></label>
+                <label>Division <select name="divisionId" id="team-division-select"></select></label>
               </div>
             </section>
 
@@ -157,6 +149,6 @@
       <span>Owners Club Baseball ALL RIGHTS RESERVED &reg;</span>
     </footer>
 
-    <script src="/admin-teams.js?v=20260731j" type="module"></script>
+    <script src="/admin-teams.js?v=20261005b" type="module"></script>
   </body>
 </html>
