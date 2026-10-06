@@ -5084,3 +5084,38 @@ tbody tr:last-child td {
 .is-inactive { opacity: .58; }
 @media(max-width:760px){.league-structure-grid{grid-template-columns:1fr;}}
 @media(max-width:1000px){.data-source-row{grid-template-columns:1fr 1fr;}}
+
+/* League structure administration */
+.league-admin-page [hidden] { display: none !important; }
+.league-admin-page .admin-panel { border: 0; border-radius: 8px; box-shadow: 0 2px 12px rgba(20,31,48,.09); margin-bottom: 24px; padding: 24px; }
+.structure-overview-grid { display: grid; gap: 24px; grid-template-columns: repeat(2,minmax(0,1fr)); }
+.structure-card { display: flex; flex-direction: column; }
+.structure-card-heading { align-items: flex-start; display: flex; gap: 14px; margin-bottom: 22px; }
+.structure-card-heading h2 { margin: 0 0 4px; }
+.structure-card-heading p { color: #69717c; font-size: 14px; line-height: 1.45; margin: 0; }
+.structure-level,.structure-plus,.builder-title > span { align-items: center; background: var(--red); border-radius: 50%; color: #fff; display: inline-flex; flex: 0 0 auto; font-family: "Oswald",sans-serif; font-size: 18px; font-weight: 700; height: 34px; justify-content: center; width: 34px; }
+.structure-plus { font-size: 26px; }
+.league-form-grid { display: grid; gap: 16px; grid-template-columns: repeat(2,minmax(0,1fr)); }
+.field-wide { grid-column: 1 / -1; }
+.league-admin-page label:not(.admin-check),.structure-builder-card label { color: #4f5660; display: grid; font-size: 11px; font-weight: 800; gap: 7px; letter-spacing: .04em; text-transform: uppercase; }
+.league-admin-page input:not([type="checkbox"]),.league-admin-page select { appearance: none; background-color: #fff; border: 1px solid #c7ccd3; border-radius: 6px; box-sizing: border-box; color: #1f2733; font: 600 15px/1.2 "Open Sans",sans-serif; min-height: 46px; padding: 10px 13px; width: 100%; }
+.league-admin-page select { background-image: linear-gradient(45deg,transparent 50%,#5d6570 50%),linear-gradient(135deg,#5d6570 50%,transparent 50%); background-position: calc(100% - 18px) 19px,calc(100% - 12px) 19px; background-repeat: no-repeat; background-size: 6px 6px; padding-right: 38px; }
+.league-admin-page input:not([type="checkbox"]):focus,.league-admin-page select:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(180,0,0,.11); outline: 0; }
+.league-admin-page .admin-check { border-radius: 6px; min-height: 46px; }
+.structure-card .admin-actions { margin-top: auto; padding-top: 20px; }
+.create-major-panel { background: linear-gradient(135deg,#fff 0%,#fff7f7 100%); border-left: 5px solid var(--red) !important; }
+.inline-create-form { align-items: end; display: grid; gap: 12px; grid-template-columns: minmax(240px,1fr) auto; }
+.create-season-panel { border-top: 4px solid var(--red) !important; }
+.create-season-fields { margin-bottom: 18px; }
+.add-structure-panel { padding-bottom: 28px !important; }
+.structure-builder { display: grid; gap: 16px; grid-template-columns: repeat(3,minmax(0,1fr)); }
+.structure-builder-card { background: #f7f8fa; border: 1px solid #dde1e6; border-radius: 7px; display: flex; flex-direction: column; gap: 15px; padding: 18px; position: relative; }
+.structure-builder-card:not(:last-child)::after { color: #aab0b8; content: "→"; font-size: 22px; font-weight: 800; position: absolute; right: -22px; top: 24px; z-index: 2; }
+.builder-title { align-items: center; display: flex; gap: 11px; }
+.builder-title > span { height: 30px; width: 30px; }
+.builder-title strong { color: #242b34; display: block; font-family: "Oswald",sans-serif; font-size: 20px; text-transform: uppercase; }
+.builder-title small { color: #747c86; display: block; font-size: 11px; margin-top: 2px; }
+.structure-builder-card button { margin-top: auto; width: 100%; }
+.league-admin-page .data-source-row { background: #f7f8fa; border: 1px solid #dde1e6; border-radius: 7px; padding: 12px; }
+@media(max-width:900px){.structure-overview-grid,.structure-builder{grid-template-columns:1fr}.structure-builder-card:not(:last-child)::after{content:"↓";bottom:-23px;left:50%;right:auto;top:auto}.inline-create-form{grid-template-columns:1fr}.inline-create-form button{width:100%}}
+@media(max-width:600px){.league-form-grid{grid-template-columns:1fr}.field-wide{grid-column:auto}.league-admin-page .admin-panel{padding:18px}.admin-panel-heading{align-items:stretch;flex-direction:column}}
